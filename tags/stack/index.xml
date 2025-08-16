@@ -2,20 +2,20 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Stack on pipo&#39;s site</title>
-    <link>https://texify3.michaelneuper.com/tags/stack/</link>
+    <link>https://asgpipo.github.io/tags/stack/</link>
     <description>Recent content in Stack on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 29 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://texify3.michaelneuper.com/tags/stack/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 29 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/stack/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Stack 基础总结</title>
-      <link>https://texify3.michaelneuper.com/posts/stack/</link>
+      <link>https://asgpipo.github.io/posts/stack/</link>
       <pubDate>Sun, 29 Sep 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://texify3.michaelneuper.com/posts/stack/</guid>
+      <guid>https://asgpipo.github.io/posts/stack/</guid>
       <description>&lt;h1 id=&#34;栈&#34;&gt;栈&lt;/h1&gt;
 &lt;p&gt;&lt;!-- raw HTML omitted --&gt;栈(Stack)&lt;!-- raw HTML omitted --&gt;属于线性数据结构，它遵循着&lt;!-- raw HTML omitted --&gt;先进后出(FILO)&lt;!-- raw HTML omitted --&gt;原则,就像是在杠铃上的杠铃片，要想拿到最开始放进去的片必须把在它之后的所有杠铃片全部&lt;!-- raw HTML omitted --&gt;弹出(pop)&lt;!-- raw HTML omitted --&gt;,而每次加新片只能在末尾&lt;!-- raw HTML omitted --&gt;压入(push)&lt;!-- raw HTML omitted --&gt;,通常我们把最后一个入栈元素的位置叫做`栈顶`,最先入栈的元素叫做`栈底`.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://texify3.michaelneuper.com/pics/Stack_pop_push.drawio.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/Stack_pop_push.drawio.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;栈的实现&#34;&gt;栈的实现&lt;/h2&gt;
 &lt;p&gt;在CPP中有内置的栈包含在&lt;code&gt;stack&lt;/code&gt;头文件中，但这里我们分别用数组和链表来模拟栈的基本功能。&lt;/p&gt;
 &lt;h4 id=&#34;基于数组的实现方式&#34;&gt;基于数组的实现方式&lt;/h4&gt;
@@ -118,7 +118,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;n&#34;&gt;Node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;next&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;值得注意的是此处新元素的插入与链表直接在尾部插入不同，而是在头部插入，并将新的节点作为头节点。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://texify3.michaelneuper.com/pics/stack_push_linklist_push.png&#34; alt=&#34;链表-从头部插入节点&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/stack_push_linklist_push.png&#34; alt=&#34;链表-从头部插入节点&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;两种实现的对比&#34;&gt;*两种实现的对比&lt;/h2&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;支持操作&lt;/strong&gt;&lt;/p&gt;

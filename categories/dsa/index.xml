@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>DSA on pipo&#39;s site</title>
-    <link>https://texify3.michaelneuper.com/categories/dsa/</link>
+    <link>https://asgpipo.github.io/categories/dsa/</link>
     <description>Recent content in DSA on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 29 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://texify3.michaelneuper.com/categories/dsa/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 29 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/categories/dsa/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Queue</title>
-      <link>https://texify3.michaelneuper.com/posts/%E9%98%9F%E5%88%97/</link>
+      <link>https://asgpipo.github.io/posts/%E9%98%9F%E5%88%97/</link>
       <pubDate>Sun, 29 Sep 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://texify3.michaelneuper.com/posts/%E9%98%9F%E5%88%97/</guid>
+      <guid>https://asgpipo.github.io/posts/%E9%98%9F%E5%88%97/</guid>
       <description>&lt;h1 id=&#34;队列&#34;&gt;队列&lt;/h1&gt;
 &lt;p&gt;&lt;!-- raw HTML omitted --&gt;队列(Queue)&lt;!-- raw HTML omitted --&gt;是遵循&lt;!-- raw HTML omitted --&gt;先进先出(FIFO)&lt;!-- raw HTML omitted --&gt;规则的线性数据结构,正如同它的名字一样，先进入队列排队的元素会首先离开队列，像在羽毛球桶里的羽毛球一样，先放进去的球会从下面先取出来。&lt;/p&gt;
 &lt;!-- raw HTML omitted --&gt;
@@ -185,13 +185,13 @@
     
     <item>
       <title>Stack 基础总结</title>
-      <link>https://texify3.michaelneuper.com/posts/stack/</link>
+      <link>https://asgpipo.github.io/posts/stack/</link>
       <pubDate>Sun, 29 Sep 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://texify3.michaelneuper.com/posts/stack/</guid>
+      <guid>https://asgpipo.github.io/posts/stack/</guid>
       <description>&lt;h1 id=&#34;栈&#34;&gt;栈&lt;/h1&gt;
 &lt;p&gt;&lt;!-- raw HTML omitted --&gt;栈(Stack)&lt;!-- raw HTML omitted --&gt;属于线性数据结构，它遵循着&lt;!-- raw HTML omitted --&gt;先进后出(FILO)&lt;!-- raw HTML omitted --&gt;原则,就像是在杠铃上的杠铃片，要想拿到最开始放进去的片必须把在它之后的所有杠铃片全部&lt;!-- raw HTML omitted --&gt;弹出(pop)&lt;!-- raw HTML omitted --&gt;,而每次加新片只能在末尾&lt;!-- raw HTML omitted --&gt;压入(push)&lt;!-- raw HTML omitted --&gt;,通常我们把最后一个入栈元素的位置叫做`栈顶`,最先入栈的元素叫做`栈底`.&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://texify3.michaelneuper.com/pics/Stack_pop_push.drawio.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/Stack_pop_push.drawio.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;栈的实现&#34;&gt;栈的实现&lt;/h2&gt;
 &lt;p&gt;在CPP中有内置的栈包含在&lt;code&gt;stack&lt;/code&gt;头文件中，但这里我们分别用数组和链表来模拟栈的基本功能。&lt;/p&gt;
 &lt;h4 id=&#34;基于数组的实现方式&#34;&gt;基于数组的实现方式&lt;/h4&gt;
@@ -294,7 +294,7 @@
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;n&#34;&gt;Node&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;val&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;),&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;next&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;k&#34;&gt;nullptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;值得注意的是此处新元素的插入与链表直接在尾部插入不同，而是在头部插入，并将新的节点作为头节点。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://texify3.michaelneuper.com/pics/stack_push_linklist_push.png&#34; alt=&#34;链表-从头部插入节点&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/stack_push_linklist_push.png&#34; alt=&#34;链表-从头部插入节点&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;两种实现的对比&#34;&gt;*两种实现的对比&lt;/h2&gt;
 &lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;支持操作&lt;/strong&gt;&lt;/p&gt;
@@ -326,10 +326,10 @@
     
     <item>
       <title>链表基础总结</title>
-      <link>https://texify3.michaelneuper.com/posts/%E5%88%97%E8%A1%A8/</link>
+      <link>https://asgpipo.github.io/posts/%E5%88%97%E8%A1%A8/</link>
       <pubDate>Sat, 28 Sep 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://texify3.michaelneuper.com/posts/%E5%88%97%E8%A1%A8/</guid>
+      <guid>https://asgpipo.github.io/posts/%E5%88%97%E8%A1%A8/</guid>
       <description>&lt;h1 id=&#34;链表&#34;&gt;链表&lt;/h1&gt;
 &lt;h3 id=&#34;链表基本组成&#34;&gt;链表基本组成&lt;/h3&gt;
 &lt;p&gt;&lt;!-- raw HTML omitted --&gt;链表(linked list)&lt;!-- raw HTML omitted --&gt;属于线性数据结构，其主要由数据本身和指向下一节点的指针构成。&lt;/p&gt;
@@ -534,10 +534,10 @@
     
     <item>
       <title>哈希表基础总结</title>
-      <link>https://texify3.michaelneuper.com/posts/%E5%93%88%E5%B8%8C%E8%A1%A8/</link>
+      <link>https://asgpipo.github.io/posts/%E5%93%88%E5%B8%8C%E8%A1%A8/</link>
       <pubDate>Sat, 10 Aug 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://texify3.michaelneuper.com/posts/%E5%93%88%E5%B8%8C%E8%A1%A8/</guid>
+      <guid>https://asgpipo.github.io/posts/%E5%93%88%E5%B8%8C%E8%A1%A8/</guid>
       <description>&lt;h1 id=&#34;哈希表&#34;&gt;哈希表&lt;/h1&gt;
 &lt;p&gt;&lt;!-- raw HTML omitted --&gt;哈希表(hash table)&lt;!-- raw HTML omitted --&gt;又称作散列表,它是基于键值对(key-value pair)存储和访问数据的一种非线性数据结构。&lt;/p&gt;
 &lt;p&gt;哈希表通过哈希函数将键(key)映射到特定位置来实现对数据的快速存取与访问。&lt;/p&gt;
@@ -545,7 +545,7 @@
 &lt;p&gt;哈希表虽然只要知道键通过哈希函数就可以找到值，但是在哈希表内通常同时存储着键和值。
 其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;可以用函数对应关系理解 $f(key) = address$,  $array[address] = value$。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://texify3.michaelneuper.com/pics/hashmap_hashfun.png&#34; alt=&#34;hashmap_hashfun&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/hashmap_hashfun.png&#34; alt=&#34;hashmap_hashfun&#34;&gt;&lt;/p&gt;
 &lt;table&gt;
   &lt;thead&gt;
       &lt;tr&gt;
@@ -691,7 +691,7 @@
 &lt;p&gt;又或者我存入的数据很多超过了预先申请的桶大小该怎么办，如果它能够自动扩容，那么因为容器大小发生了变化哈希函数的计算方式又会变化，这可能又会引发冲突。&lt;/p&gt;
 &lt;h2 id=&#34;哈希冲突&#34;&gt;哈希冲突&lt;/h2&gt;
 &lt;p&gt;&lt;!-- raw HTML omitted --&gt;哈希冲突(hash collision)&lt;!-- raw HTML omitted --&gt;发生的原因是因为我们输入的内容要远远大于输出的内容，我们有无限的输入通过哈希函数转换成一个固定长度的索引，因此发生哈希冲突是不可避免的。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://texify3.michaelneuper.com/pics/hash_collision.png&#34; alt=&#34;哈希冲突图示&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/hash_collision.png&#34; alt=&#34;哈希冲突图示&#34;&gt;&lt;/p&gt;
 &lt;p&gt;从图中我们可以猜想，如果桶的数量越大那么发生冲突的概率越低，于是我们可以通过扩容来降低哈希冲突的概率。&lt;/p&gt;
 &lt;p&gt;于是我们引入了&lt;!-- raw HTML omitted --&gt;负荷因子(load factor)&lt;!-- raw HTML omitted --&gt;用它来衡量哈希表的冲突程度。
 $$

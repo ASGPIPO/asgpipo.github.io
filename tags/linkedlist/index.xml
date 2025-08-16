@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>LinkedList on pipo&#39;s site</title>
-    <link>https://texify3.michaelneuper.com/tags/linkedlist/</link>
+    <link>https://asgpipo.github.io/tags/linkedlist/</link>
     <description>Recent content in LinkedList on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 28 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://texify3.michaelneuper.com/tags/linkedlist/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 28 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/linkedlist/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>链表基础总结</title>
-      <link>https://texify3.michaelneuper.com/posts/%E5%88%97%E8%A1%A8/</link>
+      <link>https://asgpipo.github.io/posts/%E5%88%97%E8%A1%A8/</link>
       <pubDate>Sat, 28 Sep 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://texify3.michaelneuper.com/posts/%E5%88%97%E8%A1%A8/</guid>
+      <guid>https://asgpipo.github.io/posts/%E5%88%97%E8%A1%A8/</guid>
       <description>&lt;h1 id=&#34;链表&#34;&gt;链表&lt;/h1&gt;
 &lt;h3 id=&#34;链表基本组成&#34;&gt;链表基本组成&lt;/h3&gt;
 &lt;p&gt;&lt;!-- raw HTML omitted --&gt;链表(linked list)&lt;!-- raw HTML omitted --&gt;属于线性数据结构，其主要由数据本身和指向下一节点的指针构成。&lt;/p&gt;

@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>01Package on pipo&#39;s site</title>
-    <link>https://texify3.michaelneuper.com/tags/01package/</link>
+    <link>https://asgpipo.github.io/tags/01package/</link>
     <description>Recent content in 01Package on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 24 Nov 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://texify3.michaelneuper.com/tags/01package/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 24 Nov 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/01package/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>0-1 Package</title>
-      <link>https://texify3.michaelneuper.com/posts/prob/dp-01%E8%83%8C%E5%8C%85/</link>
+      <link>https://asgpipo.github.io/posts/prob/dp-01%E8%83%8C%E5%8C%85/</link>
       <pubDate>Sun, 24 Nov 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://texify3.michaelneuper.com/posts/prob/dp-01%E8%83%8C%E5%8C%85/</guid>
+      <guid>https://asgpipo.github.io/posts/prob/dp-01%E8%83%8C%E5%8C%85/</guid>
       <description>&lt;h1 id=&#34;例题讲解&#34;&gt;例题讲解&lt;/h1&gt;
 &lt;h2 id=&#34;基础的零一背包&#34;&gt;基础的零一背包&lt;/h2&gt;
 &lt;p&gt;给定 背包容量和两个数组.两数组分别代表各物品的价值和体积.&lt;/p&gt;

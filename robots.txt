@@ -1,2 +1,2 @@
 User-agent: *
-Sitemap: https://texify3.michaelneuper.com/sitemap.xml
+Sitemap: https://asgpipo.github.io/sitemap.xml

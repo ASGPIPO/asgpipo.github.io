@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Spring on pipo&#39;s site</title>
-    <link>https://texify3.michaelneuper.com/tags/spring/</link>
+    <link>https://asgpipo.github.io/tags/spring/</link>
     <description>Recent content in Spring on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 03 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://texify3.michaelneuper.com/tags/spring/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 03 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/spring/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Spring Aop</title>
-      <link>https://texify3.michaelneuper.com/posts/spring-aop-202508030950/</link>
+      <link>https://asgpipo.github.io/posts/spring-aop-202508030950/</link>
       <pubDate>Sun, 03 Aug 2025 00:00:00 +0000</pubDate>
       
-      <guid>https://texify3.michaelneuper.com/posts/spring-aop-202508030950/</guid>
+      <guid>https://asgpipo.github.io/posts/spring-aop-202508030950/</guid>
       <description>&lt;h2 id=&#34;1aopaspect-oriented-programming-面向切面编程&#34;&gt;1.AOP(&lt;strong&gt;Aspect-Oriented Programming&lt;/strong&gt;) 面向切面编程&lt;/h2&gt;
 &lt;p&gt;解耦代码
 eg: 有多段类似业务代码,执行时需要进行log输出和判断&lt;/p&gt;
