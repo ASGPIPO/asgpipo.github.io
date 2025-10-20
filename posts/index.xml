@@ -8,9 +8,169 @@
     <language>en</language>
     <lastBuildDate>Sun, 19 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Redis 生产问题</title>
+      <link>https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/</guid>
+      <description>&lt;h1 id=&#34;缓存穿透&#34;&gt;缓存穿透&lt;/h1&gt;
+&lt;p&gt;指使用非法 key 进行请求, 这个 key 不存在于 Redis 缓存和数据库中. 导致数据库一直忙于处理非法 key 的查询请求.&lt;/p&gt;
+&lt;h2 id=&#34;1-缓存空值&#34;&gt;1. 缓存空值&lt;/h2&gt;
+&lt;p&gt;使用 Redis 缓存空值,将不存在的 key 加入缓存,之后直接在 Redis 被拦截.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;优点 :实现简单,成本低.&lt;/li&gt;
+&lt;li&gt;缺点 : 大量不同非法 key 访问会占用大量 redis 缓存.&lt;/li&gt;
+&lt;li&gt;改进: 给空值 key 设置较短的过期时间 或者加入布隆过滤器.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;2-布隆过滤器&#34;&gt;2. 布隆过滤器&lt;/h2&gt;
+&lt;p&gt;使用布隆过滤器首先判断当前请求的数据是否存在, 若不存在直接拦截, &amp;ldquo;存在&amp;quot;后继续交由 redis 进行.
+优点: bloomfilter 使用了散列算法&amp;quot;存储&amp;rdquo;,占用空间极小,速度快.
+缺点: bloomfilter 会出现假阳性,同时无法删除数据.
+改进: 使用 缓存空值兜底,同时定期刷新写入真实的数据.
+&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251019211336.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;缓存击穿&#34;&gt;缓存击穿&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251020085030.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-分布式锁&#34;&gt;1. 分布式锁&lt;/h2&gt;
+&lt;p&gt;通过加入分布式只允许一个线程同时去访问数据库进行缓存重建,其他线程等待缓存好的数据.
+步骤:
+A. redis 缓存未命中,尝试获取锁
+B. 获取锁成功,进行双重检查
+C. 查询数据库
+D.重新加入 Redis 缓存 (若为空则构造空值)&lt;/p&gt;
+&lt;p&gt;缺点:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;导致大量用户被堵塞,体验较差.&lt;/li&gt;
+&lt;li&gt;锁竞争激烈时，性能下降&lt;/li&gt;
+&lt;li&gt;如果锁未正确释放（如程序崩溃），可能导致死锁&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;改进:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用 Redis 的 &lt;code&gt;SET key value NX PX milliseconds&lt;/code&gt; 命令原子操作加锁。&lt;/li&gt;
+&lt;li&gt;加锁失败时，&lt;strong&gt;不要无限等待&lt;/strong&gt;，可以返回“稍后再试”或“默认值”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;2逻辑过期--异步更新&#34;&gt;2.逻辑过期 + 异步更新&lt;/h2&gt;
+&lt;p&gt;在非强一致性场景下,缓存数据时加入逻辑过期时间,若发生过期则先返回旧数据,同时获取分布式锁进行异步更新缓存.
+步骤:
+A. redis 缓存命中, 但此时逻辑过期
+B. 返回旧数据,同时尝试获取锁.
+C. 开启子线程,进行双重检查
+D. 重构缓存
+缺点:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;复杂度较高, 需要维护逻辑过期字段、异步线程、锁机制&lt;/li&gt;
+&lt;li&gt;用户可能无法及时获取到最新数据.&lt;/li&gt;
+&lt;li&gt;内存占用略高,因为缓存不会真正过期，除非手动清理。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;改进:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;对缓存设置较长的过期时间,大于逻辑过期时间.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;3-缓存预热&#34;&gt;3. 缓存预热&lt;/h2&gt;
+&lt;p&gt;针对热点数据提前预热，将其存入缓存中并设置合理的过期时间比如秒杀场景下的数据在秒杀结束之前不过期。&lt;/p&gt;
+&lt;h1 id=&#34;缓存雪崩&#34;&gt;缓存雪崩&lt;/h1&gt;
+&lt;p&gt;指缓存内&lt;strong&gt;同时出现大量 key 过期&lt;/strong&gt;或者 &lt;strong&gt;Redis 奔溃重启,没有缓存&lt;/strong&gt;任何key,导致大量的请求都直接落到了数据库上，对数据库造成了巨大的压力。&lt;/p&gt;
+&lt;h2 id=&#34;1-随机过期时间&#34;&gt;1. 随机过期时间&lt;/h2&gt;
+&lt;p&gt;通过 在 Redis 重构缓存时在过期时间中加入随机抖动使得过期时间均匀分散,避免了大量 key 同时过期的情况.&lt;/p&gt;
+&lt;h2 id=&#34;2-redis-集群&#34;&gt;2. Redis 集群&lt;/h2&gt;
+&lt;p&gt;通过构建 Redis 主从架构+哨兵机制实现, 当主节点下线后,哨兵会自动把从节点提升为主节点. 多个节点保证了不会出现缓存全部消失的情况.&lt;/p&gt;
+&lt;h2 id=&#34;服务降级--熔断&#34;&gt;**服务降级 &amp;amp; 熔断&lt;/h2&gt;
+&lt;p&gt;当数据库压力过大时：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;返回&lt;strong&gt;默认值&lt;/strong&gt;（如“系统繁忙，请稍后再试”）。&lt;/li&gt;
+&lt;li&gt;启用&lt;strong&gt;本地缓存&lt;/strong&gt;（如 Caffeine）作为二级缓存。&lt;/li&gt;
+&lt;li&gt;使用&lt;strong&gt;限流&lt;/strong&gt;（如 Sentinel、Hystrix）保护数据库。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;3.预热数据&lt;/p&gt;&lt;/blockquote&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Redis RDB &amp; AOF</title>
+      <link>https://asgpipo.github.io/posts/redis/rdb--aof/</link>
+      <pubDate>Fri, 17 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/redis/rdb--aof/</guid>
+      <description>&lt;h1 id=&#34;rdb&#34;&gt;RDB&lt;/h1&gt;
+&lt;p&gt;RDB是对 Redis 某一瞬间 保存的全量快照,本质上是一份二进制文件,用来在 Redis 重启或丢失数据后进行恢复,通常用作数据恢复、主从全量同步以及定期备份.&lt;/p&gt;
+&lt;h2 id=&#34;执行方式&#34;&gt;执行方式&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251017093754.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;1手动&#34;&gt;1.手动&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;可以通过 `SAVE` 与 `BGSAVE` 手动执行 RDB 备份, `SAVE` 命令会在主线程内进行备份操作,此时Redis主线程会被堵塞直到写入 RDB 完成.
+使用 `BGSAVE` 时 则是通过 `fork` 一个子线程进行写时复制写入硬盘,不会造成 Redis 主线程堵塞.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Copy-On-Write（写时复制）&lt;/strong&gt; 是一种 &lt;strong&gt;优化内存使用和提升性能的系统级技术&lt;/strong&gt;，广泛用于操作系统（如 Linux）、数据库、虚拟化等领域。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;多个进程/线程共享同一份物理内存，只有当某个进程试图“修改”数据时，才真正复制一份私有副本。&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;读操作&lt;/strong&gt;：直接共享原始数据，&lt;strong&gt;无需复制&lt;/strong&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;写操作&lt;/strong&gt;：触发复制，之后修改的是副本，不影响原数据。&lt;/li&gt;
+&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;h3 id=&#34;2-自动通过配置文件&#34;&gt;2. 自动(通过配置文件)&lt;/h3&gt;
+&lt;p&gt;Redis 支持通过在 &lt;code&gt;redis.conf&lt;/code&gt; 文件中配置 &lt;code&gt;save&lt;/code&gt; 选项，让服务器每隔一段时间自动执行一次 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;code&gt;save&lt;/code&gt; 选项可以设置多个保存条件，只要其中任意一个条件被满足，服务器就会执行 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;/p&gt;
+&lt;p&gt;【示例】&lt;code&gt;redis.conf&lt;/code&gt; 中自动保存配置&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 900 秒内，至少对数据库进行了 1 次修改
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;save 900 1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 300 秒内，至少对数据库进行了 10 次修改
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;save 300 10
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 60 秒内，至少对数据库进行了 10000 次修改
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;save 60 10000
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;只要满足以上任意条件，Redis 服务就会执行 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;/p&gt;
+&lt;h2 id=&#34;rdb-优缺点&#34;&gt;RDB 优缺点&lt;/h2&gt;
+&lt;h3 id=&#34;优点&#34;&gt;优点&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;重启后加载快, 相比 AOF 命令执行式恢复, RDB本质就是压缩过的二进制文件,只需要将其全部读入内存即可.&lt;/li&gt;
+&lt;li&gt;相比 AOF RDB空间利用率更高.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;缺点&#34;&gt;缺点&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;备份频率较低,每次只能全量备份,如果在备份开始前发生故障,会导致丢失大量数据,无法满足强一致性.&lt;/li&gt;
+&lt;li&gt;备份时间长,如果数据量很大，保存快照的时间会很长.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1 id=&#34;aofappend-only-file&#34;&gt;AOF（Append Only File）&lt;/h1&gt;
+&lt;p&gt;AOF 是 Redis 的另一种持久化机制，它通过&lt;strong&gt;记录服务器接收到的每一个写命令&lt;/strong&gt;，以日志形式追加到文件末尾。在 Redis 重启时，通过&lt;strong&gt;重新执行 AOF 文件中的命令&lt;/strong&gt;来恢复数据。AOF 文件是&lt;strong&gt;可读的文本格式&lt;/strong&gt;，通常用于对数据安全性要求较高的场景。&lt;/p&gt;
+&lt;h2 id=&#34;执行方式-1&#34;&gt;执行方式&lt;/h2&gt;
+&lt;h3 id=&#34;1-手动&#34;&gt;1. 手动&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;开启 AOF&lt;/strong&gt;：默认关闭，需在 &lt;code&gt;redis.conf&lt;/code&gt; 中设置 &lt;code&gt;appendonly yes&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;重写 AOF&lt;/strong&gt;：执行 &lt;code&gt;BGREWRITEAOF&lt;/code&gt; 命令，Redis 会 fork 一个子进程，根据当前数据库状态生成一个&lt;strong&gt;更紧凑的新 AOF 文件&lt;/strong&gt;（利用 Copy-On-Write 机制，不阻塞主线程）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;2-自动通过配置文件-1&#34;&gt;2. 自动（通过配置文件）&lt;/h3&gt;
+&lt;p&gt;AOF 的同步策略由 &lt;code&gt;appendfsync&lt;/code&gt; 配置项控制，决定写命令何时从缓冲区刷入磁盘：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 每次写操作都同步到磁盘（最安全，性能最差）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;appendfsync always
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 每秒同步一次（默认推荐，平衡安全与性能）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;appendfsync everysec
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 由操作系统决定何时同步（性能最好，但可能丢失较多数据）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;appendfsync no
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;此外，AOF 重写也可自动触发，通过以下配置：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 当 AOF 文件大小超过上一次重写后大小的指定百分比时，自动触发重写
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;auto-aof-rewrite-percentage 100
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# AOF 文件至少达到指定大小（字节）才触发自动重写
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;auto-aof-rewrite-min-size 64mb
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;aof-优缺点&#34;&gt;AOF 优缺点&lt;/h2&gt;
+&lt;h3 id=&#34;优点-1&#34;&gt;优点&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;数据更安全&lt;/strong&gt;：&lt;code&gt;everysec&lt;/code&gt; 模式下最多丢失 1 秒数据，&lt;code&gt;always&lt;/code&gt; 模式可做到几乎零丢失。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;可读可编辑&lt;/strong&gt;：AOF 是纯文本格式，若误操作（如误删 key），可手动修改文件删除对应命令后恢复。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;自动压缩&lt;/strong&gt;：通过重写机制，可将冗余命令（如多次 &lt;code&gt;INCR&lt;/code&gt;）合并为一条 &lt;code&gt;SET&lt;/code&gt;，减小文件体积。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;缺点-1&#34;&gt;缺点&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;文件体积大&lt;/strong&gt;：相比 RDB，AOF 通常更大（尽管重写可优化）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;恢复速度慢&lt;/strong&gt;：需逐条重放命令，大数据集下恢复时间远长于 RDB。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;性能开销&lt;/strong&gt;：尤其在 &lt;code&gt;always&lt;/code&gt; 模式下，每次写操作都需同步磁盘，影响吞吐量。&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+    <item>
       <title>Redis 数据结构</title>
       <link>https://asgpipo.github.io/posts/redis/redis-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
-      <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 16 Oct 2025 00:00:00 +0000</pubDate>
       
       <guid>https://asgpipo.github.io/posts/redis/redis-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251016093545.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
@@ -302,7 +462,7 @@
 &lt;/ul&gt;
 &lt;h1 id=&#34;压缩列表是怎么实现的&#34;&gt;压缩列表是怎么实现的？&lt;/h1&gt;
 &lt;p&gt;压缩列表是 Redis 为了节约内存而开发的，它是&lt;strong&gt;由连续内存块组成的顺序型数据结构&lt;/strong&gt;，有点类似于数组。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274310-9c8cdfac-fca9-4357-86ef-583dac7cad8a.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/ziplist1.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;p&gt;压缩列表在表头有三个字段：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;em&gt;&lt;strong&gt;zlbytes&lt;/strong&gt;&lt;/em&gt;，记录整个压缩列表占用对内存字节数；&lt;/li&gt;
@@ -312,7 +472,7 @@
 &lt;/ul&gt;
 &lt;p&gt;在压缩列表中，如果我们要查找定位首尾元素通过表头三个字段（zllen）的长度直接定位，复杂度是 O(1)。&lt;strong&gt;查找其他元素时，只能逐个查找O(N) ，因此压缩列表不适合保存过多的元素&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;另外，压缩列表节点（entry）的构成如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274295-9438e5b1-93e0-4ab3-a15b-4d0e99409b7f.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/ziplistinner.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;p&gt;压缩列表节点包含三部分内容：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;prevlen&lt;/strong&gt;，记录了「前一个节点」的长度，目的是为了实现从后向前遍历；&lt;/li&gt;
@@ -326,7 +486,7 @@
 &lt;p&gt;虽说如此，Redis 针对压缩列表在设计上的不足，在后来的版本中，新增设计了两种数据结构：quicklist（Redis 3.2 引入） 和 listpack（Redis 5.0 引入）。这两种数据结构的设计目标，就是尽可能地保持压缩列表节省内存的优势，同时解决压缩列表的「连锁更新」的问题。&lt;/p&gt;
 &lt;p&gt;listpack 采用了压缩列表的很多优秀的设计，比如还是用一块连续的内存空间来紧凑地保存数据，并且为了节省内存的开销，listpack 节点会采用不同的编码方式保存不同大小的数据。&lt;/p&gt;
 &lt;p&gt;我们先看看 listpack 结构：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274304-f793ea11-1f5c-4002-a637-b73076232e3d.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/listpack1.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;p&gt;listpack 头包含两个属性，分别记录了 listpack 总字节数和元素数量，然后 listpack 末尾也有个结尾标识。图中的 listpack entry 就是 listpack 的节点了。&lt;/p&gt;
 &lt;p&gt;每个 listpack 节点结构如下：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/listpack.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
@@ -337,166 +497,6 @@
 &lt;li&gt;len，encoding+data的总长度；&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;可以看到，&lt;strong&gt;listpack 没有压缩列表中记录前一个节点长度的字段了，listpack 只记录当前节点的长度，当我们向 listpack 加入一个新元素的时候，不会影响其他节点的长度字段的变化，从而避免了压缩列表的连锁更新问题&lt;/strong&gt;。&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Redis 生产问题</title>
-      <link>https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/</link>
-      <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
-      
-      <guid>https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/</guid>
-      <description>&lt;h1 id=&#34;缓存穿透&#34;&gt;缓存穿透&lt;/h1&gt;
-&lt;p&gt;指使用非法 key 进行请求, 这个 key 不存在于 Redis 缓存和数据库中. 导致数据库一直忙于处理非法 key 的查询请求.&lt;/p&gt;
-&lt;h2 id=&#34;1-缓存空值&#34;&gt;1. 缓存空值&lt;/h2&gt;
-&lt;p&gt;使用 Redis 缓存空值,将不存在的 key 加入缓存,之后直接在 Redis 被拦截.&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;优点 :实现简单,成本低.&lt;/li&gt;
-&lt;li&gt;缺点 : 大量不同非法 key 访问会占用大量 redis 缓存.&lt;/li&gt;
-&lt;li&gt;改进: 给空值 key 设置较短的过期时间 或者加入布隆过滤器.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;2-布隆过滤器&#34;&gt;2. 布隆过滤器&lt;/h2&gt;
-&lt;p&gt;使用布隆过滤器首先判断当前请求的数据是否存在, 若不存在直接拦截, &amp;ldquo;存在&amp;quot;后继续交由 redis 进行.
-优点: bloomfilter 使用了散列算法&amp;quot;存储&amp;rdquo;,占用空间极小,速度快.
-缺点: bloomfilter 会出现假阳性,同时无法删除数据.
-改进: 使用 缓存空值兜底,同时定期刷新写入真实的数据.
-&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251019211336.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
-&lt;hr&gt;
-&lt;h1 id=&#34;缓存击穿&#34;&gt;缓存击穿&lt;/h1&gt;
-&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251020085030.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
-&lt;h2 id=&#34;1-分布式锁&#34;&gt;1. 分布式锁&lt;/h2&gt;
-&lt;p&gt;通过加入分布式只允许一个线程同时去访问数据库进行缓存重建,其他线程等待缓存好的数据.
-步骤:
-A. redis 缓存未命中,尝试获取锁
-B. 获取锁成功,进行双重检查
-C. 查询数据库
-D.重新加入 Redis 缓存 (若为空则构造空值)&lt;/p&gt;
-&lt;p&gt;缺点:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;导致大量用户被堵塞,体验较差.&lt;/li&gt;
-&lt;li&gt;锁竞争激烈时，性能下降&lt;/li&gt;
-&lt;li&gt;如果锁未正确释放（如程序崩溃），可能导致死锁&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;改进:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;使用 Redis 的 &lt;code&gt;SET key value NX PX milliseconds&lt;/code&gt; 命令原子操作加锁。&lt;/li&gt;
-&lt;li&gt;加锁失败时，&lt;strong&gt;不要无限等待&lt;/strong&gt;，可以返回“稍后再试”或“默认值”。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;2逻辑过期--异步更新&#34;&gt;2.逻辑过期 + 异步更新&lt;/h2&gt;
-&lt;p&gt;在非强一致性场景下,缓存数据时加入逻辑过期时间,若发生过期则先返回旧数据,同时获取分布式锁进行异步更新缓存.
-步骤:
-A. redis 缓存命中, 但此时逻辑过期
-B. 返回旧数据,同时尝试获取锁.
-C. 开启子线程,进行双重检查
-D. 重构缓存
-缺点:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;复杂度较高, 需要维护逻辑过期字段、异步线程、锁机制&lt;/li&gt;
-&lt;li&gt;用户可能无法及时获取到最新数据.&lt;/li&gt;
-&lt;li&gt;内存占用略高,因为缓存不会真正过期，除非手动清理。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;改进:&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;对缓存设置较长的过期时间,大于逻辑过期时间.&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h2 id=&#34;3-缓存预热&#34;&gt;3. 缓存预热&lt;/h2&gt;
-&lt;p&gt;针对热点数据提前预热，将其存入缓存中并设置合理的过期时间比如秒杀场景下的数据在秒杀结束之前不过期。&lt;/p&gt;
-&lt;h1 id=&#34;缓存雪崩&#34;&gt;缓存雪崩&lt;/h1&gt;
-&lt;p&gt;指缓存内&lt;strong&gt;同时出现大量 key 过期&lt;/strong&gt;或者 &lt;strong&gt;Redis 奔溃重启,没有缓存&lt;/strong&gt;任何key,导致大量的请求都直接落到了数据库上，对数据库造成了巨大的压力。&lt;/p&gt;
-&lt;h2 id=&#34;1-随机过期时间&#34;&gt;1. 随机过期时间&lt;/h2&gt;
-&lt;p&gt;通过 在 Redis 重构缓存时在过期时间中加入随机抖动使得过期时间均匀分散,避免了大量 key 同时过期的情况.&lt;/p&gt;
-&lt;h2 id=&#34;2-redis-集群&#34;&gt;2. Redis 集群&lt;/h2&gt;
-&lt;p&gt;通过构建 Redis 主从架构+哨兵机制实现, 当主节点下线后,哨兵会自动把从节点提升为主节点. 多个节点保证了不会出现缓存全部消失的情况.&lt;/p&gt;
-&lt;h2 id=&#34;服务降级--熔断&#34;&gt;**服务降级 &amp;amp; 熔断&lt;/h2&gt;
-&lt;p&gt;当数据库压力过大时：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;返回&lt;strong&gt;默认值&lt;/strong&gt;（如“系统繁忙，请稍后再试”）。&lt;/li&gt;
-&lt;li&gt;启用&lt;strong&gt;本地缓存&lt;/strong&gt;（如 Caffeine）作为二级缓存。&lt;/li&gt;
-&lt;li&gt;使用&lt;strong&gt;限流&lt;/strong&gt;（如 Sentinel、Hystrix）保护数据库。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;blockquote&gt;
-&lt;p&gt;3.预热数据&lt;/p&gt;&lt;/blockquote&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>Redis RDB &amp; AOF</title>
-      <link>https://asgpipo.github.io/posts/redis/rdb--aof/</link>
-      <pubDate>Fri, 17 Oct 2025 00:00:00 +0000</pubDate>
-      
-      <guid>https://asgpipo.github.io/posts/redis/rdb--aof/</guid>
-      <description>&lt;h1 id=&#34;rdb&#34;&gt;RDB&lt;/h1&gt;
-&lt;p&gt;RDB是对 Redis 某一瞬间 保存的全量快照,本质上是一份二进制文件,用来在 Redis 重启或丢失数据后进行恢复,通常用作数据恢复、主从全量同步以及定期备份.&lt;/p&gt;
-&lt;h2 id=&#34;执行方式&#34;&gt;执行方式&lt;/h2&gt;
-&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251017093754.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
-&lt;h3 id=&#34;1手动&#34;&gt;1.手动&lt;/h3&gt;
-&lt;pre&gt;&lt;code&gt;可以通过 `SAVE` 与 `BGSAVE` 手动执行 RDB 备份, `SAVE` 命令会在主线程内进行备份操作,此时Redis主线程会被堵塞直到写入 RDB 完成.
-使用 `BGSAVE` 时 则是通过 `fork` 一个子线程进行写时复制写入硬盘,不会造成 Redis 主线程堵塞.
-&lt;/code&gt;&lt;/pre&gt;
-&lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;Copy-On-Write（写时复制）&lt;/strong&gt; 是一种 &lt;strong&gt;优化内存使用和提升性能的系统级技术&lt;/strong&gt;，广泛用于操作系统（如 Linux）、数据库、虚拟化等领域。&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;多个进程/线程共享同一份物理内存，只有当某个进程试图“修改”数据时，才真正复制一份私有副本。&lt;/strong&gt;&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;读操作&lt;/strong&gt;：直接共享原始数据，&lt;strong&gt;无需复制&lt;/strong&gt;；&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;写操作&lt;/strong&gt;：触发复制，之后修改的是副本，不影响原数据。&lt;/li&gt;
-&lt;/ul&gt;&lt;/blockquote&gt;
-&lt;h3 id=&#34;2-自动通过配置文件&#34;&gt;2. 自动(通过配置文件)&lt;/h3&gt;
-&lt;p&gt;Redis 支持通过在 &lt;code&gt;redis.conf&lt;/code&gt; 文件中配置 &lt;code&gt;save&lt;/code&gt; 选项，让服务器每隔一段时间自动执行一次 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;code&gt;save&lt;/code&gt; 选项可以设置多个保存条件，只要其中任意一个条件被满足，服务器就会执行 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;/p&gt;
-&lt;p&gt;【示例】&lt;code&gt;redis.conf&lt;/code&gt; 中自动保存配置&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 900 秒内，至少对数据库进行了 1 次修改
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;save 900 1
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 300 秒内，至少对数据库进行了 10 次修改
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;save 300 10
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 60 秒内，至少对数据库进行了 10000 次修改
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;save 60 10000
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;只要满足以上任意条件，Redis 服务就会执行 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;/p&gt;
-&lt;h2 id=&#34;rdb-优缺点&#34;&gt;RDB 优缺点&lt;/h2&gt;
-&lt;h3 id=&#34;优点&#34;&gt;优点&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;重启后加载快, 相比 AOF 命令执行式恢复, RDB本质就是压缩过的二进制文件,只需要将其全部读入内存即可.&lt;/li&gt;
-&lt;li&gt;相比 AOF RDB空间利用率更高.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;缺点&#34;&gt;缺点&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;备份频率较低,每次只能全量备份,如果在备份开始前发生故障,会导致丢失大量数据,无法满足强一致性.&lt;/li&gt;
-&lt;li&gt;备份时间长,如果数据量很大，保存快照的时间会很长.&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h1 id=&#34;aofappend-only-file&#34;&gt;AOF（Append Only File）&lt;/h1&gt;
-&lt;p&gt;AOF 是 Redis 的另一种持久化机制，它通过&lt;strong&gt;记录服务器接收到的每一个写命令&lt;/strong&gt;，以日志形式追加到文件末尾。在 Redis 重启时，通过&lt;strong&gt;重新执行 AOF 文件中的命令&lt;/strong&gt;来恢复数据。AOF 文件是&lt;strong&gt;可读的文本格式&lt;/strong&gt;，通常用于对数据安全性要求较高的场景。&lt;/p&gt;
-&lt;h2 id=&#34;执行方式-1&#34;&gt;执行方式&lt;/h2&gt;
-&lt;h3 id=&#34;1-手动&#34;&gt;1. 手动&lt;/h3&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;开启 AOF&lt;/strong&gt;：默认关闭，需在 &lt;code&gt;redis.conf&lt;/code&gt; 中设置 &lt;code&gt;appendonly yes&lt;/code&gt;。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;重写 AOF&lt;/strong&gt;：执行 &lt;code&gt;BGREWRITEAOF&lt;/code&gt; 命令，Redis 会 fork 一个子进程，根据当前数据库状态生成一个&lt;strong&gt;更紧凑的新 AOF 文件&lt;/strong&gt;（利用 Copy-On-Write 机制，不阻塞主线程）。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;h3 id=&#34;2-自动通过配置文件-1&#34;&gt;2. 自动（通过配置文件）&lt;/h3&gt;
-&lt;p&gt;AOF 的同步策略由 &lt;code&gt;appendfsync&lt;/code&gt; 配置项控制，决定写命令何时从缓冲区刷入磁盘：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 每次写操作都同步到磁盘（最安全，性能最差）
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;appendfsync always
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 每秒同步一次（默认推荐，平衡安全与性能）
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;appendfsync everysec
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 由操作系统决定何时同步（性能最好，但可能丢失较多数据）
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;appendfsync no
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;此外，AOF 重写也可自动触发，通过以下配置：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 当 AOF 文件大小超过上一次重写后大小的指定百分比时，自动触发重写
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;auto-aof-rewrite-percentage 100
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# AOF 文件至少达到指定大小（字节）才触发自动重写
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;auto-aof-rewrite-min-size 64mb
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;aof-优缺点&#34;&gt;AOF 优缺点&lt;/h2&gt;
-&lt;h3 id=&#34;优点-1&#34;&gt;优点&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;数据更安全&lt;/strong&gt;：&lt;code&gt;everysec&lt;/code&gt; 模式下最多丢失 1 秒数据，&lt;code&gt;always&lt;/code&gt; 模式可做到几乎零丢失。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;可读可编辑&lt;/strong&gt;：AOF 是纯文本格式，若误操作（如误删 key），可手动修改文件删除对应命令后恢复。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;自动压缩&lt;/strong&gt;：通过重写机制，可将冗余命令（如多次 &lt;code&gt;INCR&lt;/code&gt;）合并为一条 &lt;code&gt;SET&lt;/code&gt;，减小文件体积。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;h3 id=&#34;缺点-1&#34;&gt;缺点&lt;/h3&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;文件体积大&lt;/strong&gt;：相比 RDB，AOF 通常更大（尽管重写可优化）。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;恢复速度慢&lt;/strong&gt;：需逐条重放命令，大数据集下恢复时间远长于 RDB。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;性能开销&lt;/strong&gt;：尤其在 &lt;code&gt;always&lt;/code&gt; 模式下，每次写操作都需同步磁盘，影响吞吐量。&lt;/li&gt;
-&lt;/ol&gt;
 </description>
     </item>
     

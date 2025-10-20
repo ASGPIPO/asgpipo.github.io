@@ -6,11 +6,11 @@
     <description>Recent content in 数据结构 on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sun, 19 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 16 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Redis 数据结构</title>
       <link>https://asgpipo.github.io/posts/redis/redis-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
-      <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 16 Oct 2025 00:00:00 +0000</pubDate>
       
       <guid>https://asgpipo.github.io/posts/redis/redis-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
       <description>&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251016093545.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
@@ -302,7 +302,7 @@
 &lt;/ul&gt;
 &lt;h1 id=&#34;压缩列表是怎么实现的&#34;&gt;压缩列表是怎么实现的？&lt;/h1&gt;
 &lt;p&gt;压缩列表是 Redis 为了节约内存而开发的，它是&lt;strong&gt;由连续内存块组成的顺序型数据结构&lt;/strong&gt;，有点类似于数组。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274310-9c8cdfac-fca9-4357-86ef-583dac7cad8a.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/ziplist1.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;p&gt;压缩列表在表头有三个字段：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;em&gt;&lt;strong&gt;zlbytes&lt;/strong&gt;&lt;/em&gt;，记录整个压缩列表占用对内存字节数；&lt;/li&gt;
@@ -312,7 +312,7 @@
 &lt;/ul&gt;
 &lt;p&gt;在压缩列表中，如果我们要查找定位首尾元素通过表头三个字段（zllen）的长度直接定位，复杂度是 O(1)。&lt;strong&gt;查找其他元素时，只能逐个查找O(N) ，因此压缩列表不适合保存过多的元素&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;另外，压缩列表节点（entry）的构成如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274295-9438e5b1-93e0-4ab3-a15b-4d0e99409b7f.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/ziplistinner.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;p&gt;压缩列表节点包含三部分内容：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;prevlen&lt;/strong&gt;，记录了「前一个节点」的长度，目的是为了实现从后向前遍历；&lt;/li&gt;
@@ -326,7 +326,7 @@
 &lt;p&gt;虽说如此，Redis 针对压缩列表在设计上的不足，在后来的版本中，新增设计了两种数据结构：quicklist（Redis 3.2 引入） 和 listpack（Redis 5.0 引入）。这两种数据结构的设计目标，就是尽可能地保持压缩列表节省内存的优势，同时解决压缩列表的「连锁更新」的问题。&lt;/p&gt;
 &lt;p&gt;listpack 采用了压缩列表的很多优秀的设计，比如还是用一块连续的内存空间来紧凑地保存数据，并且为了节省内存的开销，listpack 节点会采用不同的编码方式保存不同大小的数据。&lt;/p&gt;
 &lt;p&gt;我们先看看 listpack 结构：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274304-f793ea11-1f5c-4002-a637-b73076232e3d.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/listpack1.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
 &lt;p&gt;listpack 头包含两个属性，分别记录了 listpack 总字节数和元素数量，然后 listpack 末尾也有个结尾标识。图中的 listpack entry 就是 listpack 的节点了。&lt;/p&gt;
 &lt;p&gt;每个 listpack 节点结构如下：&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/listpack.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
