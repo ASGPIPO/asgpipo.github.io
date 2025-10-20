@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 105%">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="">
+
+  
+  
+  <meta name="description" content="RESTful API 设计原则
+无状态性 (Stateless)
+无状态是指客户端和服务器之间的通信不依赖于历史消息，服务器不存储任何会话状态。每个请求都必须包含处理该请求所需的所有信息。
+违反无状态原则的例子：">
+  
+
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="https://asgpipo.github.io//images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://asgpipo.github.io//images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://asgpipo.github.io//images/favicon-16x16.png">
+
+  
+  
+  <meta name="keywords" content='hugo latex theme blog texify texify2 texify3 michael neuper'>
+  
+
+  
+  
+  <link rel="stylesheet" href='/katex/katex.min.css'>
+<script defer defer src='/katex/katex.min.js'></script>
+<script defer src='/katex/contrib/auto-render.min.js'></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError : false
+        });
+    });
+</script>
+  
+
+  
+  
+
+  
+  <meta property="og:url" content="https://asgpipo.github.io/posts/restful-api-%E8%AE%BE%E8%AE%A1/">
+  <meta property="og:site_name" content="pipo&#39;s site">
+  <meta property="og:title" content="RESTful API 设计原则">
+  <meta property="og:description" content="RESTful API 设计原则 无状态性 (Stateless) 无状态是指客户端和服务器之间的通信不依赖于历史消息，服务器不存储任何会话状态。每个请求都必须包含处理该请求所需的所有信息。
+违反无状态原则的例子：">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-10-10T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-10T00:00:00+00:00">
+    <meta property="article:tag" content="Web">
+    <meta property="article:tag" content="API">
+    <meta property="article:tag" content="REST">
+    <meta property="article:tag" content="后端开发">
+
+
+  
+  <link rel="canonical" href="https://asgpipo.github.io/posts/restful-api-%E8%AE%BE%E8%AE%A1/">
+
+  
+  
+  
+  <meta itemprop="name" content="RESTful API 设计原则">
+  <meta itemprop="description" content="RESTful API 设计原则 无状态性 (Stateless) 无状态是指客户端和服务器之间的通信不依赖于历史消息，服务器不存储任何会话状态。每个请求都必须包含处理该请求所需的所有信息。
+违反无状态原则的例子：">
+  <meta itemprop="datePublished" content="2025-10-10T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2025-10-10T00:00:00+00:00">
+  <meta itemprop="wordCount" content="1753">
+  <meta itemprop="keywords" content="Web,API,REST,后端开发">
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/common.min.e562d763c6d0825495eb17de8b2c1d9800cf7c08db1c36accedf77a5fccfc4b9.css" integrity="sha256-5WLXY8bQglSV6xfeiywdmADPfAjbHDaszt93pfzPxLk=" crossorigin="anonymous">
+  
+
+  
+  
+    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+  
+
+  
+  
+  <title>RESTful API 设计原则 - pipo&#39;s site</title>
+  
+
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="RESTful API 设计原则">
+  <meta name="twitter:description" content="RESTful API 设计原则 无状态性 (Stateless) 无状态是指客户端和服务器之间的通信不依赖于历史消息，服务器不存储任何会话状态。每个请求都必须包含处理该请求所需的所有信息。
+违反无状态原则的例子：">
+
+
+  
+
+
+  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+
+
+  <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
+
+
+</head>
+
+<body>
+  <div id="wrapper">
+    
+
+
+<header id="header">
+  <h1>
+    <a href="https://asgpipo.github.io/">blog collcetions</a>
+    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle theme">
+        <svg width="2rem" height="2rem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 496">
+        <path fill="currentColor" d="M8,256C8,393,119,504,256,504S504,393,504,256,393,8,256,8,8,119,8,256ZM256,440V72a184,184,0,0,1,0,368Z" transform="translate(-8 -8)"/>
+        </svg>
+    </button>
+  </h1>
+
+  <nav>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17,11H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm0,4H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2ZM11,9h6a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2ZM21,3H7A1,1,0,0,0,6,4V7H3A1,1,0,0,0,2,8V18a3,3,0,0,0,3,3H18a4,4,0,0,0,4-4V4A1,1,0,0,0,21,3ZM6,18a1,1,0,0,1-2,0V9H6Zm14-1a2,2,0,0,1-2,2H7.82A3,3,0,0,0,8,18V5H20Zm-9-4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Zm0,4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Z"/></svg>
+</span>
+      
+      <a class="link" href="/posts/">Blog</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.88,16.88a3,3,0,0,0,0,4.24,3,3,0,0,0,4.24,0,3,3,0,0,0-4.24-4.24Zm2.83,2.83a1,1,0,0,1-1.42-1.42,1,1,0,0,1,1.42,0A1,1,0,0,1,5.71,19.71ZM5,12a1,1,0,0,0,0,2,5,5,0,0,1,5,5,1,1,0,0,0,2,0,7,7,0,0,0-7-7ZM5,8a1,1,0,0,0,0,2,9,9,0,0,1,9,9,1,1,0,0,0,2,0,11.08,11.08,0,0,0-3.22-7.78A11.08,11.08,0,0,0,5,8Zm10.61.39A15.11,15.11,0,0,0,5,4,1,1,0,0,0,5,6,13,13,0,0,1,18,19a1,1,0,0,0,2,0A15.11,15.11,0,0,0,15.61,8.39Z"/></svg>
+</span>
+      
+      <a class="link" href="/index.xml">RSS</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1">
+<path d="M10.07031,20.50291a1.00008,1.00008,0,0,0-1.18115-.9834c-1.30908.24024-2.96191.27637-3.40137-.958a5.70754,5.70754,0,0,0-1.83691-2.415,1.20073,1.20073,0,0,1-.1665-.10938,1,1,0,0,0-.93067-.64551H2.54883a.99965.99965,0,0,0-1,.99512c-.00391.81543.811,1.33789,1.1416,1.51465a4.4408,4.4408,0,0,1,.92383,1.35937c.36426,1.02344,1.42285,2.57617,4.46582,2.376.001.03516.00195.06836.00244.09863l.00439.26758a1,1,0,0,0,2,0l-.00488-.31836C10.07715,21.4951,10.07031,21.22068,10.07031,20.50291Zm10.667-15.126c.03174-.125.063-.26367.09034-.41992a6.27792,6.27792,0,0,0-.40821-3.293,1.002,1.002,0,0,0-.61572-.58007c-.356-.12012-1.67041-.35645-4.18408,1.25a13.86918,13.86918,0,0,0-6.354,0C6.76221.751,5.45459.9658,5.10205,1.07908a.99744.99744,0,0,0-.63135.584,6.3003,6.3003,0,0,0-.40332,3.35644c.02442.12793.05078.2461.07813.35449A6.26928,6.26928,0,0,0,2.89014,9.20311a8.42168,8.42168,0,0,0,.04248.92187c.334,4.60254,3.334,5.98438,5.42431,6.459-.04345.125-.083.25878-.11816.40039a1.00023,1.00023,0,0,0,1.94238.47851,1.6784,1.6784,0,0,1,.46778-.87793.99947.99947,0,0,0-.5459-1.74512c-3.4541-.39453-4.95362-1.80175-5.1792-4.89843a6.61076,6.61076,0,0,1-.03369-.73828,4.25769,4.25769,0,0,1,.91943-2.71289,3.022,3.022,0,0,1,.1958-.23145.99988.99988,0,0,0,.188-1.02441,3.3876,3.3876,0,0,1-.15527-.55567A4.09356,4.09356,0,0,1,6.1167,3.06346a7.54263,7.54263,0,0,1,2.415,1.17968,1.00877,1.00877,0,0,0,.82764.13282,11.77716,11.77716,0,0,1,6.17285.001,1.00549,1.00549,0,0,0,.83056-.13769,7.572,7.572,0,0,1,2.40528-1.19043,4.03977,4.03977,0,0,1,.0874,1.57812,3.205,3.205,0,0,1-.16895.60743.9999.9999,0,0,0,.188,1.02441c.07715.08691.1543.18066.22363.26855A4.12186,4.12186,0,0,1,20,9.20311a7.03888,7.03888,0,0,1-.0376.77734c-.22021,3.05566-1.72558,4.46387-5.1958,4.85937a1,1,0,0,0-.54541,1.7461,1.63079,1.63079,0,0,1,.46631.9082,3.06079,3.06079,0,0,1,.09229.81934v2.334C14.77,21.2949,14.77,21.78025,14.77,22.00291a1,1,0,1,0,2,0c0-.2168,0-.69238.00977-1.33984V18.31346a4.8815,4.8815,0,0,0-.15479-1.31153,4.25638,4.25638,0,0,0-.11621-.416,6.51258,6.51258,0,0,0,5.44531-6.42383A8.69677,8.69677,0,0,0,22,9.20311,6.13062,6.13062,0,0,0,20.7373,5.37693Z"/></svg>
+</span>
+      
+      <a class="link" href="https://github.com/ASGPIPO">GitHub</a>
+    </span>
+    
+  </nav>
+</header>
+<hr class="head-rule"></hr>
+    
+<main id="main" class="post">
+  
+  <div class="post-heading">
+    <h1 class="post-title">RESTful API 设计原则</h1>
+    <div class="publish-metadata">
+      
+      <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      10 October 2025
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          1753 words
+        </span>
+      
+      
+      
+        
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ~4 mins
+        </span>
+      
+    </div>
+  </div>
+
+  
+  <div>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/web'>#Web</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/api'>#API</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/rest'>#REST</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91'>#后端开发</a>
+    
+    <br></br>
+  </div>
+  
+  
+  
+  <details>
+    <summary>
+      <b>Table of Contents</b>
+    </summary>
+    <div class="toc numbered-subtitles"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#无状态性-stateless">无状态性 (Stateless)</a></li>
+    <li><a href="#可缓存性-cacheability">可缓存性 (Cacheability)</a></li>
+    <li><a href="#统一接口-uniform-interface">统一接口 (Uniform Interface)</a>
+      <ul>
+        <li><a href="#资源标识-resource-identification">资源标识 (Resource Identification)</a></li>
+        <li><a href="#通过表述操作资源-manipulation-of-resources-through-representations">通过表述操作资源 (Manipulation of Resources Through Representations)</a></li>
+        <li><a href="#自描述消息-self-descriptive-messages">自描述消息 (Self-descriptive Messages)</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#资源命名规范">资源命名规范</a>
+      <ul>
+        <li><a href="#使用名词而非动词">使用名词而非动词</a></li>
+        <li><a href="#使用复数名词">使用复数名词</a></li>
+        <li><a href="#使用层级结构">使用层级结构</a></li>
+      </ul>
+    </li>
+    <li><a href="#http-方法语义">HTTP 方法语义</a></li>
+    <li><a href="#版本控制-versioning">版本控制 (Versioning)</a></li>
+    <li><a href="#http-状态码规范">HTTP 状态码规范</a>
+      <ul>
+        <li><a href="#常用状态码">常用状态码</a></li>
+      </ul>
+    </li>
+    <li><a href="#查询参数设计">查询参数设计</a>
+      <ul>
+        <li><a href="#常用查询参数模式">常用查询参数模式</a></li>
+      </ul>
+    </li>
+    <li><a href="#响应格式标准化">响应格式标准化</a>
+      <ul>
+        <li><a href="#成功响应格式">成功响应格式</a></li>
+      </ul>
+    </li>
+    <li><a href="#总结">总结</a>
+      <ul>
+        <li><a href="#核心原则">核心原则</a></li>
+        <li><a href="#设计要点">设计要点</a></li>
+        <li><a href="#最佳实践">最佳实践</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+  </details>
+  
+  
+  <article class="content numbered-subtitles">
+    
+    <h1 id="restful-api-设计原则">RESTful API 设计原则</h1>
+<h2 id="无状态性-stateless">无状态性 (Stateless)</h2>
+<p>无状态是指客户端和服务器之间的通信不依赖于历史消息，服务器不存储任何会话状态。每个请求都必须包含处理该请求所需的所有信息。</p>
+<p><strong>违反无状态原则的例子：</strong></p>
+<ul>
+<li>在用户认证中使用服务器端存储的 session，通过 sessionId 来验证用户信息</li>
+<li>服务器存储用户的登录状态或上下文信息</li>
+</ul>
+<p><strong>正确的做法：</strong></p>
+<ul>
+<li>使用 JWT (JSON Web Token) 进行用户认证</li>
+<li>在请求头中携带认证信息（如 Authorization: Bearer <!-- raw HTML omitted -->）</li>
+<li>所有必要的状态信息都应由客户端提供</li>
+</ul>
+<p><strong>优势：</strong></p>
+<ul>
+<li>提高可扩展性：服务器可以轻松水平扩展</li>
+<li>提高可靠性：单个服务器故障不会影响用户会话</li>
+<li>简化负载均衡：请求可以被路由到任何服务器</li>
+</ul>
+<h2 id="可缓存性-cacheability">可缓存性 (Cacheability)</h2>
+<p>服务器的响应必须明确地定义自身是否可缓存，以提高性能并减轻服务器负载。</p>
+<p><strong>实现方式：</strong></p>
+<ul>
+<li>使用 HTTP 缓存头来控制缓存行为</li>
+<li><code>Cache-Control</code>: 定义缓存策略（max-age, no-cache, no-store 等）</li>
+<li><code>ETag</code>: 资源版本标识符，用于条件请求</li>
+<li><code>Last-Modified</code>: 资源最后修改时间</li>
+</ul>
+<p><strong>缓存策略示例：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">Cache-Control: max-age=3600  # 缓存1小时
+</span></span></span><span class="line"><span class="cl"><span class="err">ETag: &#34;33a64df551425fcc55e4d42a148795d9f25f89d4&#34;
+</span></span></span><span class="line"><span class="cl"><span class="err">Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
+</span></span></span></code></pre></div><p><strong>优势：</strong></p>
+<ul>
+<li>减少服务器负载</li>
+<li>提高响应速度</li>
+<li>降低带宽消耗</li>
+</ul>
+<h2 id="统一接口-uniform-interface">统一接口 (Uniform Interface)</h2>
+<p>统一接口是 REST 架构的核心约束，确保系统组件之间的标准化通信。</p>
+<h3 id="资源标识-resource-identification">资源标识 (Resource Identification)</h3>
+<p>每个资源都通过 URI 唯一标识，客户端通过 URI 访问和操作资源。</p>
+<p><strong>示例：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET /api/v1/users/123
+</span></span></span><span class="line"><span class="cl"><span class="err">GET /api/v1/products/456/reviews
+</span></span></span></code></pre></div><h3 id="通过表述操作资源-manipulation-of-resources-through-representations">通过表述操作资源 (Manipulation of Resources Through Representations)</h3>
+<p>客户端通过发送资源的表述（如 JSON）来操作资源，而不是直接操作资源本身。</p>
+<p><strong>示例：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;John Doe&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;email&#34;</span><span class="p">:</span> <span class="s2">&#34;john@example.com&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h3 id="自描述消息-self-descriptive-messages">自描述消息 (Self-descriptive Messages)</h3>
+<p>每条消息（请求或响应）都应包含足够的信息来描述如何处理它。</p>
+<p><strong>实现方式：</strong></p>
+<ul>
+<li>HTTP 方法：GET、POST、PUT、PATCH、DELETE</li>
+<li>HTTP 头部：Content-Type、Accept、Authorization</li>
+<li>HTTP 状态码：200 OK、404 Not Found 等</li>
+</ul>
+<h1 id="api-设计实践">API 设计实践</h1>
+<h2 id="资源命名规范">资源命名规范</h2>
+<h3 id="使用名词而非动词">使用名词而非动词</h3>
+<p>在 REST 理念下，每个 URL 路径都代表一个资源，通过 HTTP 方法来表示操作动作。</p>
+<p><strong>良好示例：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">- https://api.example.com/v1/zoos
+</span></span><span class="line"><span class="cl">- https://api.example.com/v1/animals
+</span></span><span class="line"><span class="cl">- https://api.example.com/v1/employees
+</span></span></code></pre></div><p><strong>避免的示例：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">- https://api.example.com/v1/getUsers
+</span></span><span class="line"><span class="cl">- https://api.example.com/v1/createOrder
+</span></span><span class="line"><span class="cl">- https://api.example.com/v1/deleteProduct
+</span></span></code></pre></div><h3 id="使用复数名词">使用复数名词</h3>
+<p>这是一个常见的约定，用于表示资源集合。</p>
+<p><strong>示例：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET /users          # 获取所有用户
+</span></span></span><span class="line"><span class="cl"><span class="err">GET /users/123      # 获取特定用户
+</span></span></span><span class="line"><span class="cl"><span class="err">POST /users         # 创建新用户
+</span></span></span><span class="line"><span class="cl"><span class="err">PUT /users/123      # 更新用户信息
+</span></span></span><span class="line"><span class="cl"><span class="err">DELETE /users/123   # 删除用户
+</span></span></span></code></pre></div><h3 id="使用层级结构">使用层级结构</h3>
+<p>展示资源之间的关系，但避免过深的嵌套。</p>
+<p><strong>良好示例：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET /users/123/orders          # 获取用户 123 的所有订单
+</span></span></span><span class="line"><span class="cl"><span class="err">GET /users/123/orders/456      # 获取特定用户的特定订单
+</span></span></span></code></pre></div><p><strong>避免过深嵌套：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err"># 避免这种过深的嵌套
+</span></span></span><span class="line"><span class="cl"><span class="err">GET /users/123/orders/456/items/789/reviews/101
+</span></span></span></code></pre></div><h2 id="http-方法语义">HTTP 方法语义</h2>
+<table>
+  <thead>
+      <tr>
+          <th>方法</th>
+          <th>语义</th>
+          <th>幂等性</th>
+          <th>安全性</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>GET</td>
+          <td>获取资源</td>
+          <td>是</td>
+          <td>是</td>
+      </tr>
+      <tr>
+          <td>POST</td>
+          <td>创建资源</td>
+          <td>否</td>
+          <td>否</td>
+      </tr>
+      <tr>
+          <td>PUT</td>
+          <td>更新完整资源</td>
+          <td>是</td>
+          <td>否</td>
+      </tr>
+      <tr>
+          <td>PATCH</td>
+          <td>部分更新资源</td>
+          <td>否</td>
+          <td>否</td>
+      </tr>
+      <tr>
+          <td>DELETE</td>
+          <td>删除资源</td>
+          <td>是</td>
+          <td>否</td>
+      </tr>
+  </tbody>
+</table>
+<p><strong>完整示例：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET    /zoos                    # 列出所有动物园
+</span></span></span><span class="line"><span class="cl"><span class="err">POST   /zoos                    # 新建一个动物园
+</span></span></span><span class="line"><span class="cl"><span class="err">GET    /zoos/123                # 获取指定动物园的信息
+</span></span></span><span class="line"><span class="cl"><span class="err">PUT    /zoos/123                # 更新指定动物园的完整信息
+</span></span></span><span class="line"><span class="cl"><span class="err">PATCH  /zoos/123                # 更新指定动物园的部分信息
+</span></span></span><span class="line"><span class="cl"><span class="err">DELETE /zoos/123                # 删除指定动物园
+</span></span></span><span class="line"><span class="cl"><span class="err">GET    /zoos/123/animals        # 列出指定动物园的所有动物
+</span></span></span><span class="line"><span class="cl"><span class="err">DELETE /zoos/123/animals/456    # 删除指定动物园的指定动物
+</span></span></span></code></pre></div><h2 id="版本控制-versioning">版本控制 (Versioning)</h2>
+<p>在 API 设计中加入版本控制机制，确保向后兼容性和系统的可扩展性。</p>
+<p><strong>实现方式：</strong></p>
+<ul>
+<li><strong>URL 路径版本控制</strong>（推荐）：<code>/api/v1/users</code></li>
+<li><strong class=chinese>查询参数版本控制</strong>：<code>/api/users?version=1</code></li>
+<li><strong class=chinese>请求头版本控制</strong>：<code>Accept: application/vnd.example.v1+json</code></li>
+</ul>
+<p><strong>推荐使用 URL 路径版本控制：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET /api/v1/users
+</span></span></span><span class="line"><span class="cl"><span class="err">POST /api/v2/users
+</span></span></span></code></pre></div><p><strong>优势：</strong></p>
+<ul>
+<li>支持并行开发和测试</li>
+<li>提供向后兼容性</li>
+<li>便于 API 演进和废弃</li>
+</ul>
+<h2 id="http-状态码规范">HTTP 状态码规范</h2>
+<p>使用标准化的 HTTP 状态码来描述请求的处理结果。</p>
+<h3 id="常用状态码">常用状态码</h3>
+<p><strong>2xx 成功</strong></p>
+<ul>
+<li><code>200 OK</code> - 请求成功</li>
+<li><code>201 Created</code> - 资源创建成功</li>
+<li><code>204 No Content</code> - 请求成功，无返回内容</li>
+</ul>
+<p><strong>3xx 重定向</strong></p>
+<ul>
+<li><code>301 Moved Permanently</code> - 资源永久移动</li>
+<li><code>304 Not Modified</code> - 资源未修改（缓存相关）</li>
+</ul>
+<p><strong>4xx 客户端错误</strong></p>
+<ul>
+<li><code>400 Bad Request</code> - 请求参数错误</li>
+<li><code>401 Unauthorized</code> - 未认证</li>
+<li><code>403 Forbidden</code> - 无权限</li>
+<li><code>404 Not Found</code> - 资源不存在</li>
+<li><code>409 Conflict</code> - 资源冲突</li>
+<li><code>422 Unprocessable Entity</code> - 请求格式正确但语义错误</li>
+</ul>
+<p><strong>5xx 服务器错误</strong></p>
+<ul>
+<li><code>500 Internal Server Error</code> - 服务器内部错误</li>
+<li><code>503 Service Unavailable</code> - 服务不可用</li>
+</ul>
+<h2 id="查询参数设计">查询参数设计</h2>
+<p>使用查询参数进行过滤、分页、排序等操作，避免创建复杂的多级 URL。</p>
+<h3 id="常用查询参数模式">常用查询参数模式</h3>
+<p><strong>过滤：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET /articles?published=true&amp;category=tech
+</span></span></span><span class="line"><span class="cl"><span class="err">GET /users?status=active&amp;role=admin
+</span></span></span></code></pre></div><p><strong>分页：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET /users?page=2&amp;limit=20
+</span></span></span><span class="line"><span class="cl"><span class="err">GET /products?offset=100&amp;limit=50
+</span></span></span></code></pre></div><p><strong>排序：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET /articles?sort=created_at&amp;order=desc
+</span></span></span><span class="line"><span class="cl"><span class="err">GET /users?sort=name&amp;order=asc
+</span></span></span></code></pre></div><p><strong>搜索：</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-http" data-lang="http"><span class="line"><span class="cl"><span class="err">GET /products?q=laptop
+</span></span></span><span class="line"><span class="cl"><span class="err">GET /users?search=john
+</span></span></span></code></pre></div><h2 id="响应格式标准化">响应格式标准化</h2>
+<p>API 响应应该采用结构化的 JSON 格式，保持一致性。</p>
+<h3 id="成功响应格式">成功响应格式</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-json" data-lang="json"><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;status&#34;</span><span class="p">:</span> <span class="s2">&#34;success&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;data&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;id&#34;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;name&#34;</span><span class="p">:</span> <span class="s2">&#34;John Doe&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;email&#34;</span><span class="p">:</span> <span class="s2">&#34;john@example.com&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">},</span>
+</span></span><span class="line"><span class="cl">  <span class="nt">&#34;meta&#34;</span><span class="p">:</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;timestamp&#34;</span><span class="p">:</span> <span class="s2">&#34;2025-10-10T14:30:00Z&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">    <span class="nt">&#34;version&#34;</span><span class="p">:</span> <span class="s2">&#34;1.0&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></div><h2 id="总结">总结</h2>
+<p>RESTful API 设计是一个系统性的工程，需要综合考虑架构原则、开发实践和安全性。以下是关键要点：</p>
+<h3 id="核心原则">核心原则</h3>
+<ol>
+<li><strong class=chinese>无状态性</strong> - 每个请求独立，不依赖会话状态</li>
+<li><strong class=chinese>可缓存性</strong> - 合理利用缓存提高性能</li>
+<li><strong class=chinese>统一接口</strong> - 标准化通信协议和资源操作</li>
+</ol>
+<h3 id="设计要点">设计要点</h3>
+<ul>
+<li>使用名词表示资源，HTTP 方法表示操作</li>
+<li>采用一致的命名规范和 URL 结构</li>
+<li>实现适当的版本控制策略</li>
+<li>使用标准的 HTTP 状态码</li>
+<li>设计清晰的查询参数模式</li>
+<li>保持响应格式的一致性</li>
+</ul>
+<h3 id="最佳实践">最佳实践</h3>
+<ul>
+<li>优先考虑 API 的可发现性和易用性</li>
+<li>确保向后兼容性</li>
+<li>实施适当的安全措施</li>
+<li>提供详细的文档和错误信息</li>
+</ul>
+<p>遵循这些原则和实践，可以设计出健壮、可扩展且易于维护的 RESTful API。</p>
+
+    
+  </article>
+
+  <button onclick="topFunction()" id="back-to-top" title="Go to top">Back to Top</button>
+
+  
+
+<div id="sharingbuttons">
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+</div>
+  <div class="paginator">
+    
+    <a class="link" href="https://asgpipo.github.io/posts/spring-aop-202508030950/" title="Spring Aop">← prev</a>
+    
+    
+    <a class="link" href="https://asgpipo.github.io/posts/redis/rdb--aof/" title="Redis RDB &amp; AOF">next →</a>
+    
+  </div>
+  <div class="comment">
+    
+    
+    
+      <script src="https://giscus.app/client.js"
+        data-repo="michaelneuper/website"
+        data-repo-id="R_kgDOIjPNaQ"
+        data-category="General"
+        data-category-id="DIC_kwDOIjPNac4CaklA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="gruvbox"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+  </script>
+  
+  </div>
+  
+  
+</main>
+
+    <footer id="footer">
+  <div>
+    <span>Powered by  <a class=link href=https://gohugo.io target=_blank rel=noopener>Hugo</a> | 
+Theme <a class=link href=https://github.com/michaelneuper/hugo-texify3 target=_blank rel=noopener>TeXify3</a>
+</span>
+  </div>
+  <div>
+    <span>Copyright © 2025 </span>
+  </div>
+</footer>
+
+  </div>
+
+  
+  <script src='https://asgpipo.github.io/js/script.js' defer></script>
+
+  
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/syntax.css" />
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/scale.css" />
+  
+
+  
+  
+
+  
+  
+
+</body>
+
+</html>

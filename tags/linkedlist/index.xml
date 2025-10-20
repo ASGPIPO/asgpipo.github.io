@@ -6,7 +6,340 @@
     <description>Recent content in LinkedList on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 28 Sep 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/linkedlist/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 19 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/linkedlist/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Redis 数据结构</title>
+      <link>https://asgpipo.github.io/posts/redis/redis-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</link>
+      <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/redis/redis-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</guid>
+      <description>&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251016093545.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h1 id=&#34;sds&#34;&gt;SDS&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251016093108.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;o1-获取长度&#34;&gt;&lt;code&gt;O(1)&lt;/code&gt; 获取长度&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;SDS 在len属性保存了 SDS的长度所以无需遍历即可获得当前长度&lt;/li&gt;
+&lt;li&gt;C 字符串不记录自身的长度信息， 为获取字符串的长度， 必须遍历整个字符串， 直到遇到代表字符串结尾的空字符为止， &lt;code&gt;O(N)&lt;/code&gt; .&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;杜绝缓冲区溢出&#34;&gt;杜绝缓冲区溢出&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;SDS 通过 &lt;code&gt;len&lt;/code&gt; 记录长度 和 自动扩容机制在修改时保证了当前有足够的缓冲区.&lt;/li&gt;
+&lt;li&gt;C 字符串 不检查空间 而且仅通过 &lt;code&gt;\0&lt;/code&gt; 判断结尾&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;空间预分配--惰性空间&#34;&gt;空间预分配 &amp;amp; 惰性空间&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;空间预分配: 当需要进行空间扩容时 不仅会分配必要的空间 还会分配额外的空间.&lt;/li&gt;
+&lt;li&gt;惰性空间: 当SDS 缩短保存字符串时 程序不立即重新分配缩短后的字节,而是用 &lt;code&gt;free&lt;/code&gt; 记录,等待之后使用.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;特性&lt;/th&gt;
+          &lt;th&gt;C 字符串&lt;/th&gt;
+          &lt;th&gt;SDS（Simple Dynamic String）&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;获取字符串长度的时间复杂度&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;O(N)&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;必须遍历整个字符串直到遇到 &lt;code&gt;\0&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;O(1)&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;长度直接存储在 &lt;code&gt;len&lt;/code&gt; 字段中，API 自动维护&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;缓冲区溢出风险&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;高&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;操作函数（如 &lt;code&gt;strcat&lt;/code&gt;）不检查目标缓冲区大小，易越界写入&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;无&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;所有修改 API（如 &lt;code&gt;sdscat&lt;/code&gt;）先检查空间，自动扩容后再操作&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;内存重分配频率&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;每次修改都需重分配&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;增长需 &lt;code&gt;realloc&lt;/code&gt; 防溢出，缩减需 &lt;code&gt;realloc&lt;/code&gt; 防内存泄漏&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;大幅减少&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;通过 &lt;strong&gt;空间预分配&lt;/strong&gt;（增长时多分配）和 &lt;strong&gt;惰性空间释放&lt;/strong&gt;（缩短时不立即释放）优化，避免频繁 &lt;code&gt;malloc/realloc&lt;/code&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;二进制安全性&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;不安全&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;字符串中间不能含 &lt;code&gt;\0&lt;/code&gt;，否则被截断；仅适合文本&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;安全&lt;/strong&gt;&lt;!-- raw HTML omitted --&gt;可存储任意字节（包括 &lt;code&gt;\0&lt;/code&gt;），数据原样存取，支持图片、音频等二进制数据&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;SDS 的结构（简化）&lt;/strong&gt;：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;sdshdr&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;// 已使用字节数（字符串长度）
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;free&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// 未使用字节数
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;char&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;buf&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[];&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;// 实际字符存储区（以 \0 结尾，但内容可含 \0）
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h1 id=&#34;链表&#34;&gt;链表&lt;/h1&gt;
+&lt;h2 id=&#34;特点&#34;&gt;特点&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;实现为 &lt;strong&gt;双端无环链表&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;支持 &lt;strong&gt;多态&lt;/strong&gt;（通过 &lt;code&gt;dup&lt;/code&gt;/&lt;code&gt;free&lt;/code&gt;/&lt;code&gt;match&lt;/code&gt; 函数指针）。&lt;/li&gt;
+&lt;li&gt;用于：List 键、客户端列表、慢查询、发布订阅等。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;结构&#34;&gt;结构&lt;/h2&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;listNode&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;listNode&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prev&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;next&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;listNode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;listNode&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;head&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tail&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;len&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;dup&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;free&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;match&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;ptr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;void&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;key&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;list&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h1 id=&#34;字典&#34;&gt;字典&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251016095023.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;底层结构&#34;&gt;底层结构&lt;/h2&gt;
+&lt;p&gt;Redis 字典由 &lt;strong&gt;两个哈希表&lt;/strong&gt;（&lt;code&gt;ht[0]&lt;/code&gt; 和 &lt;code&gt;ht[1]&lt;/code&gt;）组成：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dict&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;dictht&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ht&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;];&lt;/span&gt;       &lt;span class=&#34;c1&#34;&gt;// ht[0]: 主表；ht[1]: rehash 时的新表
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;rehashidx&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;      &lt;span class=&#34;c1&#34;&gt;// rehash 进度，-1 表示未进行
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dict&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;每个哈希表（&lt;code&gt;dictht&lt;/code&gt;）是一个 &lt;strong&gt;数组 + 单向链表&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;数组元素为桶（bucket）；&lt;/li&gt;
+&lt;li&gt;桶内冲突通过 &lt;strong&gt;链地址法&lt;/strong&gt;（单向链表）解决；&lt;/li&gt;
+&lt;li&gt;节点类型为 &lt;code&gt;dictEntry&lt;/code&gt;，含 &lt;code&gt;key&lt;/code&gt;、&lt;code&gt;value&lt;/code&gt; 和 &lt;code&gt;next&lt;/code&gt; 指针。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;扩容与缩容机制&#34;&gt;扩容与缩容机制&lt;/h2&gt;
+&lt;h3 id=&#34;1-触发条件基于负载因子&#34;&gt;1. 触发条件（基于负载因子）&lt;/h3&gt;
+&lt;p&gt;负载因子 = &lt;code&gt;ht[0].used / ht[0].size&lt;/code&gt;&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;场景&lt;/th&gt;
+          &lt;th&gt;触发 rehash 条件&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;无 BGSAVE / BGREWRITEAOF&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;负载因子 ≥ 1 → 扩容&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;有 BGSAVE / BGREWRITEAOF&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;负载因子 ≥ 5 → 才扩容（避免 fork 内存翻倍）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;缩容&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;负载因子 &amp;lt; 0.1 且表足够大&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;2-扩容过程渐进式-rehash&#34;&gt;&lt;strong&gt;2. 扩容过程（渐进式 rehash）&lt;/strong&gt;&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;分配 &lt;code&gt;ht[1]&lt;/code&gt;&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;扩容：&lt;code&gt;size = 第一个 ≥ ht[0].used * 2 的 2 的幂&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;缩容：&lt;code&gt;size = 第一个 ≥ ht[0].used 的 2 的幂&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;设置 &lt;code&gt;rehashidx = 0&lt;/code&gt;&lt;/strong&gt;，开始 rehash。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;每次字典操作（GET/SET/DEL）时&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;顺带迁移 &lt;code&gt;ht[0][rehashidx]&lt;/code&gt; 整个桶&lt;/strong&gt; 到 &lt;code&gt;ht[1]&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;rehashidx++&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;新增操作只写入 &lt;code&gt;ht[1]&lt;/code&gt;&lt;/strong&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;查找/删除需查两个表&lt;/strong&gt;（因数据分散在两表中）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;迁移完成&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;释放 &lt;code&gt;ht[0]&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ht[1] → ht[0]&lt;/code&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;rehashidx = -1&lt;/code&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;三关键特点与代价&#34;&gt;三、关键特点与代价&lt;/h2&gt;
+&lt;h3 id=&#34;优点&#34;&gt;优点&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;无阻塞&lt;/strong&gt;：rehash 分摊到每次操作，主线程不卡顿；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;数据安全&lt;/strong&gt;：双表共存期间，读写正确；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;自动适应&lt;/strong&gt;：根据负载动态扩缩容。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;缺点&#34;&gt;缺点&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;内存占用翻倍&lt;/strong&gt;：rehash 期间 &lt;code&gt;ht[0]&lt;/code&gt; 和 &lt;code&gt;ht[1]&lt;/code&gt; 同时存在；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;冷数据 rehash 延迟&lt;/strong&gt;：长期无访问的字典可能迟迟无法完成 rehash；
+&lt;ul&gt;
+&lt;li&gt;Redis 通过 &lt;code&gt;serverCron&lt;/code&gt; 定时任务主动推进缓解此问题。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;跳表&#34;&gt;跳表&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251016151401.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;底层结构-1&#34;&gt;底层结构&lt;/h2&gt;
+&lt;p&gt;跳表本质上就是多层级链表,不同层级保存着随机跨度的后驱节点的指针,用来快速查找.&lt;/p&gt;
+&lt;p&gt;节点:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zskiplistNode&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;//Zset 对象的元素值
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;n&#34;&gt;sds&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;ele&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;c1&#34;&gt;//元素权重值,用于排序
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;kt&#34;&gt;double&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;score&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;c1&#34;&gt;//后向指针
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zskiplistNode&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;backward&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;c1&#34;&gt;//节点的level数组，保存每层上的前向指针和跨度
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;	&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zskiplistLevel&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zskiplistNode&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;forward&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;c1&#34;&gt;//跨度
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;		&lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;span&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;level&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[];&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zskiplistNode&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;顶层结构:&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-c&#34; data-lang=&#34;c&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;typedef&lt;/span&gt; &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zskiplist&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zskiplistNode&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;header&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;tail&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;// 头尾指针（O(1) 访问）
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;kt&#34;&gt;unsigned&lt;/span&gt; &lt;span class=&#34;kt&#34;&gt;long&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;length&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                 &lt;span class=&#34;c1&#34;&gt;// 节点总数（O(1) 获取长度）
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;    &lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;level&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;                            &lt;span class=&#34;c1&#34;&gt;// 当前跳表最大层数（不含头节点）
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;zskiplist&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;header&lt;/code&gt; 是一个 &lt;strong&gt;特殊的头节点&lt;/strong&gt;，不存实际数据（&lt;code&gt;ele = NULL&lt;/code&gt;, &lt;code&gt;score = 0&lt;/code&gt;），但有完整的 &lt;code&gt;level[]&lt;/code&gt; 数组（如 32 层或 64 层）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;tail&lt;/code&gt; 指向最后一个&lt;strong&gt;真实数据节点&lt;/strong&gt;（用于 &lt;code&gt;ZREVRANGE&lt;/code&gt; 等反向操作）。&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;level&lt;/code&gt; 是 &lt;strong&gt;所有数据节点中的最大层数&lt;/strong&gt;（头节点层数不计入）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;创建过程&#34;&gt;创建过程&lt;/h2&gt;
+&lt;p&gt;Redis在创建头节点时如果层高最大限制是 32，那么在创建跳表「头节点」的时候，就会直接创建 32 层高的头节点.
+在创建新节点时会在 &lt;code&gt;[0, 1]&lt;/code&gt; 随机取值,如果小于 0.25 则会增加层高,继续取值,直到值大于 0.25.&lt;/p&gt;
+&lt;h2 id=&#34;redis为什么使用跳表而不是用b树&#34;&gt;Redis为什么使用跳表而不是用B+树?&lt;/h2&gt;
+&lt;p&gt;Redis 是内存数据库，&lt;strong&gt;跳表在实现简单性、写入性能、内存访问模式等方面的综合优势&lt;/strong&gt;，使其成为更合适的选择。&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;&lt;/th&gt;
+          &lt;th&gt;&lt;/th&gt;
+          &lt;th&gt;&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;维度&lt;/td&gt;
+          &lt;td&gt;跳表优势&lt;/td&gt;
+          &lt;td&gt;B+ 树劣势&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;内存访问&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;符合CPU缓存局部性，指针跳转更高效&lt;/td&gt;
+          &lt;td&gt;节点结构复杂，缓存不友好&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;实现复杂度&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;代码简洁，无复杂平衡操作&lt;/td&gt;
+          &lt;td&gt;节点分裂/合并逻辑复杂，代码量大&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;写入性能&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;插入/删除仅需调整局部指针&lt;/td&gt;
+          &lt;td&gt;插入可能触发递归节点分裂，成本高&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;内存占用&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;结构紧凑，无内部碎片&lt;/td&gt;
+          &lt;td&gt;节点预分配可能浪费内存&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;Redis 选择使用跳表（Skip List）而不是 B+ 树来实现有序集合（Sorted Set）等数据结构，是经过多方面权衡后的结果。以下是详细的原因分析：&lt;/p&gt;
+&lt;p&gt;1、内存结构与访问模式的差异&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;B+ 树的特性&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;磁盘友好&lt;/strong&gt;：B+ 树的设计目标是优化磁盘I/O，通过减少树的高度来降低磁盘寻道次数（例如，一个3层的B+树可以管理数百万数据）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;节点填充率高&lt;/strong&gt;：每个节点存储多个键值（Page/Block），适合批量读写。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;范围查询高效&lt;/strong&gt;：叶子节点形成有序链表，范围查询（如 &lt;code&gt;ZRANGE&lt;/code&gt;）性能极佳。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;跳表的特性&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;内存友好&lt;/strong&gt;：跳表基于链表，通过多级索引加速查询，&lt;strong&gt;内存访问模式更符合CPU缓存局部性&lt;/strong&gt;（指针跳跃更少）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;简单灵活&lt;/strong&gt;：插入/删除时仅需调整局部指针，无需复杂的节点分裂与合并。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;概率平衡&lt;/strong&gt;：通过随机层高实现近似平衡，避免了严格的平衡约束（如红黑树的旋转）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Redis 是内存数据库&lt;/strong&gt;，数据完全存储在内存中，不需要优化磁盘I/O，因此 B+ 树的磁盘友好特性对 Redis 意义不大。而跳表的内存访问模式更优，更适合高频的内存操作。&lt;/p&gt;
+&lt;p&gt;2、实现复杂度的对比&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;B+ 树的实现复杂度&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;节点分裂与合并&lt;/strong&gt;：插入/删除时可能触发节点分裂或合并，需要复杂的再平衡逻辑。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;锁竞争&lt;/strong&gt;：在并发环境下，B+ 树的锁粒度较粗（如页锁），容易成为性能瓶颈。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;代码复杂度&lt;/strong&gt;：B+ 树的实现需要处理大量边界条件（如最小填充因子、兄弟节点借用等）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;跳表的实现复杂度&lt;/strong&gt;：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;无再平衡操作&lt;/strong&gt;：插入时只需随机生成层高，删除时直接移除节点并调整指针。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;细粒度锁或无锁&lt;/strong&gt;：跳表可以通过分段锁或无锁结构（如 CAS）实现高效并发。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;代码简洁&lt;/strong&gt;：Redis 的跳表核心代码仅需约 200 行（B+ 树实现通常需要数千行）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;对于 Redis 这种追求高性能和代码简洁性的项目&lt;/strong&gt;，跳表的低实现复杂度更具吸引力，Redis作者Antirez曾表示，跳表的实现复杂度远低于平衡树，且性能相近，是更优选择。&lt;/p&gt;
+&lt;p&gt;3、性能对比&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;查询性能&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;单点查询&lt;/strong&gt;：跳表和 B+ 树的时间复杂度均为 &lt;code&gt;O(log N)&lt;/code&gt;，但跳表的实际常数更小（内存中指针跳转比磁盘块访问快得多）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;范围查询&lt;/strong&gt;：B+ 树的叶子链表在范围查询时占优，但跳表通过双向链表也能高效支持 &lt;code&gt;ZRANGE&lt;/code&gt; 操作。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;写入性能&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;B+ 树&lt;/strong&gt;：插入可能触发节点分裂，涉及父节点递归更新，成本较高。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;跳表&lt;/strong&gt;：插入仅需修改相邻节点的指针，写入性能更优（Redis 的 &lt;code&gt;ZADD&lt;/code&gt; 操作时间复杂度为 &lt;code&gt;O(log N)&lt;/code&gt;）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;实测数据&lt;/strong&gt;：在内存中，跳表的插入速度比 B+ 树快 2-3 倍，查询速度相当。&lt;/p&gt;
+&lt;p&gt;4、内存占用&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;B+ 树&lt;/strong&gt;：每个节点需要存储多个键值和子节点指针，存在内部碎片（节点未填满时）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;跳表&lt;/strong&gt;：每个节点只需存储键值、层高和多个前向指针，内存占用更紧凑。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;压缩列表是怎么实现的&#34;&gt;压缩列表是怎么实现的？&lt;/h1&gt;
+&lt;p&gt;压缩列表是 Redis 为了节约内存而开发的，它是&lt;strong&gt;由连续内存块组成的顺序型数据结构&lt;/strong&gt;，有点类似于数组。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274310-9c8cdfac-fca9-4357-86ef-583dac7cad8a.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;压缩列表在表头有三个字段：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;&lt;strong&gt;zlbytes&lt;/strong&gt;&lt;/em&gt;，记录整个压缩列表占用对内存字节数；&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;&lt;strong&gt;zltail&lt;/strong&gt;&lt;/em&gt;，记录压缩列表「尾部」节点距离起始地址由多少字节，也就是列表尾的偏移量；&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;&lt;strong&gt;zllen&lt;/strong&gt;&lt;/em&gt;，记录压缩列表包含的节点数量；&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;&lt;strong&gt;zlend&lt;/strong&gt;&lt;/em&gt;，标记压缩列表的结束点，固定值 0xFF（十进制255）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在压缩列表中，如果我们要查找定位首尾元素通过表头三个字段（zllen）的长度直接定位，复杂度是 O(1)。&lt;strong&gt;查找其他元素时，只能逐个查找O(N) ，因此压缩列表不适合保存过多的元素&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;另外，压缩列表节点（entry）的构成如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274295-9438e5b1-93e0-4ab3-a15b-4d0e99409b7f.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;压缩列表节点包含三部分内容：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;prevlen&lt;/strong&gt;，记录了「前一个节点」的长度，目的是为了实现从后向前遍历；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;encoding&lt;/strong&gt;，记录了当前节点实际数据的「类型和长度」，类型主要有两种：字符串和整数。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;data&lt;/strong&gt;，记录了当前节点的实际数据，类型和长度都由 encoding 决定；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;往压缩列表中插入数据时，压缩列表就会根据数据类型是字符串还是整数，以及数据的大小，会使用不同空间大小的 prevlen 和 encoding 这两个元素里保存的信息，&lt;strong&gt;这种根据数据大小和类型进行不同的空间大小分配的设计思想，正是 Redis 为了节省内存而采用的&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;压缩列表的缺点是会发生连锁更新的问题，因此&lt;strong&gt;连锁更新一旦发生，就会导致压缩列表占用的内存空间要多次重新分配，这就会直接影响到压缩列表的访问性能&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;所以说，&lt;strong&gt;虽然压缩列表紧凑型的内存布局能节省内存开销，但是如果保存的元素数量增加了，或是元素变大了，会导致内存重新分配，最糟糕的是会有「连锁更新」的问题&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;因此，&lt;strong&gt;压缩列表只会用于保存的节点数量不多的场景&lt;/strong&gt;，只要节点数量足够小，即使发生连锁更新，也是能接受的。&lt;/p&gt;
+&lt;p&gt;虽说如此，Redis 针对压缩列表在设计上的不足，在后来的版本中，新增设计了两种数据结构：quicklist（Redis 3.2 引入） 和 listpack（Redis 5.0 引入）。这两种数据结构的设计目标，就是尽可能地保持压缩列表节省内存的优势，同时解决压缩列表的「连锁更新」的问题。&lt;/p&gt;
+&lt;p&gt;listpack 采用了压缩列表的很多优秀的设计，比如还是用一块连续的内存空间来紧凑地保存数据，并且为了节省内存的开销，listpack 节点会采用不同的编码方式保存不同大小的数据。&lt;/p&gt;
+&lt;p&gt;我们先看看 listpack 结构：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274304-f793ea11-1f5c-4002-a637-b73076232e3d.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;listpack 头包含两个属性，分别记录了 listpack 总字节数和元素数量，然后 listpack 末尾也有个结尾标识。图中的 listpack entry 就是 listpack 的节点了。&lt;/p&gt;
+&lt;p&gt;每个 listpack 节点结构如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/listpack.webp&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;主要包含三个方面内容：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;encoding，定义该元素的编码类型，会对不同长度的整数和字符串进行编码；&lt;/li&gt;
+&lt;li&gt;data，实际存放的数据；&lt;/li&gt;
+&lt;li&gt;len，encoding+data的总长度；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;可以看到，&lt;strong&gt;listpack 没有压缩列表中记录前一个节点长度的字段了，listpack 只记录当前节点的长度，当我们向 listpack 加入一个新元素的时候，不会影响其他节点的长度字段的变化，从而避免了压缩列表的连锁更新问题&lt;/strong&gt;。&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>链表基础总结</title>
       <link>https://asgpipo.github.io/posts/%E5%88%97%E8%A1%A8/</link>

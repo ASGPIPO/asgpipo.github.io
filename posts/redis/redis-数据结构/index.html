@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 105%">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="">
+
+  
+  
+  <meta name="description" content="SDS 链表 字典 跳表">
+  
+
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="https://asgpipo.github.io//images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://asgpipo.github.io//images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://asgpipo.github.io//images/favicon-16x16.png">
+
+  
+  
+  <meta name="keywords" content='hugo latex theme blog texify texify2 texify3 michael neuper'>
+  
+
+  
+  
+  <link rel="stylesheet" href='/katex/katex.min.css'>
+<script defer defer src='/katex/katex.min.js'></script>
+<script defer src='/katex/contrib/auto-render.min.js'></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError : false
+        });
+    });
+</script>
+  
+
+  
+  
+
+  
+  <meta property="og:url" content="https://asgpipo.github.io/posts/redis/redis-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+  <meta property="og:site_name" content="pipo&#39;s site">
+  <meta property="og:title" content="Redis 数据结构">
+  <meta property="og:description" content="SDS 链表 字典 跳表">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-10-19T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-19T00:00:00+00:00">
+    <meta property="article:tag" content="Redis">
+    <meta property="article:tag" content="数据结构">
+    <meta property="article:tag" content="LinkedList">
+
+
+  
+  <link rel="canonical" href="https://asgpipo.github.io/posts/redis/redis-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">
+
+  
+  
+  
+  <meta itemprop="name" content="Redis 数据结构">
+  <meta itemprop="description" content="SDS 链表 字典 跳表">
+  <meta itemprop="datePublished" content="2025-10-19T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2025-10-19T00:00:00+00:00">
+  <meta itemprop="wordCount" content="4066">
+  <meta itemprop="keywords" content="Redis,数据结构,LinkedList">
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/common.min.e562d763c6d0825495eb17de8b2c1d9800cf7c08db1c36accedf77a5fccfc4b9.css" integrity="sha256-5WLXY8bQglSV6xfeiywdmADPfAjbHDaszt93pfzPxLk=" crossorigin="anonymous">
+  
+
+  
+  
+    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+  
+
+  
+  
+  <title>Redis 数据结构 - pipo&#39;s site</title>
+  
+
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Redis 数据结构">
+  <meta name="twitter:description" content="SDS 链表 字典 跳表">
+
+
+  
+
+
+  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+
+
+  <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
+
+
+</head>
+
+<body>
+  <div id="wrapper">
+    
+
+
+<header id="header">
+  <h1>
+    <a href="https://asgpipo.github.io/">blog collcetions</a>
+    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle theme">
+        <svg width="2rem" height="2rem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 496">
+        <path fill="currentColor" d="M8,256C8,393,119,504,256,504S504,393,504,256,393,8,256,8,8,119,8,256ZM256,440V72a184,184,0,0,1,0,368Z" transform="translate(-8 -8)"/>
+        </svg>
+    </button>
+  </h1>
+
+  <nav>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17,11H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm0,4H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2ZM11,9h6a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2ZM21,3H7A1,1,0,0,0,6,4V7H3A1,1,0,0,0,2,8V18a3,3,0,0,0,3,3H18a4,4,0,0,0,4-4V4A1,1,0,0,0,21,3ZM6,18a1,1,0,0,1-2,0V9H6Zm14-1a2,2,0,0,1-2,2H7.82A3,3,0,0,0,8,18V5H20Zm-9-4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Zm0,4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Z"/></svg>
+</span>
+      
+      <a class="link" href="/posts/">Blog</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.88,16.88a3,3,0,0,0,0,4.24,3,3,0,0,0,4.24,0,3,3,0,0,0-4.24-4.24Zm2.83,2.83a1,1,0,0,1-1.42-1.42,1,1,0,0,1,1.42,0A1,1,0,0,1,5.71,19.71ZM5,12a1,1,0,0,0,0,2,5,5,0,0,1,5,5,1,1,0,0,0,2,0,7,7,0,0,0-7-7ZM5,8a1,1,0,0,0,0,2,9,9,0,0,1,9,9,1,1,0,0,0,2,0,11.08,11.08,0,0,0-3.22-7.78A11.08,11.08,0,0,0,5,8Zm10.61.39A15.11,15.11,0,0,0,5,4,1,1,0,0,0,5,6,13,13,0,0,1,18,19a1,1,0,0,0,2,0A15.11,15.11,0,0,0,15.61,8.39Z"/></svg>
+</span>
+      
+      <a class="link" href="/index.xml">RSS</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1">
+<path d="M10.07031,20.50291a1.00008,1.00008,0,0,0-1.18115-.9834c-1.30908.24024-2.96191.27637-3.40137-.958a5.70754,5.70754,0,0,0-1.83691-2.415,1.20073,1.20073,0,0,1-.1665-.10938,1,1,0,0,0-.93067-.64551H2.54883a.99965.99965,0,0,0-1,.99512c-.00391.81543.811,1.33789,1.1416,1.51465a4.4408,4.4408,0,0,1,.92383,1.35937c.36426,1.02344,1.42285,2.57617,4.46582,2.376.001.03516.00195.06836.00244.09863l.00439.26758a1,1,0,0,0,2,0l-.00488-.31836C10.07715,21.4951,10.07031,21.22068,10.07031,20.50291Zm10.667-15.126c.03174-.125.063-.26367.09034-.41992a6.27792,6.27792,0,0,0-.40821-3.293,1.002,1.002,0,0,0-.61572-.58007c-.356-.12012-1.67041-.35645-4.18408,1.25a13.86918,13.86918,0,0,0-6.354,0C6.76221.751,5.45459.9658,5.10205,1.07908a.99744.99744,0,0,0-.63135.584,6.3003,6.3003,0,0,0-.40332,3.35644c.02442.12793.05078.2461.07813.35449A6.26928,6.26928,0,0,0,2.89014,9.20311a8.42168,8.42168,0,0,0,.04248.92187c.334,4.60254,3.334,5.98438,5.42431,6.459-.04345.125-.083.25878-.11816.40039a1.00023,1.00023,0,0,0,1.94238.47851,1.6784,1.6784,0,0,1,.46778-.87793.99947.99947,0,0,0-.5459-1.74512c-3.4541-.39453-4.95362-1.80175-5.1792-4.89843a6.61076,6.61076,0,0,1-.03369-.73828,4.25769,4.25769,0,0,1,.91943-2.71289,3.022,3.022,0,0,1,.1958-.23145.99988.99988,0,0,0,.188-1.02441,3.3876,3.3876,0,0,1-.15527-.55567A4.09356,4.09356,0,0,1,6.1167,3.06346a7.54263,7.54263,0,0,1,2.415,1.17968,1.00877,1.00877,0,0,0,.82764.13282,11.77716,11.77716,0,0,1,6.17285.001,1.00549,1.00549,0,0,0,.83056-.13769,7.572,7.572,0,0,1,2.40528-1.19043,4.03977,4.03977,0,0,1,.0874,1.57812,3.205,3.205,0,0,1-.16895.60743.9999.9999,0,0,0,.188,1.02441c.07715.08691.1543.18066.22363.26855A4.12186,4.12186,0,0,1,20,9.20311a7.03888,7.03888,0,0,1-.0376.77734c-.22021,3.05566-1.72558,4.46387-5.1958,4.85937a1,1,0,0,0-.54541,1.7461,1.63079,1.63079,0,0,1,.46631.9082,3.06079,3.06079,0,0,1,.09229.81934v2.334C14.77,21.2949,14.77,21.78025,14.77,22.00291a1,1,0,1,0,2,0c0-.2168,0-.69238.00977-1.33984V18.31346a4.8815,4.8815,0,0,0-.15479-1.31153,4.25638,4.25638,0,0,0-.11621-.416,6.51258,6.51258,0,0,0,5.44531-6.42383A8.69677,8.69677,0,0,0,22,9.20311,6.13062,6.13062,0,0,0,20.7373,5.37693Z"/></svg>
+</span>
+      
+      <a class="link" href="https://github.com/ASGPIPO">GitHub</a>
+    </span>
+    
+  </nav>
+</header>
+<hr class="head-rule"></hr>
+    
+<main id="main" class="post">
+  
+  <div class="post-heading">
+    <h1 class="post-title">Redis 数据结构</h1>
+    <div class="publish-metadata">
+      
+      <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      19 October 2025
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          4066 words
+        </span>
+      
+      
+      
+        
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ~9 mins
+        </span>
+      
+    </div>
+  </div>
+
+  
+  <div>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/redis'>#Redis</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84'>#数据结构</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/linkedlist'>#LinkedList</a>
+    
+    <br></br>
+  </div>
+  
+  
+  
+  <details>
+    <summary>
+      <b>Table of Contents</b>
+    </summary>
+    <div class="toc numbered-subtitles"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#o1-获取长度"><code>O(1)</code> 获取长度</a></li>
+    <li><a href="#杜绝缓冲区溢出">杜绝缓冲区溢出</a></li>
+    <li><a href="#空间预分配--惰性空间">空间预分配 &amp; 惰性空间</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#特点">特点</a></li>
+    <li><a href="#结构">结构</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#底层结构">底层结构</a></li>
+    <li><a href="#扩容与缩容机制">扩容与缩容机制</a>
+      <ul>
+        <li><a href="#1-触发条件基于负载因子">1. 触发条件（基于负载因子）</a></li>
+        <li><a href="#2-扩容过程渐进式-rehash"><strong>2. 扩容过程（渐进式 rehash）</strong></a></li>
+      </ul>
+    </li>
+    <li><a href="#三关键特点与代价">三、关键特点与代价</a>
+      <ul>
+        <li><a href="#优点">优点</a></li>
+        <li><a href="#缺点">缺点</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#底层结构-1">底层结构</a></li>
+    <li><a href="#创建过程">创建过程</a></li>
+    <li><a href="#redis为什么使用跳表而不是用b树">Redis为什么使用跳表而不是用B+树?</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+  
+  <article class="content numbered-subtitles">
+    
+    <p><img src="/pics/redis/Pasted_image_20251016093545.png" alt=""></p>
+<h1 id="sds">SDS</h1>
+<p><img src="/pics/redis/Pasted_image_20251016093108.png" alt=""></p>
+<h2 id="o1-获取长度"><code>O(1)</code> 获取长度</h2>
+<ul>
+<li>SDS 在len属性保存了 SDS的长度所以无需遍历即可获得当前长度</li>
+<li>C 字符串不记录自身的长度信息， 为获取字符串的长度， 必须遍历整个字符串， 直到遇到代表字符串结尾的空字符为止， <code>O(N)</code> .</li>
+</ul>
+<h2 id="杜绝缓冲区溢出">杜绝缓冲区溢出</h2>
+<ul>
+<li>SDS 通过 <code>len</code> 记录长度 和 自动扩容机制在修改时保证了当前有足够的缓冲区.</li>
+<li>C 字符串 不检查空间 而且仅通过 <code>\0</code> 判断结尾</li>
+</ul>
+<h2 id="空间预分配--惰性空间">空间预分配 &amp; 惰性空间</h2>
+<ul>
+<li>空间预分配: 当需要进行空间扩容时 不仅会分配必要的空间 还会分配额外的空间.</li>
+<li>惰性空间: 当SDS 缩短保存字符串时 程序不立即重新分配缩短后的字节,而是用 <code>free</code> 记录,等待之后使用.</li>
+</ul>
+<hr>
+<table>
+  <thead>
+      <tr>
+          <th>特性</th>
+          <th>C 字符串</th>
+          <th>SDS（Simple Dynamic String）</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong class=chinese>获取字符串长度的时间复杂度</strong></td>
+          <td><strong>O(N)</strong><!-- raw HTML omitted -->必须遍历整个字符串直到遇到 <code>\0</code></td>
+          <td><strong>O(1)</strong><!-- raw HTML omitted -->长度直接存储在 <code>len</code> 字段中，API 自动维护</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>缓冲区溢出风险</strong></td>
+          <td><strong class=chinese>高</strong><!-- raw HTML omitted -->操作函数（如 <code>strcat</code>）不检查目标缓冲区大小，易越界写入</td>
+          <td><strong class=chinese>无</strong><!-- raw HTML omitted -->所有修改 API（如 <code>sdscat</code>）先检查空间，自动扩容后再操作</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>内存重分配频率</strong></td>
+          <td><strong class=chinese>每次修改都需重分配</strong><!-- raw HTML omitted -->增长需 <code>realloc</code> 防溢出，缩减需 <code>realloc</code> 防内存泄漏</td>
+          <td><strong class=chinese>大幅减少</strong><!-- raw HTML omitted -->通过 <strong class=chinese>空间预分配</strong>（增长时多分配）和 <strong class=chinese>惰性空间释放</strong>（缩短时不立即释放）优化，避免频繁 <code>malloc/realloc</code></td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>二进制安全性</strong></td>
+          <td><strong class=chinese>不安全</strong><!-- raw HTML omitted -->字符串中间不能含 <code>\0</code>，否则被截断；仅适合文本</td>
+          <td><strong class=chinese>安全</strong><!-- raw HTML omitted -->可存储任意字节（包括 <code>\0</code>），数据原样存取，支持图片、音频等二进制数据</td>
+      </tr>
+  </tbody>
+</table>
+<ul>
+<li><strong>SDS 的结构（简化）</strong>：</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">sdshdr</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">len</span><span class="p">;</span> <span class="c1">// 已使用字节数（字符串长度）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">int</span> <span class="n">free</span><span class="p">;</span><span class="c1">// 未使用字节数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">char</span> <span class="n">buf</span><span class="p">[];</span><span class="c1">// 实际字符存储区（以 \0 结尾，但内容可含 \0）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></div><hr>
+<h1 id="链表">链表</h1>
+<h2 id="特点">特点</h2>
+<ul>
+<li>实现为 <strong class=chinese>双端无环链表</strong>。</li>
+<li>支持 <strong class=chinese>多态</strong>（通过 <code>dup</code>/<code>free</code>/<code>match</code> 函数指针）。</li>
+<li>用于：List 键、客户端列表、慢查询、发布订阅等。</li>
+</ul>
+<h2 id="结构">结构</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">listNode</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">listNode</span> <span class="o">*</span><span class="n">prev</span><span class="p">,</span> <span class="o">*</span><span class="n">next</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="n">value</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">listNode</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">list</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">listNode</span> <span class="o">*</span><span class="n">head</span><span class="p">,</span> <span class="o">*</span><span class="n">tail</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">len</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="o">*</span><span class="p">(</span><span class="o">*</span><span class="n">dup</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="n">free</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">match</span><span class="p">)(</span><span class="kt">void</span> <span class="o">*</span><span class="n">ptr</span><span class="p">,</span> <span class="kt">void</span> <span class="o">*</span><span class="n">key</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">list</span><span class="p">;</span>
+</span></span></code></pre></div><hr>
+<h1 id="字典">字典</h1>
+<p><img src="/pics/redis/Pasted_image_20251016095023.png" alt=""></p>
+<hr>
+<h2 id="底层结构">底层结构</h2>
+<p>Redis 字典由 <strong class=chinese>两个哈希表</strong>（<code>ht[0]</code> 和 <code>ht[1]</code>）组成：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">dict</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">dictht</span> <span class="n">ht</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>       <span class="c1">// ht[0]: 主表；ht[1]: rehash 时的新表
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">rehashidx</span><span class="p">;</span>      <span class="c1">// rehash 进度，-1 表示未进行
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">dict</span><span class="p">;</span>
+</span></span></code></pre></div><ul>
+<li>每个哈希表（<code>dictht</code>）是一个 <strong>数组 + 单向链表</strong>：
+<ul>
+<li>数组元素为桶（bucket）；</li>
+<li>桶内冲突通过 <strong class=chinese>链地址法</strong>（单向链表）解决；</li>
+<li>节点类型为 <code>dictEntry</code>，含 <code>key</code>、<code>value</code> 和 <code>next</code> 指针。</li>
+</ul>
+</li>
+</ul>
+<h2 id="扩容与缩容机制">扩容与缩容机制</h2>
+<h3 id="1-触发条件基于负载因子">1. 触发条件（基于负载因子）</h3>
+<p>负载因子 = <code>ht[0].used / ht[0].size</code></p>
+<table>
+  <thead>
+      <tr>
+          <th>场景</th>
+          <th>触发 rehash 条件</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong>无 BGSAVE / BGREWRITEAOF</strong></td>
+          <td>负载因子 ≥ 1 → 扩容</td>
+      </tr>
+      <tr>
+          <td><strong>有 BGSAVE / BGREWRITEAOF</strong></td>
+          <td>负载因子 ≥ 5 → 才扩容（避免 fork 内存翻倍）</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>缩容</strong></td>
+          <td>负载因子 &lt; 0.1 且表足够大</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="2-扩容过程渐进式-rehash"><strong>2. 扩容过程（渐进式 rehash）</strong></h3>
+<ol>
+<li>
+<p><strong>分配 <code>ht[1]</code></strong>：</p>
+<ul>
+<li>扩容：<code>size = 第一个 ≥ ht[0].used * 2 的 2 的幂</code></li>
+<li>缩容：<code>size = 第一个 ≥ ht[0].used 的 2 的幂</code></li>
+</ul>
+</li>
+<li>
+<p><strong>设置 <code>rehashidx = 0</code></strong>，开始 rehash。</p>
+</li>
+<li>
+<p><strong>每次字典操作（GET/SET/DEL）时</strong>：</p>
+<ul>
+<li><strong>顺带迁移 <code>ht[0][rehashidx]</code> 整个桶</strong> 到 <code>ht[1]</code>；</li>
+<li><code>rehashidx++</code>；</li>
+<li><strong>新增操作只写入 <code>ht[1]</code></strong>；</li>
+<li><strong>查找/删除需查两个表</strong>（因数据分散在两表中）。</li>
+</ul>
+</li>
+<li>
+<p><strong class=chinese>迁移完成</strong>：</p>
+<ul>
+<li>释放 <code>ht[0]</code>；</li>
+<li><code>ht[1] → ht[0]</code>；</li>
+<li><code>rehashidx = -1</code>。</li>
+</ul>
+</li>
+</ol>
+<h2 id="三关键特点与代价">三、关键特点与代价</h2>
+<h3 id="优点">优点</h3>
+<ul>
+<li><strong class=chinese>无阻塞</strong>：rehash 分摊到每次操作，主线程不卡顿；</li>
+<li><strong class=chinese>数据安全</strong>：双表共存期间，读写正确；</li>
+<li><strong class=chinese>自动适应</strong>：根据负载动态扩缩容。</li>
+</ul>
+<h3 id="缺点">缺点</h3>
+<ul>
+<li><strong class=chinese>内存占用翻倍</strong>：rehash 期间 <code>ht[0]</code> 和 <code>ht[1]</code> 同时存在；</li>
+<li><strong>冷数据 rehash 延迟</strong>：长期无访问的字典可能迟迟无法完成 rehash；
+<ul>
+<li>Redis 通过 <code>serverCron</code> 定时任务主动推进缓解此问题。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h1 id="跳表">跳表</h1>
+<p><img src="/pics/redis/Pasted_image_20251016151401.png" alt=""></p>
+<h2 id="底层结构-1">底层结构</h2>
+<p>跳表本质上就是多层级链表,不同层级保存着随机跨度的后驱节点的指针,用来快速查找.</p>
+<p>节点:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl"><span class="c1">//Zset 对象的元素值
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">sds</span> <span class="n">ele</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//元素权重值,用于排序
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">double</span> <span class="n">score</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//后向指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">backward</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="c1">//节点的level数组，保存每层上的前向指针和跨度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">struct</span> <span class="n">zskiplistLevel</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">forward</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="c1">//跨度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">span</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="n">level</span><span class="p">[];</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">zskiplistNode</span><span class="p">;</span>
+</span></span></code></pre></div><p>顶层结构:</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplist</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">header</span><span class="p">,</span> <span class="o">*</span><span class="n">tail</span><span class="p">;</span>  <span class="c1">// 头尾指针（O(1) 访问）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>                 <span class="c1">// 节点总数（O(1) 获取长度）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">level</span><span class="p">;</span>                            <span class="c1">// 当前跳表最大层数（不含头节点）
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">zskiplist</span><span class="p">;</span>
+</span></span></code></pre></div><ul>
+<li><code>header</code> 是一个 <strong class=chinese>特殊的头节点</strong>，不存实际数据（<code>ele = NULL</code>, <code>score = 0</code>），但有完整的 <code>level[]</code> 数组（如 32 层或 64 层）。</li>
+<li><code>tail</code> 指向最后一个<strong class=chinese>真实数据节点</strong>（用于 <code>ZREVRANGE</code> 等反向操作）。</li>
+<li><code>level</code> 是 <strong class=chinese>所有数据节点中的最大层数</strong>（头节点层数不计入）。</li>
+</ul>
+<h2 id="创建过程">创建过程</h2>
+<p>Redis在创建头节点时如果层高最大限制是 32，那么在创建跳表「头节点」的时候，就会直接创建 32 层高的头节点.
+在创建新节点时会在 <code>[0, 1]</code> 随机取值,如果小于 0.25 则会增加层高,继续取值,直到值大于 0.25.</p>
+<h2 id="redis为什么使用跳表而不是用b树">Redis为什么使用跳表而不是用B+树?</h2>
+<p>Redis 是内存数据库，<strong>跳表在实现简单性、写入性能、内存访问模式等方面的综合优势</strong>，使其成为更合适的选择。</p>
+<table>
+  <thead>
+      <tr>
+          <th></th>
+          <th></th>
+          <th></th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>维度</td>
+          <td>跳表优势</td>
+          <td>B+ 树劣势</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>内存访问</strong></td>
+          <td>符合CPU缓存局部性，指针跳转更高效</td>
+          <td>节点结构复杂，缓存不友好</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>实现复杂度</strong></td>
+          <td>代码简洁，无复杂平衡操作</td>
+          <td>节点分裂/合并逻辑复杂，代码量大</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>写入性能</strong></td>
+          <td>插入/删除仅需调整局部指针</td>
+          <td>插入可能触发递归节点分裂，成本高</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>内存占用</strong></td>
+          <td>结构紧凑，无内部碎片</td>
+          <td>节点预分配可能浪费内存</td>
+      </tr>
+  </tbody>
+</table>
+<p>Redis 选择使用跳表（Skip List）而不是 B+ 树来实现有序集合（Sorted Set）等数据结构，是经过多方面权衡后的结果。以下是详细的原因分析：</p>
+<p>1、内存结构与访问模式的差异</p>
+<p><strong>B+ 树的特性</strong></p>
+<ul>
+<li><strong class=chinese>磁盘友好</strong>：B+ 树的设计目标是优化磁盘I/O，通过减少树的高度来降低磁盘寻道次数（例如，一个3层的B+树可以管理数百万数据）。</li>
+<li><strong class=chinese>节点填充率高</strong>：每个节点存储多个键值（Page/Block），适合批量读写。</li>
+<li><strong class=chinese>范围查询高效</strong>：叶子节点形成有序链表，范围查询（如 <code>ZRANGE</code>）性能极佳。</li>
+</ul>
+<p><strong class=chinese>跳表的特性</strong></p>
+<ul>
+<li><strong class=chinese>内存友好</strong>：跳表基于链表，通过多级索引加速查询，<strong>内存访问模式更符合CPU缓存局部性</strong>（指针跳跃更少）。</li>
+<li><strong class=chinese>简单灵活</strong>：插入/删除时仅需调整局部指针，无需复杂的节点分裂与合并。</li>
+<li><strong class=chinese>概率平衡</strong>：通过随机层高实现近似平衡，避免了严格的平衡约束（如红黑树的旋转）。</li>
+</ul>
+<p><strong>Redis 是内存数据库</strong>，数据完全存储在内存中，不需要优化磁盘I/O，因此 B+ 树的磁盘友好特性对 Redis 意义不大。而跳表的内存访问模式更优，更适合高频的内存操作。</p>
+<p>2、实现复杂度的对比</p>
+<p><strong>B+ 树的实现复杂度</strong>：</p>
+<ul>
+<li><strong class=chinese>节点分裂与合并</strong>：插入/删除时可能触发节点分裂或合并，需要复杂的再平衡逻辑。</li>
+<li><strong class=chinese>锁竞争</strong>：在并发环境下，B+ 树的锁粒度较粗（如页锁），容易成为性能瓶颈。</li>
+<li><strong class=chinese>代码复杂度</strong>：B+ 树的实现需要处理大量边界条件（如最小填充因子、兄弟节点借用等）。</li>
+</ul>
+<p><strong class=chinese>跳表的实现复杂度</strong>：</p>
+<ul>
+<li><strong class=chinese>无再平衡操作</strong>：插入时只需随机生成层高，删除时直接移除节点并调整指针。</li>
+<li><strong class=chinese>细粒度锁或无锁</strong>：跳表可以通过分段锁或无锁结构（如 CAS）实现高效并发。</li>
+<li><strong class=chinese>代码简洁</strong>：Redis 的跳表核心代码仅需约 200 行（B+ 树实现通常需要数千行）。</li>
+</ul>
+<p><strong>对于 Redis 这种追求高性能和代码简洁性的项目</strong>，跳表的低实现复杂度更具吸引力，Redis作者Antirez曾表示，跳表的实现复杂度远低于平衡树，且性能相近，是更优选择。</p>
+<p>3、性能对比</p>
+<p><strong class=chinese>查询性能</strong></p>
+<ul>
+<li><strong class=chinese>单点查询</strong>：跳表和 B+ 树的时间复杂度均为 <code>O(log N)</code>，但跳表的实际常数更小（内存中指针跳转比磁盘块访问快得多）。</li>
+<li><strong class=chinese>范围查询</strong>：B+ 树的叶子链表在范围查询时占优，但跳表通过双向链表也能高效支持 <code>ZRANGE</code> 操作。</li>
+</ul>
+<p><strong class=chinese>写入性能</strong></p>
+<ul>
+<li><strong>B+ 树</strong>：插入可能触发节点分裂，涉及父节点递归更新，成本较高。</li>
+<li><strong class=chinese>跳表</strong>：插入仅需修改相邻节点的指针，写入性能更优（Redis 的 <code>ZADD</code> 操作时间复杂度为 <code>O(log N)</code>）。</li>
+</ul>
+<p><strong class=chinese>实测数据</strong>：在内存中，跳表的插入速度比 B+ 树快 2-3 倍，查询速度相当。</p>
+<p>4、内存占用</p>
+<ul>
+<li><strong>B+ 树</strong>：每个节点需要存储多个键值和子节点指针，存在内部碎片（节点未填满时）。</li>
+<li><strong class=chinese>跳表</strong>：每个节点只需存储键值、层高和多个前向指针，内存占用更紧凑。</li>
+</ul>
+<h1 id="压缩列表是怎么实现的">压缩列表是怎么实现的？</h1>
+<p>压缩列表是 Redis 为了节约内存而开发的，它是<strong class=chinese>由连续内存块组成的顺序型数据结构</strong>，有点类似于数组。</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274310-9c8cdfac-fca9-4357-86ef-583dac7cad8a.webp" alt=""></p>
+<p>压缩列表在表头有三个字段：</p>
+<ul>
+<li><em><strong>zlbytes</strong></em>，记录整个压缩列表占用对内存字节数；</li>
+<li><em><strong>zltail</strong></em>，记录压缩列表「尾部」节点距离起始地址由多少字节，也就是列表尾的偏移量；</li>
+<li><em><strong>zllen</strong></em>，记录压缩列表包含的节点数量；</li>
+<li><em><strong>zlend</strong></em>，标记压缩列表的结束点，固定值 0xFF（十进制255）。</li>
+</ul>
+<p>在压缩列表中，如果我们要查找定位首尾元素通过表头三个字段（zllen）的长度直接定位，复杂度是 O(1)。<strong>查找其他元素时，只能逐个查找O(N) ，因此压缩列表不适合保存过多的元素</strong>。</p>
+<p>另外，压缩列表节点（entry）的构成如下：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274295-9438e5b1-93e0-4ab3-a15b-4d0e99409b7f.webp" alt=""></p>
+<p>压缩列表节点包含三部分内容：</p>
+<ul>
+<li><strong>prevlen</strong>，记录了「前一个节点」的长度，目的是为了实现从后向前遍历；</li>
+<li><strong>encoding</strong>，记录了当前节点实际数据的「类型和长度」，类型主要有两种：字符串和整数。</li>
+<li><strong>data</strong>，记录了当前节点的实际数据，类型和长度都由 encoding 决定；</li>
+</ul>
+<p>往压缩列表中插入数据时，压缩列表就会根据数据类型是字符串还是整数，以及数据的大小，会使用不同空间大小的 prevlen 和 encoding 这两个元素里保存的信息，<strong>这种根据数据大小和类型进行不同的空间大小分配的设计思想，正是 Redis 为了节省内存而采用的</strong>。</p>
+<p>压缩列表的缺点是会发生连锁更新的问题，因此<strong>连锁更新一旦发生，就会导致压缩列表占用的内存空间要多次重新分配，这就会直接影响到压缩列表的访问性能</strong>。</p>
+<p>所以说，<strong>虽然压缩列表紧凑型的内存布局能节省内存开销，但是如果保存的元素数量增加了，或是元素变大了，会导致内存重新分配，最糟糕的是会有「连锁更新」的问题</strong>。</p>
+<p>因此，<strong class=chinese>压缩列表只会用于保存的节点数量不多的场景</strong>，只要节点数量足够小，即使发生连锁更新，也是能接受的。</p>
+<p>虽说如此，Redis 针对压缩列表在设计上的不足，在后来的版本中，新增设计了两种数据结构：quicklist（Redis 3.2 引入） 和 listpack（Redis 5.0 引入）。这两种数据结构的设计目标，就是尽可能地保持压缩列表节省内存的优势，同时解决压缩列表的「连锁更新」的问题。</p>
+<p>listpack 采用了压缩列表的很多优秀的设计，比如还是用一块连续的内存空间来紧凑地保存数据，并且为了节省内存的开销，listpack 节点会采用不同的编码方式保存不同大小的数据。</p>
+<p>我们先看看 listpack 结构：</p>
+<p><img src="https://cdn.nlark.com/yuque/0/2025/webp/61111041/1760518274304-f793ea11-1f5c-4002-a637-b73076232e3d.webp" alt=""></p>
+<p>listpack 头包含两个属性，分别记录了 listpack 总字节数和元素数量，然后 listpack 末尾也有个结尾标识。图中的 listpack entry 就是 listpack 的节点了。</p>
+<p>每个 listpack 节点结构如下：</p>
+<p><img src="/pics/redis/listpack.webp" alt=""></p>
+<p>主要包含三个方面内容：</p>
+<ul>
+<li>encoding，定义该元素的编码类型，会对不同长度的整数和字符串进行编码；</li>
+<li>data，实际存放的数据；</li>
+<li>len，encoding+data的总长度；</li>
+</ul>
+<p>可以看到，<strong>listpack 没有压缩列表中记录前一个节点长度的字段了，listpack 只记录当前节点的长度，当我们向 listpack 加入一个新元素的时候，不会影响其他节点的长度字段的变化，从而避免了压缩列表的连锁更新问题</strong>。</p>
+
+    
+  </article>
+
+  <button onclick="topFunction()" id="back-to-top" title="Go to top">Back to Top</button>
+
+  
+
+<div id="sharingbuttons">
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+</div>
+  <div class="paginator">
+    
+    <a class="link" href="https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/" title="Redis 生产问题">← prev</a>
+    
+    
+    <a></a>
+    
+  </div>
+  <div class="comment">
+    
+    
+    
+      <script src="https://giscus.app/client.js"
+        data-repo="michaelneuper/website"
+        data-repo-id="R_kgDOIjPNaQ"
+        data-category="General"
+        data-category-id="DIC_kwDOIjPNac4CaklA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="gruvbox"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+  </script>
+  
+  </div>
+  
+  
+</main>
+
+    <footer id="footer">
+  <div>
+    <span>Powered by  <a class=link href=https://gohugo.io target=_blank rel=noopener>Hugo</a> | 
+Theme <a class=link href=https://github.com/michaelneuper/hugo-texify3 target=_blank rel=noopener>TeXify3</a>
+</span>
+  </div>
+  <div>
+    <span>Copyright © 2025 </span>
+  </div>
+</footer>
+
+  </div>
+
+  
+  <script src='https://asgpipo.github.io/js/script.js' defer></script>
+
+  
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/syntax.css" />
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/scale.css" />
+  
+
+  
+  
+
+  
+  
+
+</body>
+
+</html>

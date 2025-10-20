@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>REST on pipo&#39;s site</title>
+    <link>https://asgpipo.github.io/tags/rest/</link>
+    <description>Recent content in REST on pipo&#39;s site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Fri, 10 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/rest/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>RESTful API 设计原则</title>
+      <link>https://asgpipo.github.io/posts/restful-api-%E8%AE%BE%E8%AE%A1/</link>
+      <pubDate>Fri, 10 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/restful-api-%E8%AE%BE%E8%AE%A1/</guid>
+      <description>&lt;h1 id=&#34;restful-api-设计原则&#34;&gt;RESTful API 设计原则&lt;/h1&gt;
+&lt;h2 id=&#34;无状态性-stateless&#34;&gt;无状态性 (Stateless)&lt;/h2&gt;
+&lt;p&gt;无状态是指客户端和服务器之间的通信不依赖于历史消息，服务器不存储任何会话状态。每个请求都必须包含处理该请求所需的所有信息。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;违反无状态原则的例子：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在用户认证中使用服务器端存储的 session，通过 sessionId 来验证用户信息&lt;/li&gt;
+&lt;li&gt;服务器存储用户的登录状态或上下文信息&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;正确的做法：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用 JWT (JSON Web Token) 进行用户认证&lt;/li&gt;
+&lt;li&gt;在请求头中携带认证信息（如 Authorization: Bearer &lt;!-- raw HTML omitted --&gt;）&lt;/li&gt;
+&lt;li&gt;所有必要的状态信息都应由客户端提供&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;优势：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;提高可扩展性：服务器可以轻松水平扩展&lt;/li&gt;
+&lt;li&gt;提高可靠性：单个服务器故障不会影响用户会话&lt;/li&gt;
+&lt;li&gt;简化负载均衡：请求可以被路由到任何服务器&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;可缓存性-cacheability&#34;&gt;可缓存性 (Cacheability)&lt;/h2&gt;
+&lt;p&gt;服务器的响应必须明确地定义自身是否可缓存，以提高性能并减轻服务器负载。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;实现方式：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用 HTTP 缓存头来控制缓存行为&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Cache-Control&lt;/code&gt;: 定义缓存策略（max-age, no-cache, no-store 等）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ETag&lt;/code&gt;: 资源版本标识符，用于条件请求&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Last-Modified&lt;/code&gt;: 资源最后修改时间&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;缓存策略示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;Cache-Control: max-age=3600  # 缓存1小时
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;ETag: &amp;#34;33a64df551425fcc55e4d42a148795d9f25f89d4&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;优势：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;减少服务器负载&lt;/li&gt;
+&lt;li&gt;提高响应速度&lt;/li&gt;
+&lt;li&gt;降低带宽消耗&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;统一接口-uniform-interface&#34;&gt;统一接口 (Uniform Interface)&lt;/h2&gt;
+&lt;p&gt;统一接口是 REST 架构的核心约束，确保系统组件之间的标准化通信。&lt;/p&gt;
+&lt;h3 id=&#34;资源标识-resource-identification&#34;&gt;资源标识 (Resource Identification)&lt;/h3&gt;
+&lt;p&gt;每个资源都通过 URI 唯一标识，客户端通过 URI 访问和操作资源。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /api/v1/users/123
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /api/v1/products/456/reviews
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;通过表述操作资源-manipulation-of-resources-through-representations&#34;&gt;通过表述操作资源 (Manipulation of Resources Through Representations)&lt;/h3&gt;
+&lt;p&gt;客户端通过发送资源的表述（如 JSON）来操作资源，而不是直接操作资源本身。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;John Doe&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;email&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;john@example.com&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;自描述消息-self-descriptive-messages&#34;&gt;自描述消息 (Self-descriptive Messages)&lt;/h3&gt;
+&lt;p&gt;每条消息（请求或响应）都应包含足够的信息来描述如何处理它。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;实现方式：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;HTTP 方法：GET、POST、PUT、PATCH、DELETE&lt;/li&gt;
+&lt;li&gt;HTTP 头部：Content-Type、Accept、Authorization&lt;/li&gt;
+&lt;li&gt;HTTP 状态码：200 OK、404 Not Found 等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;api-设计实践&#34;&gt;API 设计实践&lt;/h1&gt;
+&lt;h2 id=&#34;资源命名规范&#34;&gt;资源命名规范&lt;/h2&gt;
+&lt;h3 id=&#34;使用名词而非动词&#34;&gt;使用名词而非动词&lt;/h3&gt;
+&lt;p&gt;在 REST 理念下，每个 URL 路径都代表一个资源，通过 HTTP 方法来表示操作动作。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;良好示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/zoos
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/animals
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/employees
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;避免的示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/getUsers
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/createOrder
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/deleteProduct
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;使用复数名词&#34;&gt;使用复数名词&lt;/h3&gt;
+&lt;p&gt;这是一个常见的约定，用于表示资源集合。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users          # 获取所有用户
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users/123      # 获取特定用户
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;POST /users         # 创建新用户
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;PUT /users/123      # 更新用户信息
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;DELETE /users/123   # 删除用户
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;使用层级结构&#34;&gt;使用层级结构&lt;/h3&gt;
+&lt;p&gt;展示资源之间的关系，但避免过深的嵌套。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;良好示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users/123/orders          # 获取用户 123 的所有订单
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users/123/orders/456      # 获取特定用户的特定订单
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;避免过深嵌套：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;# 避免这种过深的嵌套
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users/123/orders/456/items/789/reviews/101
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;http-方法语义&#34;&gt;HTTP 方法语义&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;方法&lt;/th&gt;
+          &lt;th&gt;语义&lt;/th&gt;
+          &lt;th&gt;幂等性&lt;/th&gt;
+          &lt;th&gt;安全性&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;GET&lt;/td&gt;
+          &lt;td&gt;获取资源&lt;/td&gt;
+          &lt;td&gt;是&lt;/td&gt;
+          &lt;td&gt;是&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;POST&lt;/td&gt;
+          &lt;td&gt;创建资源&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;PUT&lt;/td&gt;
+          &lt;td&gt;更新完整资源&lt;/td&gt;
+          &lt;td&gt;是&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;PATCH&lt;/td&gt;
+          &lt;td&gt;部分更新资源&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;DELETE&lt;/td&gt;
+          &lt;td&gt;删除资源&lt;/td&gt;
+          &lt;td&gt;是&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;完整示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET    /zoos                    # 列出所有动物园
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;POST   /zoos                    # 新建一个动物园
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET    /zoos/123                # 获取指定动物园的信息
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;PUT    /zoos/123                # 更新指定动物园的完整信息
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;PATCH  /zoos/123                # 更新指定动物园的部分信息
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;DELETE /zoos/123                # 删除指定动物园
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET    /zoos/123/animals        # 列出指定动物园的所有动物
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;DELETE /zoos/123/animals/456    # 删除指定动物园的指定动物
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;版本控制-versioning&#34;&gt;版本控制 (Versioning)&lt;/h2&gt;
+&lt;p&gt;在 API 设计中加入版本控制机制，确保向后兼容性和系统的可扩展性。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;实现方式：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;URL 路径版本控制&lt;/strong&gt;（推荐）：&lt;code&gt;/api/v1/users&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;查询参数版本控制&lt;/strong&gt;：&lt;code&gt;/api/users?version=1&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;请求头版本控制&lt;/strong&gt;：&lt;code&gt;Accept: application/vnd.example.v1+json&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;推荐使用 URL 路径版本控制：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /api/v1/users
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;POST /api/v2/users
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;优势：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;支持并行开发和测试&lt;/li&gt;
+&lt;li&gt;提供向后兼容性&lt;/li&gt;
+&lt;li&gt;便于 API 演进和废弃&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;http-状态码规范&#34;&gt;HTTP 状态码规范&lt;/h2&gt;
+&lt;p&gt;使用标准化的 HTTP 状态码来描述请求的处理结果。&lt;/p&gt;
+&lt;h3 id=&#34;常用状态码&#34;&gt;常用状态码&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;2xx 成功&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;200 OK&lt;/code&gt; - 请求成功&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;201 Created&lt;/code&gt; - 资源创建成功&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;204 No Content&lt;/code&gt; - 请求成功，无返回内容&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;3xx 重定向&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;301 Moved Permanently&lt;/code&gt; - 资源永久移动&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;304 Not Modified&lt;/code&gt; - 资源未修改（缓存相关）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;4xx 客户端错误&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;400 Bad Request&lt;/code&gt; - 请求参数错误&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;401 Unauthorized&lt;/code&gt; - 未认证&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;403 Forbidden&lt;/code&gt; - 无权限&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;404 Not Found&lt;/code&gt; - 资源不存在&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;409 Conflict&lt;/code&gt; - 资源冲突&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;422 Unprocessable Entity&lt;/code&gt; - 请求格式正确但语义错误&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;5xx 服务器错误&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;500 Internal Server Error&lt;/code&gt; - 服务器内部错误&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;503 Service Unavailable&lt;/code&gt; - 服务不可用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;查询参数设计&#34;&gt;查询参数设计&lt;/h2&gt;
+&lt;p&gt;使用查询参数进行过滤、分页、排序等操作，避免创建复杂的多级 URL。&lt;/p&gt;
+&lt;h3 id=&#34;常用查询参数模式&#34;&gt;常用查询参数模式&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;过滤：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /articles?published=true&amp;amp;category=tech
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users?status=active&amp;amp;role=admin
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;分页：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users?page=2&amp;amp;limit=20
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /products?offset=100&amp;amp;limit=50
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;排序：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /articles?sort=created_at&amp;amp;order=desc
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users?sort=name&amp;amp;order=asc
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;搜索：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /products?q=laptop
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users?search=john
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;响应格式标准化&#34;&gt;响应格式标准化&lt;/h2&gt;
+&lt;p&gt;API 响应应该采用结构化的 JSON 格式，保持一致性。&lt;/p&gt;
+&lt;h3 id=&#34;成功响应格式&#34;&gt;成功响应格式&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;status&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;success&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;data&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;123&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;John Doe&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;email&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;john@example.com&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;meta&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;timestamp&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;2025-10-10T14:30:00Z&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;version&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;总结&#34;&gt;总结&lt;/h2&gt;
+&lt;p&gt;RESTful API 设计是一个系统性的工程，需要综合考虑架构原则、开发实践和安全性。以下是关键要点：&lt;/p&gt;
+&lt;h3 id=&#34;核心原则&#34;&gt;核心原则&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;无状态性&lt;/strong&gt; - 每个请求独立，不依赖会话状态&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;可缓存性&lt;/strong&gt; - 合理利用缓存提高性能&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;统一接口&lt;/strong&gt; - 标准化通信协议和资源操作&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;设计要点&#34;&gt;设计要点&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;使用名词表示资源，HTTP 方法表示操作&lt;/li&gt;
+&lt;li&gt;采用一致的命名规范和 URL 结构&lt;/li&gt;
+&lt;li&gt;实现适当的版本控制策略&lt;/li&gt;
+&lt;li&gt;使用标准的 HTTP 状态码&lt;/li&gt;
+&lt;li&gt;设计清晰的查询参数模式&lt;/li&gt;
+&lt;li&gt;保持响应格式的一致性&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;最佳实践&#34;&gt;最佳实践&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;优先考虑 API 的可发现性和易用性&lt;/li&gt;
+&lt;li&gt;确保向后兼容性&lt;/li&gt;
+&lt;li&gt;实施适当的安全措施&lt;/li&gt;
+&lt;li&gt;提供详细的文档和错误信息&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;遵循这些原则和实践，可以设计出健壮、可扩展且易于维护的 RESTful API。&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

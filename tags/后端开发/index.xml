@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>后端开发 on pipo&#39;s site</title>
+    <link>https://asgpipo.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/</link>
+    <description>Recent content in 后端开发 on pipo&#39;s site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 19 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Redis 生产问题</title>
+      <link>https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Sun, 19 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/</guid>
+      <description>&lt;h1 id=&#34;缓存穿透&#34;&gt;缓存穿透&lt;/h1&gt;
+&lt;p&gt;指使用非法 key 进行请求, 这个 key 不存在于 Redis 缓存和数据库中. 导致数据库一直忙于处理非法 key 的查询请求.&lt;/p&gt;
+&lt;h2 id=&#34;1-缓存空值&#34;&gt;1. 缓存空值&lt;/h2&gt;
+&lt;p&gt;使用 Redis 缓存空值,将不存在的 key 加入缓存,之后直接在 Redis 被拦截.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;优点 :实现简单,成本低.&lt;/li&gt;
+&lt;li&gt;缺点 : 大量不同非法 key 访问会占用大量 redis 缓存.&lt;/li&gt;
+&lt;li&gt;改进: 给空值 key 设置较短的过期时间 或者加入布隆过滤器.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;2-布隆过滤器&#34;&gt;2. 布隆过滤器&lt;/h2&gt;
+&lt;p&gt;使用布隆过滤器首先判断当前请求的数据是否存在, 若不存在直接拦截, &amp;ldquo;存在&amp;quot;后继续交由 redis 进行.
+优点: bloomfilter 使用了散列算法&amp;quot;存储&amp;rdquo;,占用空间极小,速度快.
+缺点: bloomfilter 会出现假阳性,同时无法删除数据.
+改进: 使用 缓存空值兜底,同时定期刷新写入真实的数据.
+&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251019211336.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h1 id=&#34;缓存击穿&#34;&gt;缓存击穿&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251020085030.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;1-分布式锁&#34;&gt;1. 分布式锁&lt;/h2&gt;
+&lt;p&gt;通过加入分布式只允许一个线程同时去访问数据库进行缓存重建,其他线程等待缓存好的数据.
+步骤:
+A. redis 缓存未命中,尝试获取锁
+B. 获取锁成功,进行双重检查
+C. 查询数据库
+D.重新加入 Redis 缓存 (若为空则构造空值)&lt;/p&gt;
+&lt;p&gt;缺点:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;导致大量用户被堵塞,体验较差.&lt;/li&gt;
+&lt;li&gt;锁竞争激烈时，性能下降&lt;/li&gt;
+&lt;li&gt;如果锁未正确释放（如程序崩溃），可能导致死锁&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;改进:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用 Redis 的 &lt;code&gt;SET key value NX PX milliseconds&lt;/code&gt; 命令原子操作加锁。&lt;/li&gt;
+&lt;li&gt;加锁失败时，&lt;strong&gt;不要无限等待&lt;/strong&gt;，可以返回“稍后再试”或“默认值”。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;2逻辑过期--异步更新&#34;&gt;2.逻辑过期 + 异步更新&lt;/h2&gt;
+&lt;p&gt;在非强一致性场景下,缓存数据时加入逻辑过期时间,若发生过期则先返回旧数据,同时获取分布式锁进行异步更新缓存.
+步骤:
+A. redis 缓存命中, 但此时逻辑过期
+B. 返回旧数据,同时尝试获取锁.
+C. 开启子线程,进行双重检查
+D. 重构缓存
+缺点:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;复杂度较高, 需要维护逻辑过期字段、异步线程、锁机制&lt;/li&gt;
+&lt;li&gt;用户可能无法及时获取到最新数据.&lt;/li&gt;
+&lt;li&gt;内存占用略高,因为缓存不会真正过期，除非手动清理。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;改进:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;对缓存设置较长的过期时间,大于逻辑过期时间.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;3-缓存预热&#34;&gt;3. 缓存预热&lt;/h2&gt;
+&lt;p&gt;针对热点数据提前预热，将其存入缓存中并设置合理的过期时间比如秒杀场景下的数据在秒杀结束之前不过期。&lt;/p&gt;
+&lt;h1 id=&#34;缓存雪崩&#34;&gt;缓存雪崩&lt;/h1&gt;
+&lt;p&gt;指缓存内&lt;strong&gt;同时出现大量 key 过期&lt;/strong&gt;或者 &lt;strong&gt;Redis 奔溃重启,没有缓存&lt;/strong&gt;任何key,导致大量的请求都直接落到了数据库上，对数据库造成了巨大的压力。&lt;/p&gt;
+&lt;h2 id=&#34;1-随机过期时间&#34;&gt;1. 随机过期时间&lt;/h2&gt;
+&lt;p&gt;通过 在 Redis 重构缓存时在过期时间中加入随机抖动使得过期时间均匀分散,避免了大量 key 同时过期的情况.&lt;/p&gt;
+&lt;h2 id=&#34;2-redis-集群&#34;&gt;2. Redis 集群&lt;/h2&gt;
+&lt;p&gt;通过构建 Redis 主从架构+哨兵机制实现, 当主节点下线后,哨兵会自动把从节点提升为主节点. 多个节点保证了不会出现缓存全部消失的情况.&lt;/p&gt;
+&lt;h2 id=&#34;服务降级--熔断&#34;&gt;**服务降级 &amp;amp; 熔断&lt;/h2&gt;
+&lt;p&gt;当数据库压力过大时：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;返回&lt;strong&gt;默认值&lt;/strong&gt;（如“系统繁忙，请稍后再试”）。&lt;/li&gt;
+&lt;li&gt;启用&lt;strong&gt;本地缓存&lt;/strong&gt;（如 Caffeine）作为二级缓存。&lt;/li&gt;
+&lt;li&gt;使用&lt;strong&gt;限流&lt;/strong&gt;（如 Sentinel、Hystrix）保护数据库。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;3.预热数据&lt;/p&gt;&lt;/blockquote&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Redis RDB &amp; AOF</title>
+      <link>https://asgpipo.github.io/posts/redis/rdb--aof/</link>
+      <pubDate>Fri, 17 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/redis/rdb--aof/</guid>
+      <description>&lt;h1 id=&#34;rdb&#34;&gt;RDB&lt;/h1&gt;
+&lt;p&gt;RDB是对 Redis 某一瞬间 保存的全量快照,本质上是一份二进制文件,用来在 Redis 重启或丢失数据后进行恢复,通常用作数据恢复、主从全量同步以及定期备份.&lt;/p&gt;
+&lt;h2 id=&#34;执行方式&#34;&gt;执行方式&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/redis/Pasted_image_20251017093754.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;1手动&#34;&gt;1.手动&lt;/h3&gt;
+&lt;pre&gt;&lt;code&gt;可以通过 `SAVE` 与 `BGSAVE` 手动执行 RDB 备份, `SAVE` 命令会在主线程内进行备份操作,此时Redis主线程会被堵塞直到写入 RDB 完成.
+使用 `BGSAVE` 时 则是通过 `fork` 一个子线程进行写时复制写入硬盘,不会造成 Redis 主线程堵塞.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;Copy-On-Write（写时复制）&lt;/strong&gt; 是一种 &lt;strong&gt;优化内存使用和提升性能的系统级技术&lt;/strong&gt;，广泛用于操作系统（如 Linux）、数据库、虚拟化等领域。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;多个进程/线程共享同一份物理内存，只有当某个进程试图“修改”数据时，才真正复制一份私有副本。&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;读操作&lt;/strong&gt;：直接共享原始数据，&lt;strong&gt;无需复制&lt;/strong&gt;；&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;写操作&lt;/strong&gt;：触发复制，之后修改的是副本，不影响原数据。&lt;/li&gt;
+&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;h3 id=&#34;2-自动通过配置文件&#34;&gt;2. 自动(通过配置文件)&lt;/h3&gt;
+&lt;p&gt;Redis 支持通过在 &lt;code&gt;redis.conf&lt;/code&gt; 文件中配置 &lt;code&gt;save&lt;/code&gt; 选项，让服务器每隔一段时间自动执行一次 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;code&gt;save&lt;/code&gt; 选项可以设置多个保存条件，只要其中任意一个条件被满足，服务器就会执行 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;/p&gt;
+&lt;p&gt;【示例】&lt;code&gt;redis.conf&lt;/code&gt; 中自动保存配置&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 900 秒内，至少对数据库进行了 1 次修改
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;save 900 1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 300 秒内，至少对数据库进行了 10 次修改
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;save 300 10
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 60 秒内，至少对数据库进行了 10000 次修改
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;save 60 10000
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;只要满足以上任意条件，Redis 服务就会执行 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;/p&gt;
+&lt;h2 id=&#34;rdb-优缺点&#34;&gt;RDB 优缺点&lt;/h2&gt;
+&lt;h3 id=&#34;优点&#34;&gt;优点&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;重启后加载快, 相比 AOF 命令执行式恢复, RDB本质就是压缩过的二进制文件,只需要将其全部读入内存即可.&lt;/li&gt;
+&lt;li&gt;相比 AOF RDB空间利用率更高.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;缺点&#34;&gt;缺点&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;备份频率较低,每次只能全量备份,如果在备份开始前发生故障,会导致丢失大量数据,无法满足强一致性.&lt;/li&gt;
+&lt;li&gt;备份时间长,如果数据量很大，保存快照的时间会很长.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h1 id=&#34;aofappend-only-file&#34;&gt;AOF（Append Only File）&lt;/h1&gt;
+&lt;p&gt;AOF 是 Redis 的另一种持久化机制，它通过&lt;strong&gt;记录服务器接收到的每一个写命令&lt;/strong&gt;，以日志形式追加到文件末尾。在 Redis 重启时，通过&lt;strong&gt;重新执行 AOF 文件中的命令&lt;/strong&gt;来恢复数据。AOF 文件是&lt;strong&gt;可读的文本格式&lt;/strong&gt;，通常用于对数据安全性要求较高的场景。&lt;/p&gt;
+&lt;h2 id=&#34;执行方式-1&#34;&gt;执行方式&lt;/h2&gt;
+&lt;h3 id=&#34;1-手动&#34;&gt;1. 手动&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;开启 AOF&lt;/strong&gt;：默认关闭，需在 &lt;code&gt;redis.conf&lt;/code&gt; 中设置 &lt;code&gt;appendonly yes&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;重写 AOF&lt;/strong&gt;：执行 &lt;code&gt;BGREWRITEAOF&lt;/code&gt; 命令，Redis 会 fork 一个子进程，根据当前数据库状态生成一个&lt;strong&gt;更紧凑的新 AOF 文件&lt;/strong&gt;（利用 Copy-On-Write 机制，不阻塞主线程）。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;2-自动通过配置文件-1&#34;&gt;2. 自动（通过配置文件）&lt;/h3&gt;
+&lt;p&gt;AOF 的同步策略由 &lt;code&gt;appendfsync&lt;/code&gt; 配置项控制，决定写命令何时从缓冲区刷入磁盘：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 每次写操作都同步到磁盘（最安全，性能最差）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;appendfsync always
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 每秒同步一次（默认推荐，平衡安全与性能）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;appendfsync everysec
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 由操作系统决定何时同步（性能最好，但可能丢失较多数据）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;appendfsync no
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;此外，AOF 重写也可自动触发，通过以下配置：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# 当 AOF 文件大小超过上一次重写后大小的指定百分比时，自动触发重写
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;auto-aof-rewrite-percentage 100
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;# AOF 文件至少达到指定大小（字节）才触发自动重写
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;auto-aof-rewrite-min-size 64mb
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;aof-优缺点&#34;&gt;AOF 优缺点&lt;/h2&gt;
+&lt;h3 id=&#34;优点-1&#34;&gt;优点&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;数据更安全&lt;/strong&gt;：&lt;code&gt;everysec&lt;/code&gt; 模式下最多丢失 1 秒数据，&lt;code&gt;always&lt;/code&gt; 模式可做到几乎零丢失。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;可读可编辑&lt;/strong&gt;：AOF 是纯文本格式，若误操作（如误删 key），可手动修改文件删除对应命令后恢复。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;自动压缩&lt;/strong&gt;：通过重写机制，可将冗余命令（如多次 &lt;code&gt;INCR&lt;/code&gt;）合并为一条 &lt;code&gt;SET&lt;/code&gt;，减小文件体积。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;缺点-1&#34;&gt;缺点&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;文件体积大&lt;/strong&gt;：相比 RDB，AOF 通常更大（尽管重写可优化）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;恢复速度慢&lt;/strong&gt;：需逐条重放命令，大数据集下恢复时间远长于 RDB。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;性能开销&lt;/strong&gt;：尤其在 &lt;code&gt;always&lt;/code&gt; 模式下，每次写操作都需同步磁盘，影响吞吐量。&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>RESTful API 设计原则</title>
+      <link>https://asgpipo.github.io/posts/restful-api-%E8%AE%BE%E8%AE%A1/</link>
+      <pubDate>Fri, 10 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/restful-api-%E8%AE%BE%E8%AE%A1/</guid>
+      <description>&lt;h1 id=&#34;restful-api-设计原则&#34;&gt;RESTful API 设计原则&lt;/h1&gt;
+&lt;h2 id=&#34;无状态性-stateless&#34;&gt;无状态性 (Stateless)&lt;/h2&gt;
+&lt;p&gt;无状态是指客户端和服务器之间的通信不依赖于历史消息，服务器不存储任何会话状态。每个请求都必须包含处理该请求所需的所有信息。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;违反无状态原则的例子：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在用户认证中使用服务器端存储的 session，通过 sessionId 来验证用户信息&lt;/li&gt;
+&lt;li&gt;服务器存储用户的登录状态或上下文信息&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;正确的做法：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用 JWT (JSON Web Token) 进行用户认证&lt;/li&gt;
+&lt;li&gt;在请求头中携带认证信息（如 Authorization: Bearer &lt;!-- raw HTML omitted --&gt;）&lt;/li&gt;
+&lt;li&gt;所有必要的状态信息都应由客户端提供&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;优势：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;提高可扩展性：服务器可以轻松水平扩展&lt;/li&gt;
+&lt;li&gt;提高可靠性：单个服务器故障不会影响用户会话&lt;/li&gt;
+&lt;li&gt;简化负载均衡：请求可以被路由到任何服务器&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;可缓存性-cacheability&#34;&gt;可缓存性 (Cacheability)&lt;/h2&gt;
+&lt;p&gt;服务器的响应必须明确地定义自身是否可缓存，以提高性能并减轻服务器负载。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;实现方式：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用 HTTP 缓存头来控制缓存行为&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Cache-Control&lt;/code&gt;: 定义缓存策略（max-age, no-cache, no-store 等）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;ETag&lt;/code&gt;: 资源版本标识符，用于条件请求&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Last-Modified&lt;/code&gt;: 资源最后修改时间&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;缓存策略示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;Cache-Control: max-age=3600  # 缓存1小时
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;ETag: &amp;#34;33a64df551425fcc55e4d42a148795d9f25f89d4&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;Last-Modified: Wed, 21 Oct 2015 07:28:00 GMT
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;优势：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;减少服务器负载&lt;/li&gt;
+&lt;li&gt;提高响应速度&lt;/li&gt;
+&lt;li&gt;降低带宽消耗&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;统一接口-uniform-interface&#34;&gt;统一接口 (Uniform Interface)&lt;/h2&gt;
+&lt;p&gt;统一接口是 REST 架构的核心约束，确保系统组件之间的标准化通信。&lt;/p&gt;
+&lt;h3 id=&#34;资源标识-resource-identification&#34;&gt;资源标识 (Resource Identification)&lt;/h3&gt;
+&lt;p&gt;每个资源都通过 URI 唯一标识，客户端通过 URI 访问和操作资源。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /api/v1/users/123
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /api/v1/products/456/reviews
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;通过表述操作资源-manipulation-of-resources-through-representations&#34;&gt;通过表述操作资源 (Manipulation of Resources Through Representations)&lt;/h3&gt;
+&lt;p&gt;客户端通过发送资源的表述（如 JSON）来操作资源，而不是直接操作资源本身。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;John Doe&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;email&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;john@example.com&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;自描述消息-self-descriptive-messages&#34;&gt;自描述消息 (Self-descriptive Messages)&lt;/h3&gt;
+&lt;p&gt;每条消息（请求或响应）都应包含足够的信息来描述如何处理它。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;实现方式：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;HTTP 方法：GET、POST、PUT、PATCH、DELETE&lt;/li&gt;
+&lt;li&gt;HTTP 头部：Content-Type、Accept、Authorization&lt;/li&gt;
+&lt;li&gt;HTTP 状态码：200 OK、404 Not Found 等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;api-设计实践&#34;&gt;API 设计实践&lt;/h1&gt;
+&lt;h2 id=&#34;资源命名规范&#34;&gt;资源命名规范&lt;/h2&gt;
+&lt;h3 id=&#34;使用名词而非动词&#34;&gt;使用名词而非动词&lt;/h3&gt;
+&lt;p&gt;在 REST 理念下，每个 URL 路径都代表一个资源，通过 HTTP 方法来表示操作动作。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;良好示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/zoos
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/animals
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/employees
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;避免的示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/getUsers
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/createOrder
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;- https://api.example.com/v1/deleteProduct
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;使用复数名词&#34;&gt;使用复数名词&lt;/h3&gt;
+&lt;p&gt;这是一个常见的约定，用于表示资源集合。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users          # 获取所有用户
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users/123      # 获取特定用户
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;POST /users         # 创建新用户
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;PUT /users/123      # 更新用户信息
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;DELETE /users/123   # 删除用户
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h3 id=&#34;使用层级结构&#34;&gt;使用层级结构&lt;/h3&gt;
+&lt;p&gt;展示资源之间的关系，但避免过深的嵌套。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;良好示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users/123/orders          # 获取用户 123 的所有订单
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users/123/orders/456      # 获取特定用户的特定订单
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;避免过深嵌套：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;# 避免这种过深的嵌套
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users/123/orders/456/items/789/reviews/101
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;http-方法语义&#34;&gt;HTTP 方法语义&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;方法&lt;/th&gt;
+          &lt;th&gt;语义&lt;/th&gt;
+          &lt;th&gt;幂等性&lt;/th&gt;
+          &lt;th&gt;安全性&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;GET&lt;/td&gt;
+          &lt;td&gt;获取资源&lt;/td&gt;
+          &lt;td&gt;是&lt;/td&gt;
+          &lt;td&gt;是&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;POST&lt;/td&gt;
+          &lt;td&gt;创建资源&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;PUT&lt;/td&gt;
+          &lt;td&gt;更新完整资源&lt;/td&gt;
+          &lt;td&gt;是&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;PATCH&lt;/td&gt;
+          &lt;td&gt;部分更新资源&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;DELETE&lt;/td&gt;
+          &lt;td&gt;删除资源&lt;/td&gt;
+          &lt;td&gt;是&lt;/td&gt;
+          &lt;td&gt;否&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;完整示例：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET    /zoos                    # 列出所有动物园
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;POST   /zoos                    # 新建一个动物园
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET    /zoos/123                # 获取指定动物园的信息
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;PUT    /zoos/123                # 更新指定动物园的完整信息
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;PATCH  /zoos/123                # 更新指定动物园的部分信息
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;DELETE /zoos/123                # 删除指定动物园
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET    /zoos/123/animals        # 列出指定动物园的所有动物
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;DELETE /zoos/123/animals/456    # 删除指定动物园的指定动物
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;版本控制-versioning&#34;&gt;版本控制 (Versioning)&lt;/h2&gt;
+&lt;p&gt;在 API 设计中加入版本控制机制，确保向后兼容性和系统的可扩展性。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;实现方式：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;URL 路径版本控制&lt;/strong&gt;（推荐）：&lt;code&gt;/api/v1/users&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;查询参数版本控制&lt;/strong&gt;：&lt;code&gt;/api/users?version=1&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;请求头版本控制&lt;/strong&gt;：&lt;code&gt;Accept: application/vnd.example.v1+json&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;推荐使用 URL 路径版本控制：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /api/v1/users
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;POST /api/v2/users
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;优势：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;支持并行开发和测试&lt;/li&gt;
+&lt;li&gt;提供向后兼容性&lt;/li&gt;
+&lt;li&gt;便于 API 演进和废弃&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;http-状态码规范&#34;&gt;HTTP 状态码规范&lt;/h2&gt;
+&lt;p&gt;使用标准化的 HTTP 状态码来描述请求的处理结果。&lt;/p&gt;
+&lt;h3 id=&#34;常用状态码&#34;&gt;常用状态码&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;2xx 成功&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;200 OK&lt;/code&gt; - 请求成功&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;201 Created&lt;/code&gt; - 资源创建成功&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;204 No Content&lt;/code&gt; - 请求成功，无返回内容&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;3xx 重定向&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;301 Moved Permanently&lt;/code&gt; - 资源永久移动&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;304 Not Modified&lt;/code&gt; - 资源未修改（缓存相关）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;4xx 客户端错误&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;400 Bad Request&lt;/code&gt; - 请求参数错误&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;401 Unauthorized&lt;/code&gt; - 未认证&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;403 Forbidden&lt;/code&gt; - 无权限&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;404 Not Found&lt;/code&gt; - 资源不存在&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;409 Conflict&lt;/code&gt; - 资源冲突&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;422 Unprocessable Entity&lt;/code&gt; - 请求格式正确但语义错误&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;5xx 服务器错误&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;500 Internal Server Error&lt;/code&gt; - 服务器内部错误&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;503 Service Unavailable&lt;/code&gt; - 服务不可用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;查询参数设计&#34;&gt;查询参数设计&lt;/h2&gt;
+&lt;p&gt;使用查询参数进行过滤、分页、排序等操作，避免创建复杂的多级 URL。&lt;/p&gt;
+&lt;h3 id=&#34;常用查询参数模式&#34;&gt;常用查询参数模式&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;过滤：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /articles?published=true&amp;amp;category=tech
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users?status=active&amp;amp;role=admin
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;分页：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users?page=2&amp;amp;limit=20
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /products?offset=100&amp;amp;limit=50
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;排序：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /articles?sort=created_at&amp;amp;order=desc
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users?sort=name&amp;amp;order=asc
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;strong&gt;搜索：&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-http&#34; data-lang=&#34;http&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /products?q=laptop
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;err&#34;&gt;GET /users?search=john
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;响应格式标准化&#34;&gt;响应格式标准化&lt;/h2&gt;
+&lt;p&gt;API 响应应该采用结构化的 JSON 格式，保持一致性。&lt;/p&gt;
+&lt;h3 id=&#34;成功响应格式&#34;&gt;成功响应格式&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;status&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;success&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;data&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;123&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;name&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;John Doe&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;email&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;john@example.com&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;},&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;nt&#34;&gt;&amp;#34;meta&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;timestamp&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;2025-10-10T14:30:00Z&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;version&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;1.0&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;总结&#34;&gt;总结&lt;/h2&gt;
+&lt;p&gt;RESTful API 设计是一个系统性的工程，需要综合考虑架构原则、开发实践和安全性。以下是关键要点：&lt;/p&gt;
+&lt;h3 id=&#34;核心原则&#34;&gt;核心原则&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;无状态性&lt;/strong&gt; - 每个请求独立，不依赖会话状态&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;可缓存性&lt;/strong&gt; - 合理利用缓存提高性能&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;统一接口&lt;/strong&gt; - 标准化通信协议和资源操作&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;设计要点&#34;&gt;设计要点&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;使用名词表示资源，HTTP 方法表示操作&lt;/li&gt;
+&lt;li&gt;采用一致的命名规范和 URL 结构&lt;/li&gt;
+&lt;li&gt;实现适当的版本控制策略&lt;/li&gt;
+&lt;li&gt;使用标准的 HTTP 状态码&lt;/li&gt;
+&lt;li&gt;设计清晰的查询参数模式&lt;/li&gt;
+&lt;li&gt;保持响应格式的一致性&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;最佳实践&#34;&gt;最佳实践&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;优先考虑 API 的可发现性和易用性&lt;/li&gt;
+&lt;li&gt;确保向后兼容性&lt;/li&gt;
+&lt;li&gt;实施适当的安全措施&lt;/li&gt;
+&lt;li&gt;提供详细的文档和错误信息&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;遵循这些原则和实践，可以设计出健壮、可扩展且易于维护的 RESTful API。&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

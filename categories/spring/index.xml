@@ -14,6 +14,7 @@
       
       <guid>https://asgpipo.github.io/posts/spring-aop-202508030950/</guid>
       <description>&lt;h2 id=&#34;1aopaspect-oriented-programming-面向切面编程&#34;&gt;1.AOP(&lt;strong&gt;Aspect-Oriented Programming&lt;/strong&gt;) 面向切面编程&lt;/h2&gt;
+&lt;p&gt;![](/pics/redis/Pasted image 20251020085030.png)&lt;/p&gt;
 &lt;p&gt;解耦代码
 eg: 有多段类似业务代码,执行时需要进行log输出和判断&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-java&#34; data-lang=&#34;java&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nd&#34;&gt;@Service&lt;/span&gt;&lt;span class=&#34;w&#34;&gt;
