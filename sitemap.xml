@@ -56,6 +56,36 @@
     <loc>https://asgpipo.github.io/tags/web/</loc>
     <lastmod>2025-10-10T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://asgpipo.github.io/tags/gc/</loc>
+    <lastmod>2025-09-27T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/posts/java/jvm/gcgarbage-collectors/</loc>
+    <lastmod>2025-09-27T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/tags/java/</loc>
+    <lastmod>2025-09-27T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/categories/jvm/</loc>
+    <lastmod>2025-09-27T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/tags/jvm/</loc>
+    <lastmod>2025-09-27T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/tags/heap/</loc>
+    <lastmod>2025-09-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/categories/runtime-data-area/</loc>
+    <lastmod>2025-09-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/tags/runtime-data-area/</loc>
+    <lastmod>2025-09-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/posts/java/jvm/runtime-data-area/</loc>
+    <lastmod>2025-09-25T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/tags/stack/</loc>
+    <lastmod>2025-09-25T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://asgpipo.github.io/tags/aop/</loc>
     <lastmod>2025-08-16T14:06:43+08:00</lastmod>
   </url><url>
@@ -100,9 +130,6 @@
   </url><url>
     <loc>https://asgpipo.github.io/tags/queue/</loc>
     <lastmod>2024-09-29T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://asgpipo.github.io/tags/stack/</loc>
-    <lastmod>2025-08-16T14:06:43+08:00</lastmod>
   </url><url>
     <loc>https://asgpipo.github.io/posts/stack/</loc>
     <lastmod>2025-08-16T14:06:43+08:00</lastmod>

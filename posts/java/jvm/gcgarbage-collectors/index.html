@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 105%">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="">
+
+  
+  
+  <meta name="description" content="GC（Garbage Collection）是 JVM 中实现自动内存管理的一类机制的统称">
+  
+
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="https://asgpipo.github.io//images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://asgpipo.github.io//images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://asgpipo.github.io//images/favicon-16x16.png">
+
+  
+  
+  <meta name="keywords" content='hugo latex theme blog texify texify2 texify3 michael neuper'>
+  
+
+  
+  
+  <link rel="stylesheet" href='/katex/katex.min.css'>
+<script defer defer src='/katex/katex.min.js'></script>
+<script defer src='/katex/contrib/auto-render.min.js'></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError : false
+        });
+    });
+</script>
+  
+
+  
+  
+
+  
+  <meta property="og:url" content="https://asgpipo.github.io/posts/java/jvm/gcgarbage-collectors/">
+  <meta property="og:site_name" content="pipo&#39;s site">
+  <meta property="og:title" content="GC 垃圾回收">
+  <meta property="og:description" content="GC（Garbage Collection）是 JVM 中实现自动内存管理的一类机制的统称">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-09-27T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-09-27T00:00:00+00:00">
+    <meta property="article:tag" content="GC">
+    <meta property="article:tag" content="JAVA">
+    <meta property="article:tag" content="JVM">
+
+
+  
+  <link rel="canonical" href="https://asgpipo.github.io/posts/java/jvm/gcgarbage-collectors/">
+
+  
+  
+  
+  <meta itemprop="name" content="GC 垃圾回收">
+  <meta itemprop="description" content="GC（Garbage Collection）是 JVM 中实现自动内存管理的一类机制的统称">
+  <meta itemprop="datePublished" content="2025-09-27T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2025-09-27T00:00:00+00:00">
+  <meta itemprop="wordCount" content="3392">
+  <meta itemprop="keywords" content="GC,JAVA,JVM">
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/common.min.e562d763c6d0825495eb17de8b2c1d9800cf7c08db1c36accedf77a5fccfc4b9.css" integrity="sha256-5WLXY8bQglSV6xfeiywdmADPfAjbHDaszt93pfzPxLk=" crossorigin="anonymous">
+  
+
+  
+  
+    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+  
+
+  
+  
+  <title>GC 垃圾回收 - pipo&#39;s site</title>
+  
+
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="GC 垃圾回收">
+  <meta name="twitter:description" content="GC（Garbage Collection）是 JVM 中实现自动内存管理的一类机制的统称">
+
+
+  
+
+
+  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+
+
+  <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
+
+
+</head>
+
+<body>
+  <div id="wrapper">
+    
+
+
+<header id="header">
+  <h1>
+    <a href="https://asgpipo.github.io/">blog collcetions</a>
+    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle theme">
+        <svg width="2rem" height="2rem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 496">
+        <path fill="currentColor" d="M8,256C8,393,119,504,256,504S504,393,504,256,393,8,256,8,8,119,8,256ZM256,440V72a184,184,0,0,1,0,368Z" transform="translate(-8 -8)"/>
+        </svg>
+    </button>
+  </h1>
+
+  <nav>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17,11H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm0,4H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2ZM11,9h6a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2ZM21,3H7A1,1,0,0,0,6,4V7H3A1,1,0,0,0,2,8V18a3,3,0,0,0,3,3H18a4,4,0,0,0,4-4V4A1,1,0,0,0,21,3ZM6,18a1,1,0,0,1-2,0V9H6Zm14-1a2,2,0,0,1-2,2H7.82A3,3,0,0,0,8,18V5H20Zm-9-4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Zm0,4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Z"/></svg>
+</span>
+      
+      <a class="link" href="/posts/">Blog</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.88,16.88a3,3,0,0,0,0,4.24,3,3,0,0,0,4.24,0,3,3,0,0,0-4.24-4.24Zm2.83,2.83a1,1,0,0,1-1.42-1.42,1,1,0,0,1,1.42,0A1,1,0,0,1,5.71,19.71ZM5,12a1,1,0,0,0,0,2,5,5,0,0,1,5,5,1,1,0,0,0,2,0,7,7,0,0,0-7-7ZM5,8a1,1,0,0,0,0,2,9,9,0,0,1,9,9,1,1,0,0,0,2,0,11.08,11.08,0,0,0-3.22-7.78A11.08,11.08,0,0,0,5,8Zm10.61.39A15.11,15.11,0,0,0,5,4,1,1,0,0,0,5,6,13,13,0,0,1,18,19a1,1,0,0,0,2,0A15.11,15.11,0,0,0,15.61,8.39Z"/></svg>
+</span>
+      
+      <a class="link" href="/index.xml">RSS</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1">
+<path d="M10.07031,20.50291a1.00008,1.00008,0,0,0-1.18115-.9834c-1.30908.24024-2.96191.27637-3.40137-.958a5.70754,5.70754,0,0,0-1.83691-2.415,1.20073,1.20073,0,0,1-.1665-.10938,1,1,0,0,0-.93067-.64551H2.54883a.99965.99965,0,0,0-1,.99512c-.00391.81543.811,1.33789,1.1416,1.51465a4.4408,4.4408,0,0,1,.92383,1.35937c.36426,1.02344,1.42285,2.57617,4.46582,2.376.001.03516.00195.06836.00244.09863l.00439.26758a1,1,0,0,0,2,0l-.00488-.31836C10.07715,21.4951,10.07031,21.22068,10.07031,20.50291Zm10.667-15.126c.03174-.125.063-.26367.09034-.41992a6.27792,6.27792,0,0,0-.40821-3.293,1.002,1.002,0,0,0-.61572-.58007c-.356-.12012-1.67041-.35645-4.18408,1.25a13.86918,13.86918,0,0,0-6.354,0C6.76221.751,5.45459.9658,5.10205,1.07908a.99744.99744,0,0,0-.63135.584,6.3003,6.3003,0,0,0-.40332,3.35644c.02442.12793.05078.2461.07813.35449A6.26928,6.26928,0,0,0,2.89014,9.20311a8.42168,8.42168,0,0,0,.04248.92187c.334,4.60254,3.334,5.98438,5.42431,6.459-.04345.125-.083.25878-.11816.40039a1.00023,1.00023,0,0,0,1.94238.47851,1.6784,1.6784,0,0,1,.46778-.87793.99947.99947,0,0,0-.5459-1.74512c-3.4541-.39453-4.95362-1.80175-5.1792-4.89843a6.61076,6.61076,0,0,1-.03369-.73828,4.25769,4.25769,0,0,1,.91943-2.71289,3.022,3.022,0,0,1,.1958-.23145.99988.99988,0,0,0,.188-1.02441,3.3876,3.3876,0,0,1-.15527-.55567A4.09356,4.09356,0,0,1,6.1167,3.06346a7.54263,7.54263,0,0,1,2.415,1.17968,1.00877,1.00877,0,0,0,.82764.13282,11.77716,11.77716,0,0,1,6.17285.001,1.00549,1.00549,0,0,0,.83056-.13769,7.572,7.572,0,0,1,2.40528-1.19043,4.03977,4.03977,0,0,1,.0874,1.57812,3.205,3.205,0,0,1-.16895.60743.9999.9999,0,0,0,.188,1.02441c.07715.08691.1543.18066.22363.26855A4.12186,4.12186,0,0,1,20,9.20311a7.03888,7.03888,0,0,1-.0376.77734c-.22021,3.05566-1.72558,4.46387-5.1958,4.85937a1,1,0,0,0-.54541,1.7461,1.63079,1.63079,0,0,1,.46631.9082,3.06079,3.06079,0,0,1,.09229.81934v2.334C14.77,21.2949,14.77,21.78025,14.77,22.00291a1,1,0,1,0,2,0c0-.2168,0-.69238.00977-1.33984V18.31346a4.8815,4.8815,0,0,0-.15479-1.31153,4.25638,4.25638,0,0,0-.11621-.416,6.51258,6.51258,0,0,0,5.44531-6.42383A8.69677,8.69677,0,0,0,22,9.20311,6.13062,6.13062,0,0,0,20.7373,5.37693Z"/></svg>
+</span>
+      
+      <a class="link" href="https://github.com/ASGPIPO">GitHub</a>
+    </span>
+    
+  </nav>
+</header>
+<hr class="head-rule"></hr>
+    
+<main id="main" class="post">
+  
+  <div class="post-heading">
+    <h1 class="post-title">GC 垃圾回收</h1>
+    <div class="publish-metadata">
+      
+      <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      27 September 2025
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          3392 words
+        </span>
+      
+      
+      
+        
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ~7 mins
+        </span>
+      
+    </div>
+  </div>
+
+  
+  <div>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/gc'>#GC</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/java'>#JAVA</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/jvm'>#JVM</a>
+    
+    <br></br>
+  </div>
+  
+  
+  
+  <details>
+    <summary>
+      <b>Table of Contents</b>
+    </summary>
+    <div class="toc numbered-subtitles"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#什么是可被回收的如何判断">什么是可被回收的,如何判断?</a>
+      <ul>
+        <li><a href="#引用计数器">引用计数器</a></li>
+        <li><a href="#可达性分析算法">可达性分析算法</a></li>
+        <li><a href="#方法区回收或meta-space">方法区回收(或Meta Space)</a></li>
+        <li><a href="#finalize"><!-- raw HTML omitted -->finalize()<!-- raw HTML omitted --></a></li>
+      </ul>
+    </li>
+    <li><a href="#gc-主要作用范围">GC 主要作用范围</a>
+      <ul>
+        <li><a href="#heap">Heap</a></li>
+        <li><a href="#部分-gc">部分 GC</a></li>
+        <li><a href="#young-gc">Young GC</a></li>
+        <li><a href="#full-gc">Full GC</a></li>
+      </ul>
+    </li>
+    <li><a href="#引用类型"><!-- raw HTML omitted -->引用类型<!-- raw HTML omitted --></a>
+      <ul>
+        <li><a href="#strongreference">StrongReference</a></li>
+        <li><a href="#softreference">SoftReference</a></li>
+        <li><a href="#weakreference">WeakReference</a></li>
+        <li><a href="#"><strong><!-- raw HTML omitted -->PhantomReference<!-- raw HTML omitted --></strong></a></li>
+        <li><a href="#referencequeue">ReferenceQueue</a></li>
+      </ul>
+    </li>
+    <li><a href="#垃圾回收算法"><!-- raw HTML omitted -->垃圾回收算法<!-- raw HTML omitted --></a>
+      <ul>
+        <li><a href="#标记-清除mark-sweep">标记-清除（Mark-Sweep）</a></li>
+        <li><a href="#标记-整理mark-compact">标记-整理（Mark-Compact）</a></li>
+        <li><a href="#复制copying">复制（Copying）</a></li>
+        <li><a href="#分代收集generational-collection">分代收集（Generational Collection）</a></li>
+      </ul>
+    </li>
+    <li><a href="#垃圾回收器">垃圾回收器</a></li>
+    <li><a href="#来源">来源</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+  
+  <article class="content numbered-subtitles">
+    
+    <blockquote>
+<p><!-- raw HTML omitted -->GC（Garbage Collection）是<!-- raw HTML omitted --><!-- raw HTML omitted --> <!-- raw HTML omitted --><a href="https://www.yuque.com/xkfpipv/hwbfiy/diw7o8r28acyynrt"><!-- raw HTML omitted -->JVM<!-- raw HTML omitted --></a><strong><!-- raw HTML omitted --> 中实现自动内存管理的一类机制的统称<!-- raw HTML omitted --><strong><strong><!-- raw HTML omitted -->，其<!-- raw HTML omitted --></strong></strong><!-- raw HTML omitted -->具体实现包括 Parallel、G1、ZGC<!-- raw HTML omitted --><strong><strong><!-- raw HTML omitted --> 等垃圾回收器。<!-- raw HTML omitted --></strong></strong><!-- raw HTML omitted -->GC 主要作用于堆（Heap）内存<!-- raw HTML omitted --><strong><strong><!-- raw HTML omitted -->——在<!-- raw HTML omitted --></strong></strong><!-- raw HTML omitted -->新生代执行 Minor GC，在老年代触发 Major GC 或 Full GC<!-- raw HTML omitted -->****<!-- raw HTML omitted -->。虽然 GC 不直接管理直接内存，但会间接影响其回收（例如通过 GC 触发 Cleaner 释放 DirectByteBuffer）。在 JVM 架构中，GC 与运行时数据区（Runtime Data Area）、执行引擎（Execution Engine）、本地方法接口（Native Method Interface）等组件协同工作，共同支撑 Java 程序的运行。<!-- raw HTML omitted --></strong></p></blockquote>
+<h2 id="什么是可被回收的如何判断">什么是可被回收的,如何判断?</h2>
+<hr>
+<h3 id="引用计数器">引用计数器</h3>
+<p>通过一个计数器标记一个对象被引用的次数来判断是否进行垃圾回收,当引用数量为 0 时在垃圾回收时将会进行回收.</p>
+<p>问题: 出现循环引用时将导致无法释放内存.</p>
+<blockquote>
+<p>如 A 引用 B,B 引用 A.</p></blockquote>
+<p><img src="/pics/Java/cricleReference.jpeg" alt="循环引用"></p>
+<h3 id="可达性分析算法">可达性分析算法</h3>
+<p>GC 会从一组“GC 根”（GCRoots）出发，沿着引用链一路向下找到所有可达对象。这些可达对象被认为是“存活”的，不会被回收。其他不可达的对象（被称为“可回收对象”）则有资格被回收。</p>
+<p><img src="/pics/Java/GCRoots.png" alt=""></p>
+<h4></h4>
+<h4 id="gc-roots">GC Roots</h4>
+<p><!-- raw HTML omitted -->GC Roots 是一组在Java虚拟机中被直接<!-- raw HTML omitted -->引用<!-- raw HTML omitted -->的对象，是垃圾收集器从它们开始遍历所有可达对象（即存活对象）的起点<!-- raw HTML omitted --></p>
+<p>来源包括（但不限于）：</p>
+<ul>
+<li>栈中的引用（局部变量、方法参数）</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">method</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">Object</span><span class="w"> </span><span class="n">localObj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Object</span><span class="p">();</span><span class="w"> </span><span class="c1">// localObj 是 GC Root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;hello&#34;</span><span class="p">;</span><span class="w">           </span><span class="c1">// str 是 GC Root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 这些变量在栈帧中，直接引用堆中的对象</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="n">Object</span><span class="w"> </span><span class="n">param</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// param 是 GC Root，引用传入的对象</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">concat</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">b</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="p">;</span><span class="w"> </span><span class="c1">// 编译器可能生成临时变量引用中间结果</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>Meta Space 中的静态 (static) 变量 和 常量引用对象</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MyClass</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="n">staticField</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Object</span><span class="p">();</span><span class="w"> </span><span class="c1">// 静态字段是 GC Root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">CONSTANT</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;constant&#34;</span><span class="p">;</span><span class="w"> </span><span class="c1">// 静态常量也是 GC Root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// 即使没有 MyClass 的实例，staticField 仍然可达</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Constants</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 字符串常量池中的对象</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">s1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;literal&#34;</span><span class="p">;</span><span class="w"> </span><span class="c1">// &#34;literal&#34; 对象被常量池引用，是 GC Root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="n">s2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">String</span><span class="p">(</span><span class="s">&#34;created&#34;</span><span class="p">);</span><span class="w"> </span><span class="c1">// &#34;created&#34; 也在常量池中</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>JNI 环境引用</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// C/C++ 本地代码</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">JNIEXPORT</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">JNICALL</span><span class="w"> </span><span class="nf">Java_MyClass_nativeMethod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="p">(</span><span class="n">JNIEnv</span><span class="w"> </span><span class="o">*</span><span class="n">env</span><span class="p">,</span><span class="w"> </span><span class="n">jobject</span><span class="w"> </span><span class="n">obj</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 通过 JNI 创建的全局引用或局部引用</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 这些引用的对象都是 GC Root</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">jobject</span><span class="w"> </span><span class="n">globalRef</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="n">env</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">NewGlobalRef</span><span class="p">(</span><span class="n">env</span><span class="p">,</span><span class="w"> </span><span class="n">someObject</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">HeapHprofBinWriter</span><span class="w"> </span><span class="kd">extends</span><span class="w"> </span><span class="n">AbstractHeapGraphWriter</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// hprof binary file header</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">HPROF_HEADER_1_0_2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;JAVA PROFILE 1.0.2&#34;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">//    .....</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">HPROF_GC_ROOT_UNKNOWN</span><span class="w">       </span><span class="o">=</span><span class="w"> </span><span class="n">0xFF</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">HPROF_GC_ROOT_JNI_GLOBAL</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">0x01</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">HPROF_GC_ROOT_JNI_LOCAL</span><span class="w">     </span><span class="o">=</span><span class="w"> </span><span class="n">0x02</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">HPROF_GC_ROOT_JAVA_FRAME</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">0x03</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">HPROF_GC_ROOT_NATIVE_STACK</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">0x04</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">HPROF_GC_ROOT_STICKY_CLASS</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">0x05</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">HPROF_GC_ROOT_THREAD_BLOCK</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">0x06</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">HPROF_GC_ROOT_MONITOR_USED</span><span class="w">  </span><span class="o">=</span><span class="w"> </span><span class="n">0x07</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">HPROF_GC_ROOT_THREAD_OBJ</span><span class="w">    </span><span class="o">=</span><span class="w"> </span><span class="n">0x08</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">//    .....</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><h3 id="方法区回收或meta-space">方法区回收(或Meta Space)</h3>
+<h3 id="finalize"><!-- raw HTML omitted -->finalize()<!-- raw HTML omitted --></h3>
+<h2 id="gc-主要作用范围">GC 主要作用范围</h2>
+<h3 id="heap">Heap</h3>
+<p>堆内的垃圾收集算法主要基于分代收集法，根据对象的生命周期长短将内存分为年轻代和老年代，分别采用不同的收集策略，以提高垃圾收集的效率。</p>
+<h3 id="部分-gc">部分 GC</h3>
+<p>部分 GC (Partial GC) 是指不完整的垃圾收集，只针对堆的特定部分进行收集。主要包括 Young GC 和 Old GC。</p>
+<h3 id="young-gc">Young GC</h3>
+<p>仅作用于 Young generation 的垃圾收集，每次将可回收内存标记回收，存活内存移入 Survivor 区域。由于大多数对象的生命周期较短，Young GC 发生频繁但速度较快。</p>
+<p>Old GC (Major GC) 是指只针对老年代进行的垃圾收集。通常会导致应用程序暂停，但发生频率低于 Young GC。当老年代空间不足时触发。</p>
+<h3 id="full-gc">Full GC</h3>
+<p>Full GC 是对整个堆进行垃圾收集，包括年轻代、老年代和元空间（JDK 8 之前称为永久代）。Full GC 的暂停时间通常较长，会导致应用程序长时间停顿，影响用户体验。</p>
+<p>混合 GC (Mixed GC)</p>
+<p>G1 收集器特有的收集方式，既会收集年轻代也会收集部分老年代。G1 通过将堆分成多个区域（Region），每次收集时可以有选择地收集部分区域，减少停顿时间。</p>
+<p>MetaSpace</p>
+<p>MetaSpace 使用的是本地内存，不在 JVM 堆中。它主要用于存储类的元数据信息，如类结构、方法数据、常量池等。MetaSpace 的垃圾收集通常在 Full GC 时进行。</p>
+<h2 id="引用类型"><!-- raw HTML omitted -->引用类型<!-- raw HTML omitted --></h2>
+<hr>
+<!-- raw HTML omitted -->
+<h3 id="strongreference">StrongReference</h3>
+<p>Java 中最常见最普通的引用方式，比如：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Foo</span><span class="w"> </span><span class="n">foo</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Foo</span><span class="p">();</span><span class="w">
+</span></span></span></code></pre></div><p>这个 <code>foo</code> 就是一个强引用。只要存在这样的强引用链路指向 <code>Foo</code> 对象，GC 就不会回收它,即使发生 OOM,</p>
+<p>几乎所有日常编码用到的对象引用都是强引用。</p>
+<h3 id="softreference">SoftReference</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Object</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Object</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">SoftReference</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">SoftReference</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w">  </span><span class="c1">// 使对象只被软引用关联</span><span class="w">
+</span></span></span></code></pre></div><p>如果一个对象只有软引用可达（即没有强引用链路指向它），JVM 并不一定立刻回收它。只有在内存紧张、垃圾回收器判断“需要腾出空间”的时候，才可能清除这些对象。</p>
+<p>用途通常是缓存（cache）例如你希望保留一个对象作为缓存，但如果 JVM 内存紧张，希望它被垃圾回收掉，而不是导致 OOM。</p>
+<h3 id="weakreference">WeakReference</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Object</span><span class="w"> </span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Object</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">WeakReference</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">wf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">WeakReference</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span><span class="p">(</span><span class="n">obj</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">obj</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><p>如果一个对象 <strong class=chinese>仅</strong> 被弱引用可达（即没有强引用或软引用链路指向它），那么在下一次垃圾回收时，GC 就可以回收它，不要保留。换言之，弱引用对象是最容易被回收的那类。</p>
+<h3><strong><!-- raw HTML omitted -->PhantomReference<!-- raw HTML omitted --></strong></h3>
+<table>
+  <thead>
+      <tr>
+          <th>引用类型</th>
+          <th>可达性状态名称</th>
+          <th>是否阻止 GC</th>
+          <th><code>get()</code> 方法是否可得</th>
+          <th>被清除 / 入队列时机 / 特性</th>
+          <th>典型用途</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>Strong (强引用)</td>
+          <td>“强可达”（strong reachable）</td>
+          <td>阻止 GC — 只要有强引用，GC 不会回收这个对象</td>
+          <td>—（不是通过 <code>Reference</code> 对象访问的）</td>
+          <td>不会自动被 GC 清除</td>
+          <td>日常使用、常规引用</td>
+      </tr>
+      <tr>
+          <td>SoftReference (软引用)</td>
+          <td>“软可达”（soft reachable）</td>
+          <td>不阻止 GC，但 GC 在内存紧张时可能清除</td>
+          <td><code>get()</code> 返回对象，除非已被清除</td>
+          <td>在内存不足时（JVM 判断需要）可被回收；若注册了 ReferenceQueue，则被清除后其引用对象会入队</td>
+          <td>缓存 (cache)、内存敏感的数据保留</td>
+      </tr>
+      <tr>
+          <td>WeakReference (弱引用)</td>
+          <td>“弱可达”（weak reachable）</td>
+          <td>不阻止 GC — 一旦对象 <strong class=chinese>只被弱引用</strong> 可达，就将被回收</td>
+          <td><code>get()</code> 若对象未被回收则返回，否则返回 null</td>
+          <td>在下一次垃圾回收（或更早）就可被回收；若注册队列，则在清除／回收时入队</td>
+          <td>WeakHashMap、 canonicalizing map、避免内存泄漏辅助结构</td>
+      </tr>
+      <tr>
+          <td>PhantomReference (虚引用，也称幻影引用)</td>
+          <td>“虚可达”（phantom reachable）</td>
+          <td>不阻止回收（比软弱还“弱”）</td>
+          <td><code>get()</code> 总是返回 null（永远不可通过它获取对象）</td>
+          <td>当对象“几乎要被回收”时被入队列（通常是在对象 finalize/清理之后） — 但 GC 在回收对象之前，必须先将其 phantom 引用入队（让程序得知该对象将被回收）</td>
+          <td>用于跟踪对象被回收的时刻，做清理 (cleanup)、资源释放、内存调度等</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="referencequeue">ReferenceQueue</h3>
+<h2 id="垃圾回收算法"><!-- raw HTML omitted -->垃圾回收算法<!-- raw HTML omitted --></h2>
+<p><a href="https://juejin.cn/post/6844904117433794567#heading-5">垃圾收集动图示例</a></p>
+<h3 id="标记-清除mark-sweep">标记-清除（Mark-Sweep）</h3>
+<ul>
+<li>核心思想：两阶段完成回收。先从 GC Roots 出发“标记”所有存活对象，再“清除”未标记对象以回收其占用的内存。</li>
+<li>典型流程：
+<ol>
+<li>Stop-The-World，遍历对象图进行可达性分析并标记存活对象</li>
+<li>扫描堆空间，释放未标记对象所占内存</li>
+</ol>
+</li>
+<li>优点：实现简单，无需移动大量对象</li>
+<li>缺点：
+<ul>
+<li>会产生内存碎片，后续大对象分配可能失败而触发 Full GC</li>
+<li>清除阶段需要遍历堆，吞吐不佳</li>
+</ul>
+</li>
+<li>适用场景：老年代的早期实现或碎片不敏感的场景</li>
+</ul>
+<h3 id="标记-整理mark-compact">标记-整理（Mark-Compact）</h3>
+<ul>
+<li>核心思想：同样先标记，再把存活对象“压缩”到一端，保持内存连续，最后清理边界之外的区域。</li>
+<li>典型流程：
+<ol>
+<li>标记存活对象</li>
+<li>计算新地址并更新引用（有的实现先计算转发表）</li>
+<li>将对象按新地址搬迁并整理出连续可用空间</li>
+</ol>
+</li>
+<li>优点：避免内存碎片，便于后续大对象分配</li>
+<li>缺点：对象移动成本较高，需要更新引用，暂停时间可能更长</li>
+<li>适用场景：老年代常用策略，G1、ZGC 等也在混合或并发阶段引入压缩思想</li>
+</ul>
+<h3 id="复制copying">复制（Copying）</h3>
+<ul>
+<li>核心思想：将内存按比例分为两个对等或不对等的区域，每次只使用其中一个。GC 时把存活对象复制到“空闲”区域，随后整体清空原区域。</li>
+<li>典型流程：
+<ol>
+<li>新生代常见布局：Eden + S0 + S1（两个 Survivor）</li>
+<li>Minor GC 时从 Eden 和一个 Survivor 里复制存活对象到另一个 Survivor</li>
+<li>完成后交换两个 Survivor 的角色</li>
+</ol>
+</li>
+<li>优点：复制后空间天然连续，没有碎片，分配可用指针碰撞，速度快</li>
+<li>缺点：需要预留额外空间，内存利用率较低；存活率高时复制成本上升</li>
+<li>适用场景：新生代（对象朝生夕死，存活率低，复制效率高）</li>
+</ul>
+<h3 id="分代收集generational-collection">分代收集（Generational Collection）</h3>
+<ul>
+<li>核心思想：依据“绝大多数对象朝生夕死”的经验法则，将堆划分为新生代与老年代，针对不同代采用不同算法和回收频率。</li>
+<li>典型实现：
+<ul>
+<li>新生代：多用复制算法（Eden + Survivor），Minor GC 频繁且停顿短</li>
+<li>老年代：多用标记-清除或标记-整理，Major/Full GC 频率低但停顿长</li>
+<li>跨代引用：通过 Remembered Set 或 Card Table 跟踪老年代指向新生代的引用，避免每次扫描整个老年代</li>
+</ul>
+</li>
+<li>优点：综合性能好，在典型负载下能显著降低总停顿时间</li>
+<li>缺点：需要维护跨代写屏障与集合结构，调参复杂</li>
+<li>适用场景：几乎所有 HotSpot 回收器的基础设计，如 Parallel、CMS（历史）、G1、Shenandoah、ZGC 等都体现了分代思想</li>
+<li>小结
+<ul>
+<li>标记-清除：简单但易碎片化</li>
+<li>标记-整理：无碎片但移动成本高</li>
+<li>复制：快速无碎片，牺牲一部分空间</li>
+<li>分代：按对象存活特征选择算法，工程上最常见的组合策略</li>
+</ul>
+</li>
+</ul>
+<h2 id="垃圾回收器">垃圾回收器</h2>
+<h2 id="来源">来源</h2>
+<p><a href="https://tinyzzh.github.io/java/gcroot/2022/10/12/JVM_GCRoot.html">详解Java的 GCRoot</a></p>
+<p><a href="https://juejin.cn/post/7123853933801373733">JVM之垃圾回收机制（GC）</a></p>
+<p><a href="https://javaguide.cn/java/jvm/jvm-garbage-collection.html">JVM垃圾回收详解（重点）</a></p>
+<p><a href="https://medium.com/@ali.gelenler/types-of-references-in-java-d8fe0da6d656">Types of References in Java</a></p>
+<p><a href="https://segmentfault.com/a/1190000039994284#item-6">Java四种引用类型原理你真的搞明白了吗？五分钟带你深入理解！</a></p>
+<p><a href="https://juejin.cn/post/7348729694509334555">说一说Java中的四种引用类型？</a></p>
+
+    
+  </article>
+
+  <button onclick="topFunction()" id="back-to-top" title="Go to top">Back to Top</button>
+
+  
+
+<div id="sharingbuttons">
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+</div>
+  <div class="paginator">
+    
+    <a class="link" href="https://asgpipo.github.io/posts/java/jvm/runtime-data-area/" title="RuntimeDataArea">← prev</a>
+    
+    
+    <a class="link" href="https://asgpipo.github.io/posts/restful-api-%E8%AE%BE%E8%AE%A1/" title="RESTful API 设计原则">next →</a>
+    
+  </div>
+  <div class="comment">
+    
+    
+    
+      <script src="https://giscus.app/client.js"
+        data-repo="michaelneuper/website"
+        data-repo-id="R_kgDOIjPNaQ"
+        data-category="General"
+        data-category-id="DIC_kwDOIjPNac4CaklA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="gruvbox"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+  </script>
+  
+  </div>
+  
+  
+</main>
+
+    <footer id="footer">
+  <div>
+    <span>Powered by  <a class=link href=https://gohugo.io target=_blank rel=noopener>Hugo</a> | 
+Theme <a class=link href=https://github.com/michaelneuper/hugo-texify3 target=_blank rel=noopener>TeXify3</a>
+</span>
+  </div>
+  <div>
+    <span>Copyright © 2025 </span>
+  </div>
+</footer>
+
+  </div>
+
+  
+  <script src='https://asgpipo.github.io/js/script.js' defer></script>
+
+  
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/syntax.css" />
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/scale.css" />
+  
+
+  
+  
+
+  
+  
+
+</body>
+
+</html>
