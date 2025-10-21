@@ -6,7 +6,52 @@
     <description>Recent content in JVM on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 27 Sep 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/categories/jvm/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 13 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/categories/jvm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>JMM</title>
+      <link>https://asgpipo.github.io/posts/java/concurrency/jmm/</link>
+      <pubDate>Mon, 13 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/java/concurrency/jmm/</guid>
+      <description>&lt;h1 id=&#34;jmm&#34;&gt;JMM&lt;/h1&gt;
+&lt;h2 id=&#34;1-什么是-jmm&#34;&gt;&lt;strong&gt;1. 什么是 JMM？&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Java 内存模型（JMM）是一个&lt;strong&gt;抽象模型&lt;/strong&gt;，它定义了线程和主内存之间的抽象关系。JMM 的核心目的是&lt;strong&gt;屏蔽各种硬件和操作系统的内存访问差异&lt;/strong&gt;，以实现让 Java 程序在各种平台下都能达到一致的内存访问效果，为开发者提供清晰的并发编程保证。
+![[Pasted image 20251013161950.png|200]]&lt;/p&gt;
+&lt;h2 id=&#34;2-jmm-的核心抽象&#34;&gt;&lt;strong&gt;2. JMM 的核心抽象&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;JMM 通过以下概念来抽象内存交互：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;主内存&lt;/strong&gt;：所有线程共享的区域，存储了所有的实例字段、静态字段和构成数组对象的元素。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;本地内存&lt;/strong&gt;：每个线程私有的区域，是 JMM 的一个抽象概念。它存储了该线程对主内存变量的副本。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;通信原则&lt;/strong&gt;：线程间的通信必须通过主内存进行。一个线程将本地内存的变量副本写入主内存，另一个线程再从主内存读取到最新的值。
+&lt;img src=&#34;https://asgpipo.github.io/pics/Java/JMM.png&#34; alt=&#34;&#34;&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;3-jmm-诞生的原因&#34;&gt;&lt;strong&gt;3. JMM 诞生的原因&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;JMM 的出现主要是为了解决现代计算机体系结构带来的两个核心问题：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;CPU 缓存导致的可见性问题&lt;/strong&gt;：为了提高速度，每个 CPU 都有自己的高速缓存。当多个线程运行在不同 CPU 上时，它们可能各自持有一个共享变量的缓存副本，导致一个线程的修改对另一个线程不可见。尽管硬件层面有缓存一致性协议（如 MESI）来协调，但 JMM 提供了更高层、更强的可见性保证。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;指令重排导致的有序性问题&lt;/strong&gt;：为了优化性能，编译器和处理器可能会对输入的代码进行指令重排序。在单线程环境下，重排序不会影响最终结果，但在多线程环境下，可能会破坏代码原有的执行逻辑，导致意想不到的结果。
+&lt;img src=&#34;https://asgpipo.github.io/pics/Java/HowJMMBrith.png&#34; alt=&#34;&#34;&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;4-jmm-的核心工具happens-before-原则&#34;&gt;&lt;strong&gt;4. JMM 的核心工具：Happens-Before 原则&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;happens-before&lt;/code&gt; 是 JMM 中最核心的概念，它定义了两个操作之间的偏序关系。如果操作 A &lt;code&gt;happens-before&lt;/code&gt; 操作 B，那么 A 操作的执行结果对 B 操作是可见的，且 A 操作的执行顺序在 B 操作之前。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;目的&lt;/strong&gt;：&lt;code&gt;happens-before&lt;/code&gt; 原则主要用于保证并发环境下的&lt;strong&gt;可见性&lt;/strong&gt;和&lt;strong&gt;有序性&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;常见规则&lt;/strong&gt;：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;程序顺序规则&lt;/strong&gt;：在一个线程内，书写在前面的代码操作 &lt;code&gt;happens-before&lt;/code&gt; 书写在后面的代码操作。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;监视器锁规则&lt;/strong&gt;：对一个锁的解锁操作 &lt;code&gt;happens-before&lt;/code&gt; 后续对同一个锁的加锁操作。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;volatile 变量规则&lt;/strong&gt;：对一个 &lt;code&gt;volatile&lt;/code&gt; 变量的写操作 &lt;code&gt;happens-before&lt;/code&gt; 后续对该变量的读操作。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;传递性&lt;/strong&gt;：如果 A &lt;code&gt;happens-before&lt;/code&gt; B，且 B &lt;code&gt;happens-before&lt;/code&gt; C，那么 A &lt;code&gt;happens-before&lt;/code&gt; C。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;线程启动规则&lt;/strong&gt;：线程的 &lt;code&gt;start()&lt;/code&gt; 方法 &lt;code&gt;happens-before&lt;/code&gt; 于此线程的每一个动作。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;线程终止规则&lt;/strong&gt;：线程中的所有操作都 &lt;code&gt;happens-before&lt;/code&gt; 对此线程的终止检测。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;线程中断规则&lt;/strong&gt;：对线程 &lt;code&gt;interrupt()&lt;/code&gt; 方法的调用 &lt;code&gt;happens-before&lt;/code&gt; 发生于被中断线程的代码检测到中断时。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;对象终结规则&lt;/strong&gt;：一个对象的初始化完成（构造函数执行结束）&lt;code&gt;happens-before&lt;/code&gt; 它的 &lt;code&gt;finalize()&lt;/code&gt; 方法的开始。
+&lt;img src=&#34;https://asgpipo.github.io/pics/Java/HappensBefore.png&#34; alt=&#34;&#34;&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;总结&#34;&gt;&lt;strong&gt;总结&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;JMM 通过抽象出主内存和本地内存，并提供一套 &lt;code&gt;happens-before&lt;/code&gt; 规则，成功地为 Java 开发者屏蔽了底层硬件的复杂性。理解 JMM 有助于我们编写出正确、可靠的并发程序，避免可见性和有序性带来的问题。&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>GC 垃圾回收</title>
       <link>https://asgpipo.github.io/posts/java/jvm/gcgarbage-collectors/</link>
