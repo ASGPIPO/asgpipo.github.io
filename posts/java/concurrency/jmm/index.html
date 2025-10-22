@@ -71,7 +71,7 @@
   <meta itemprop="description" content="Java 内存模型（JMM）是一个**抽象模型**，它定义了线程和主内存之间的抽象关系。">
   <meta itemprop="datePublished" content="2025-10-13T00:00:00+00:00">
   <meta itemprop="dateModified" content="2025-10-13T00:00:00+00:00">
-  <meta itemprop="wordCount" content="1020">
+  <meta itemprop="wordCount" content="1017">
   <meta itemprop="keywords" content="Concurrency,JAVA,JVM">
 
   
@@ -173,7 +173,7 @@
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          1020 words
+          1017 words
         </span>
       
       
@@ -227,15 +227,15 @@
     <h1 id="jmm">JMM</h1>
 <h2 id="1-什么是-jmm"><strong>1. 什么是 JMM？</strong></h2>
 <p>Java 内存模型（JMM）是一个<strong class=chinese>抽象模型</strong>，它定义了线程和主内存之间的抽象关系。JMM 的核心目的是<strong class=chinese>屏蔽各种硬件和操作系统的内存访问差异</strong>，以实现让 Java 程序在各种平台下都能达到一致的内存访问效果，为开发者提供清晰的并发编程保证。
-![[Pasted image 20251013161950.png|200]]</p>
+<img src="/pics/Java/JMM.png" alt=""></p>
 <h2 id="2-jmm-的核心抽象"><strong>2. JMM 的核心抽象</strong></h2>
 <p>JMM 通过以下概念来抽象内存交互：</p>
 <ul>
 <li><strong class=chinese>主内存</strong>：所有线程共享的区域，存储了所有的实例字段、静态字段和构成数组对象的元素。</li>
 <li><strong class=chinese>本地内存</strong>：每个线程私有的区域，是 JMM 的一个抽象概念。它存储了该线程对主内存变量的副本。</li>
-<li><strong class=chinese>通信原则</strong>：线程间的通信必须通过主内存进行。一个线程将本地内存的变量副本写入主内存，另一个线程再从主内存读取到最新的值。
-<img src="/pics/Java/JMM.png" alt=""></li>
+<li><strong class=chinese>通信原则</strong>：线程间的通信必须通过主内存进行。一个线程将本地内存的变量副本写入主内存，另一个线程再从主内存读取到最新的值。</li>
 </ul>
+<p><img src="/pics/Java/JMMAbstract.png" alt=""></p>
 <h2 id="3-jmm-诞生的原因"><strong>3. JMM 诞生的原因</strong></h2>
 <p>JMM 的出现主要是为了解决现代计算机体系结构带来的两个核心问题：</p>
 <ul>
