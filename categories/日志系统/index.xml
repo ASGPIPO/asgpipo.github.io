@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>日志系统 on pipo&#39;s site</title>
+    <link>http://localhost:1313/categories/%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F/</link>
+    <description>Recent content in 日志系统 on pipo&#39;s site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 21 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/categories/%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>InnoDB 组成</title>
+      <link>http://localhost:1313/posts/mysql/innodb-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/</link>
+      <pubDate>Tue, 21 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/posts/mysql/innodb-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/</guid>
+      <description>&lt;h1 id=&#34;innodb-组成&#34;&gt;InnoDB 组成&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/pics/MySQL/InnoDB_Structure.png&#34; alt=&#34;Mysql 官方图示&#34;&gt;&lt;/p&gt;
+&lt;p&gt;内存结构 :&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Buffer Pool&lt;/li&gt;
+&lt;li&gt;AHI&lt;/li&gt;
+&lt;li&gt;Log Buffer&lt;/li&gt;
+&lt;li&gt;Change Buffer&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;硬盘结构:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;TableSpace&lt;/li&gt;
+&lt;li&gt;Redo Log&lt;/li&gt;
+&lt;li&gt;UnDo Log&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;buffer-pool&#34;&gt;Buffer Pool&lt;/h2&gt;
+&lt;p&gt;是内存中一块连续的区域,用于缓存表和索引的数据. 用于加速数据访问与读写.&lt;/p&gt;
+&lt;h3 id=&#34;page&#34;&gt;Page&lt;/h3&gt;
+&lt;p&gt;buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据行（rows）、索引条目（index entries）大小为16kb.
+page 中存放的不是整张表 而是多行数据.&lt;/p&gt;
+&lt;p&gt;当进行 SQL 查找时（如 SELECT 查询），InnoDB 会：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;通过主键或索引定位到具体的 page（由空间 ID + 页号标识）。&lt;/li&gt;
+&lt;li&gt;检查 Buffer Pool 中是否已有该 page（命中率高时，直接从内存返回数据）。&lt;/li&gt;
+&lt;li&gt;如果未命中，从磁盘（.ibd 文件）加载整个 16KB page 到 Buffer Pool。&lt;/li&gt;
+&lt;li&gt;返回所需数据行，同时将该 page 标记为“活跃”，以便后续快速访问。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;存储方式&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;每个 page 被连接成&lt;strong&gt;双向循环链表&lt;/strong&gt;,并分为两块区域.&lt;/li&gt;
+&lt;li&gt;使用 &lt;strong&gt;LRU（Least Recently Used，最近最少使用&lt;/strong&gt;）算法的变体来淘汰不常用的页面.&lt;/li&gt;
+&lt;li&gt;新子列表（young sublist）（最近访问的页面）和旧子列表（old sublist）（较少访问的页面）。&lt;/li&gt;
+&lt;li&gt;中点（midpoint）：young 和 old 的分界线。新加载的 page 先插入中点（old 的头部），观察其是否被访问。
+&lt;img src=&#34;http://localhost:1313/pics/MySQL/bufferPoolList.png&#34; alt=&#34;&#34;&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;ahi&#34;&gt;AHI&lt;/h2&gt;
+&lt;p&gt;InnoDB 的自适应哈希索引，是一个内置在 Buffer Pool 中的内存哈希表，用于加速等值查找&lt;/p&gt;
+&lt;h3 id=&#34;作用&#34;&gt;作用&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;加速查询&lt;/strong&gt;：对于频繁的精确匹配查询，哈希表提供 O(1) 访问速度，比 B+ 树索引的 O(log n) 更快。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;动态构建&lt;/strong&gt;：InnoDB 根据实际查询模式自动创建/删除哈希条目，无需手动配置。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;适用场景&lt;/strong&gt;：读密集型工作负载，尤其是点查询（point queries），如主键查找或唯一索引等值条件。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;日志系统&#34;&gt;日志系统&lt;/h2&gt;
+&lt;p&gt;InnoDB 的事务恢复基于 &lt;strong&gt;WAL&lt;/strong&gt; 技术，采用 &lt;strong&gt;NO-FORCE + STEAL&lt;/strong&gt; 策略，通过 &lt;strong&gt;Redo Log（重做）与 Undo Log（回滚）&lt;strong&gt;来保障事务的&lt;/strong&gt;持久性与原子性&lt;/strong&gt;。&lt;/p&gt;
+&lt;h3 id=&#34;log-buffer&#34;&gt;Log Buffer&lt;/h3&gt;
+&lt;p&gt;Log Buffer（又称 &lt;strong&gt;redo log buffer&lt;/strong&gt;）是 InnoDB 在内存中用于暂存 &lt;strong&gt;redo log&lt;/strong&gt; 记录的区域。当事务修改 Buffer Pool 中的数据页时，InnoDB 会同时生成对应的 redo log（描述该物理修改），并写入 log buffer。随后，这些 redo log 会根据策略（如事务提交、超时或缓冲区满）被刷入磁盘的 redo log 文件。若数据库崩溃，InnoDB 可在重启时通过重放已持久化的 redo log，&lt;strong&gt;恢复那些已提交但尚未写入数据文件的更改&lt;/strong&gt;，从而保证事务的持久性。&lt;/p&gt;
+&lt;h3 id=&#34;redo-log&#34;&gt;Redo Log&lt;/h3&gt;
+&lt;p&gt;Redo log 是存储在磁盘上的物理日志，用于在数据库崩溃后恢复&lt;strong&gt;已提交事务的持久化状态&lt;/strong&gt;。它以面向存储页的方式记录修改，内容类似于“在表空间某页的偏移 Y 处写入 Z”。崩溃恢复时，InnoDB 先重做所有 redo log 记录，再通过 undo log 回滚未提交的事务，从而保证 ACID。&lt;/p&gt;
+&lt;p&gt;Redo Log 是 &lt;strong&gt;WAL&lt;/strong&gt;（Write-Ahead Logging）技术的核心：修改先写日志，再写数据文件，减少随机 I/O，提高性能。&lt;/p&gt;
+&lt;p&gt;崩溃恢复时 InnoDB:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;重做所有已提交但未持久化的记录&lt;/li&gt;
+&lt;li&gt;通过undo log 将 buffer pool 中未提交的事务回滚&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;undo-log&#34;&gt;Undo Log&lt;/h3&gt;
+&lt;p&gt;Undo Log 记录了事务对数据修改的“反向操作”，允许其他事务读取未修改的旧版本数据（一致性读），并在事务回滚时恢复数据。他保存了数据的“历史快照”，确保事务的 ACID 属性（原子性、一致性、隔离性、持久性）。&lt;/p&gt;
+&lt;p&gt;Undo Log 主要用于：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;MVCC&lt;/strong&gt;：事务间隔离读，避免锁竞争。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;回滚&lt;/strong&gt;：事务失败时撤销修改。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;崩溃恢复&lt;/strong&gt;：虽不直接用于恢复，但辅助 purge 操作清理旧数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Undo Log 分为两类：用户表（regular tables）的 Undo Log（需 redo 日志保护，用于崩溃恢复）和临时表（temporary tables）的 Undo Log（仅用于运行时回滚，不生成 redo 日志，提高性能）。&lt;/p&gt;
+&lt;p&gt;表空间（&lt;strong&gt;Tablespaces&lt;/strong&gt;）：Undo Log 存储在独立的 Undo Tablespaces（最多 128 个回滚段/表空间）和全局临时表空间（temp tablespace）。每个事务最多分配 4 个 Undo Log（分别处理用户表的 INSERT、UPDATE/DELETE 和临时表的 INSERT、UPDATE/DELETE）。&lt;/p&gt;
+&lt;h2 id=&#34;change-buffer&#34;&gt;Change Buffer&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/pics/MySQL/changeBuffer.png&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;p&gt;属于 Buffer Pool 的一块内存结构,存储着**二级索引(&lt;strong&gt;非主索引)&lt;strong&gt;发生的变更&lt;/strong&gt;,当二级索引发生更新时如果&lt;/strong&gt;受影响的二级索引页面不在 Buffer Pool 中,**不会立即更新到磁盘中,而是先存储到 Change Buffer &lt;strong&gt;当这个页面因为其他读操作被加载到 Buffer Pool 时&lt;/strong&gt;，这些变更才会“合并”（merge）进去.&lt;/p&gt;
+&lt;h2 id=&#34;来源&#34;&gt;来源&lt;/h2&gt;
+&lt;p&gt;[02 日志系统：一条SQL更新语句是如何执行的？](&lt;a href=&#34;https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/MySQL%E5%AE%9E%E6%88%9845%E8%AE%B2/02&#34;&gt;https://learn.lianglianglee.com/专栏/MySQL实战45讲/02&lt;/a&gt;  日志系统：一条SQL更新语句是如何执行的？.md)&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dev.mysql.com/doc/refman/8.0/en/&#34;&gt;MySQL 8.0 Reference Manual&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://dunwu.github.io/pages/5fe0f3/&#34;&gt;Mysql 存储引擎 钝悟&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.bilibili.com/video/BV1ve411F794&#34;&gt;5分钟精通MySql的系统框架_哔哩哔哩_bilibili&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

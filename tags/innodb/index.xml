@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>InnoDB on pipo&#39;s site</title>
+    <link>https://asgpipo.github.io/tags/innodb/</link>
+    <description>Recent content in InnoDB on pipo&#39;s site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 21 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/innodb/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>数据库组成</title>
+      <link>https://asgpipo.github.io/posts/mysql/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/</link>
+      <pubDate>Tue, 21 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/mysql/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/</guid>
+      <description>&lt;h1 id=&#34;数据库组成&#34;&gt;数据库组成&lt;/h1&gt;
+&lt;p&gt;由 Server 层 + 存储引擎组成&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/MySQL/DBstructure.png&#34; alt=&#34;数据库组成&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;server-层&#34;&gt;server 层&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;连接器用来维持用户与数据库的连接, 认证, 管理等&lt;/li&gt;
+&lt;li&gt;缓存查询,如果当前有之前命令执行的缓存,就会直接返回之前的结果. (MySQL 8.0之后已经移除)&lt;/li&gt;
+&lt;li&gt;分析器用来判断当前输入的 SQL 语句是否合法&lt;/li&gt;
+&lt;li&gt;优化器会对 SQL 语句选择优化器认为最佳的方案进行执行操作&lt;/li&gt;
+&lt;li&gt;执行器执行语句并检查权限&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/MySQL/InnoDBSimpleStructure.awebp&#34; alt=&#34;img&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;存储引擎&#34;&gt;存储引擎&lt;/h2&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/MySQL/InnoDBSimpleStructure.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h3 id=&#34;查命令&#34;&gt;查命令&lt;/h3&gt;
+&lt;p&gt;当 SQL 命令进入存储引擎后 存储引擎会 首先 尝试 AHI 如果命中不查页哈希表
+否则进入 页哈希表查看当前 记录所在页是否存在 buffer pool 中
+不存在则从本地硬盘读取所在页进入buffer pool&lt;/p&gt;
+&lt;h3 id=&#34;更新命令&#34;&gt;更新命令&lt;/h3&gt;
+&lt;p&gt;前几步与查命令相同,在修改前会先将当前原始旧数据先写入 Log Buffer 写入 Undo Tablespace,
+然后将数据写入 buffer pool 中的 page 同时 将当前数据通过 Log buffer 写入 Redo log, 然后异步更新.&lt;/p&gt;
+&lt;h1 id=&#34;来源&#34;&gt;来源&lt;/h1&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.bilibili.com/video/BV1ve411F794&#34;&gt;# 5分钟精通MySql的系统框架&lt;/a&gt;
+&lt;a href=&#34;https://dunwu.github.io/pages/5fe0f3/&#34;&gt;Mysql 存储引擎 钝悟&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

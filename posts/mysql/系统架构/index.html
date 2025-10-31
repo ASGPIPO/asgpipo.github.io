@@ -10,7 +10,7 @@
 
   
   
-  <meta name="description" content="Redis 缓存穿透 缓存雪崩 缓存击穿">
+  <meta name="description" content="由 Server 层 &#43; 存储引擎组成.">
   
 
   
@@ -47,32 +47,31 @@
   
 
   
-  <meta property="og:url" content="https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/">
+  <meta property="og:url" content="https://asgpipo.github.io/posts/mysql/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/">
   <meta property="og:site_name" content="pipo&#39;s site">
-  <meta property="og:title" content="Redis 生产问题">
-  <meta property="og:description" content="Redis 缓存穿透 缓存雪崩 缓存击穿">
+  <meta property="og:title" content="数据库组成">
+  <meta property="og:description" content="由 Server 层 &#43; 存储引擎组成.">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2025-10-19T00:00:00+00:00">
-    <meta property="article:modified_time" content="2025-10-19T00:00:00+00:00">
-    <meta property="article:tag" content="Redis">
-    <meta property="article:tag" content="后端开发">
-    <meta property="article:tag" content="Concurrency">
+    <meta property="article:published_time" content="2025-10-21T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-21T00:00:00+00:00">
+    <meta property="article:tag" content="MySQL">
+    <meta property="article:tag" content="InnoDB">
 
 
   
-  <link rel="canonical" href="https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/">
+  <link rel="canonical" href="https://asgpipo.github.io/posts/mysql/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/">
 
   
   
   
-  <meta itemprop="name" content="Redis 生产问题">
-  <meta itemprop="description" content="Redis 缓存穿透 缓存雪崩 缓存击穿">
-  <meta itemprop="datePublished" content="2025-10-19T00:00:00+00:00">
-  <meta itemprop="dateModified" content="2025-10-19T00:00:00+00:00">
-  <meta itemprop="wordCount" content="1045">
-  <meta itemprop="keywords" content="Redis,后端开发,Concurrency">
+  <meta itemprop="name" content="数据库组成">
+  <meta itemprop="description" content="由 Server 层 &#43; 存储引擎组成.">
+  <meta itemprop="datePublished" content="2025-10-21T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2025-10-21T00:00:00+00:00">
+  <meta itemprop="wordCount" content="321">
+  <meta itemprop="keywords" content="MySQL,InnoDB">
 
   
   
@@ -87,14 +86,14 @@
 
   
   
-  <title>Redis 生产问题 - pipo&#39;s site</title>
+  <title>数据库组成 - pipo&#39;s site</title>
   
 
   
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Redis 生产问题">
-  <meta name="twitter:description" content="Redis 缓存穿透 缓存雪崩 缓存击穿">
+  <meta name="twitter:title" content="数据库组成">
+  <meta name="twitter:description" content="由 Server 层 &#43; 存储引擎组成.">
 
 
   
@@ -159,13 +158,13 @@
 <main id="main" class="post">
   
   <div class="post-heading">
-    <h1 class="post-title">Redis 生产问题</h1>
+    <h1 class="post-title">数据库组成</h1>
     <div class="publish-metadata">
       
       <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      19 October 2025
+      21 October 2025
       
       
         &nbsp;
@@ -173,7 +172,7 @@
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          1045 words
+          321 words
         </span>
       
       
@@ -186,7 +185,7 @@
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          ~3 mins
+          ~1 min
         </span>
       
     </div>
@@ -195,11 +194,9 @@
   
   <div>
     
-    <a class="link tag" href='https://asgpipo.github.io/tags/redis'>#Redis</a>
+    <a class="link tag" href='https://asgpipo.github.io/tags/mysql'>#MySQL</a>
     
-    <a class="link tag" href='https://asgpipo.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91'>#后端开发</a>
-    
-    <a class="link tag" href='https://asgpipo.github.io/tags/concurrency'>#Concurrency</a>
+    <a class="link tag" href='https://asgpipo.github.io/tags/innodb'>#InnoDB</a>
     
     <br></br>
   </div>
@@ -212,20 +209,13 @@
     </summary>
     <div class="toc numbered-subtitles"><nav id="TableOfContents">
   <ul>
-    <li><a href="#1-缓存空值">1. 缓存空值</a></li>
-    <li><a href="#2-布隆过滤器">2. 布隆过滤器</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#1-分布式锁">1. 分布式锁</a></li>
-    <li><a href="#2逻辑过期--异步更新">2.逻辑过期 + 异步更新</a></li>
-    <li><a href="#3-缓存预热">3. 缓存预热</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#1-随机过期时间">1. 随机过期时间</a></li>
-    <li><a href="#2-redis-集群">2. Redis 集群</a></li>
-    <li><a href="#服务降级--熔断">**服务降级 &amp; 熔断</a></li>
+    <li><a href="#server-层">server 层</a></li>
+    <li><a href="#存储引擎">存储引擎</a>
+      <ul>
+        <li><a href="#查命令">查命令</a></li>
+        <li><a href="#更新命令">更新命令</a></li>
+      </ul>
+    </li>
   </ul>
 </nav></div>
   </details>
@@ -233,76 +223,30 @@
   
   <article class="content numbered-subtitles">
     
-    <h1 id="缓存穿透">缓存穿透</h1>
-<p>指使用非法 key 进行请求, 这个 key 不存在于 Redis 缓存和数据库中. 导致数据库一直忙于处理非法 key 的查询请求.</p>
-<h2 id="1-缓存空值">1. 缓存空值</h2>
-<p>使用 Redis 缓存空值,将不存在的 key 加入缓存,之后直接在 Redis 被拦截.</p>
-<ul>
-<li>优点 :实现简单,成本低.</li>
-<li>缺点 : 大量不同非法 key 访问会占用大量 redis 缓存.</li>
-<li>改进: 给空值 key 设置较短的过期时间 或者加入布隆过滤器.</li>
-</ul>
-<h2 id="2-布隆过滤器">2. 布隆过滤器</h2>
-<p>使用布隆过滤器首先判断当前请求的数据是否存在, 若不存在直接拦截, &ldquo;存在&quot;后继续交由 redis 进行.
-优点: bloomfilter 使用了散列算法&quot;存储&rdquo;,占用空间极小,速度快.
-缺点: bloomfilter 会出现假阳性,同时无法删除数据.
-改进: 使用 缓存空值兜底,同时定期刷新写入真实的数据.
-<img src="/pics/redis/Pasted_image_20251019211336.png" alt=""></p>
-<hr>
-<h1 id="缓存击穿">缓存击穿</h1>
-<p><img src="/pics/redis/Pasted_image_20251020085030.png" alt=""></p>
-<h2 id="1-分布式锁">1. 分布式锁</h2>
-<p>通过加入分布式只允许一个线程同时去访问数据库进行缓存重建,其他线程等待缓存好的数据.
-步骤:
-A. redis 缓存未命中,尝试获取锁
-B. 获取锁成功,进行双重检查
-C. 查询数据库
-D.重新加入 Redis 缓存 (若为空则构造空值)</p>
-<p>缺点:</p>
-<ul>
-<li>导致大量用户被堵塞,体验较差.</li>
-<li>锁竞争激烈时，性能下降</li>
-<li>如果锁未正确释放（如程序崩溃），可能导致死锁</li>
-</ul>
-<p>改进:</p>
-<ul>
-<li>使用 Redis 的 <code>SET key value NX PX milliseconds</code> 命令原子操作加锁。</li>
-<li>加锁失败时，<strong class=chinese>不要无限等待</strong>，可以返回“稍后再试”或“默认值”。</li>
-</ul>
-<h2 id="2逻辑过期--异步更新">2.逻辑过期 + 异步更新</h2>
-<p>在非强一致性场景下,缓存数据时加入逻辑过期时间,若发生过期则先返回旧数据,同时获取分布式锁进行异步更新缓存.
-步骤:
-A. redis 缓存命中, 但此时逻辑过期
-B. 返回旧数据,同时尝试获取锁.
-C. 开启子线程,进行双重检查
-D. 重构缓存
-缺点:</p>
-<ul>
-<li>复杂度较高, 需要维护逻辑过期字段、异步线程、锁机制</li>
-<li>用户可能无法及时获取到最新数据.</li>
-<li>内存占用略高,因为缓存不会真正过期，除非手动清理。</li>
-</ul>
-<p>改进:</p>
-<ul>
-<li>对缓存设置较长的过期时间,大于逻辑过期时间.</li>
-</ul>
-<h2 id="3-缓存预热">3. 缓存预热</h2>
-<p>针对热点数据提前预热，将其存入缓存中并设置合理的过期时间比如秒杀场景下的数据在秒杀结束之前不过期。</p>
-<h1 id="缓存雪崩">缓存雪崩</h1>
-<p>指缓存内<strong>同时出现大量 key 过期</strong>或者 <strong>Redis 奔溃重启,没有缓存</strong>任何key,导致大量的请求都直接落到了数据库上，对数据库造成了巨大的压力。</p>
-<h2 id="1-随机过期时间">1. 随机过期时间</h2>
-<p>通过 在 Redis 重构缓存时在过期时间中加入随机抖动使得过期时间均匀分散,避免了大量 key 同时过期的情况.</p>
-<h2 id="2-redis-集群">2. Redis 集群</h2>
-<p>通过构建 Redis 主从架构+哨兵机制实现, 当主节点下线后,哨兵会自动把从节点提升为主节点. 多个节点保证了不会出现缓存全部消失的情况.</p>
-<h2 id="服务降级--熔断">**服务降级 &amp; 熔断</h2>
-<p>当数据库压力过大时：</p>
-<ul>
-<li>返回<strong class=chinese>默认值</strong>（如“系统繁忙，请稍后再试”）。</li>
-<li>启用<strong class=chinese>本地缓存</strong>（如 Caffeine）作为二级缓存。</li>
-<li>使用<strong class=chinese>限流</strong>（如 Sentinel、Hystrix）保护数据库。</li>
-</ul>
-<blockquote>
-<p>3.预热数据</p></blockquote>
+    <h1 id="数据库组成">数据库组成</h1>
+<p>由 Server 层 + 存储引擎组成</p>
+<p><img src="/pics/MySQL/DBstructure.png" alt="数据库组成"></p>
+<h2 id="server-层">server 层</h2>
+<ol>
+<li>连接器用来维持用户与数据库的连接, 认证, 管理等</li>
+<li>缓存查询,如果当前有之前命令执行的缓存,就会直接返回之前的结果. (MySQL 8.0之后已经移除)</li>
+<li>分析器用来判断当前输入的 SQL 语句是否合法</li>
+<li>优化器会对 SQL 语句选择优化器认为最佳的方案进行执行操作</li>
+<li>执行器执行语句并检查权限</li>
+</ol>
+<p><img src="/pics/MySQL/InnoDBSimpleStructure.awebp" alt="img"></p>
+<h2 id="存储引擎">存储引擎</h2>
+<p><img src="/pics/MySQL/InnoDBSimpleStructure.png" alt=""></p>
+<h3 id="查命令">查命令</h3>
+<p>当 SQL 命令进入存储引擎后 存储引擎会 首先 尝试 AHI 如果命中不查页哈希表
+否则进入 页哈希表查看当前 记录所在页是否存在 buffer pool 中
+不存在则从本地硬盘读取所在页进入buffer pool</p>
+<h3 id="更新命令">更新命令</h3>
+<p>前几步与查命令相同,在修改前会先将当前原始旧数据先写入 Log Buffer 写入 Undo Tablespace,
+然后将数据写入 buffer pool 中的 page 同时 将当前数据通过 Log buffer 写入 Redo log, 然后异步更新.</p>
+<h1 id="来源">来源</h1>
+<p><a href="https://www.bilibili.com/video/BV1ve411F794"># 5分钟精通MySql的系统框架</a>
+<a href="https://dunwu.github.io/pages/5fe0f3/">Mysql 存储引擎 钝悟</a></p>
 
     
   </article>
@@ -338,10 +282,10 @@ D. 重构缓存
 </div>
   <div class="paginator">
     
-    <a class="link" href="https://asgpipo.github.io/posts/redis/rdb--aof/" title="Redis RDB &amp; AOF">← prev</a>
+    <a class="link" href="https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/" title="Redis 生产问题">← prev</a>
     
     
-    <a class="link" href="https://asgpipo.github.io/posts/mysql/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" title="数据库组成">next →</a>
+    <a class="link" href="https://asgpipo.github.io/posts/mysql/innodb-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" title="InnoDB 组成">next →</a>
     
   </div>
   <div class="comment">

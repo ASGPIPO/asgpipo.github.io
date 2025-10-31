@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 105%">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="">
+
+  
+  
+  <meta name="description" content="InnoDB 组成
+
+内存结构 :
+
+Buffer Pool
+AHI
+Log Buffer
+Change Buffer
+
+硬盘结构:
+
+TableSpace
+Redo Log
+UnDo Log
+
+Buffer Pool
+是内存中一块连续的区域,用于缓存表和索引的数据. 用于加速数据访问与读写.
+Page
+buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据行（rows）、索引条目（index entries）大小为16kb.
+page 中存放的不是整张表 而是多行数据.">
+  
+
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="https://asgpipo.github.io//images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://asgpipo.github.io//images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://asgpipo.github.io//images/favicon-16x16.png">
+
+  
+  
+  <meta name="keywords" content='hugo latex theme blog texify texify2 texify3 michael neuper'>
+  
+
+  
+  
+  <link rel="stylesheet" href='/katex/katex.min.css'>
+<script defer defer src='/katex/katex.min.js'></script>
+<script defer src='/katex/contrib/auto-render.min.js'></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError : false
+        });
+    });
+</script>
+  
+
+  
+  
+
+  
+  <meta property="og:url" content="https://asgpipo.github.io/posts/mysql/innodb-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/">
+  <meta property="og:site_name" content="pipo&#39;s site">
+  <meta property="og:title" content="InnoDB 组成">
+  <meta property="og:description" content="InnoDB 组成 内存结构 :
+Buffer Pool AHI Log Buffer Change Buffer 硬盘结构:
+TableSpace Redo Log UnDo Log Buffer Pool 是内存中一块连续的区域,用于缓存表和索引的数据. 用于加速数据访问与读写.
+Page buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据行（rows）、索引条目（index entries）大小为16kb. page 中存放的不是整张表 而是多行数据.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-10-21T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-21T00:00:00+00:00">
+    <meta property="article:tag" content="MySQL">
+    <meta property="article:tag" content="UndoLog">
+    <meta property="article:tag" content="RedoLog">
+    <meta property="article:tag" content="Buffer_Pool">
+    <meta property="article:tag" content="日志系统">
+    <meta property="article:tag" content="WAL">
+
+
+  
+  <link rel="canonical" href="https://asgpipo.github.io/posts/mysql/innodb-%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/">
+
+  
+  
+  
+  <meta itemprop="name" content="InnoDB 组成">
+  <meta itemprop="description" content="InnoDB 组成 内存结构 :
+Buffer Pool AHI Log Buffer Change Buffer 硬盘结构:
+TableSpace Redo Log UnDo Log Buffer Pool 是内存中一块连续的区域,用于缓存表和索引的数据. 用于加速数据访问与读写.
+Page buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据行（rows）、索引条目（index entries）大小为16kb. page 中存放的不是整张表 而是多行数据.">
+  <meta itemprop="datePublished" content="2025-10-21T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2025-10-21T00:00:00+00:00">
+  <meta itemprop="wordCount" content="1677">
+  <meta itemprop="keywords" content="MySQL,UndoLog,RedoLog,Buffer_Pool,日志系统,WAL">
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/common.min.e562d763c6d0825495eb17de8b2c1d9800cf7c08db1c36accedf77a5fccfc4b9.css" integrity="sha256-5WLXY8bQglSV6xfeiywdmADPfAjbHDaszt93pfzPxLk=" crossorigin="anonymous">
+  
+
+  
+  
+    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+  
+
+  
+  
+  <title>InnoDB 组成 - pipo&#39;s site</title>
+  
+
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="InnoDB 组成">
+  <meta name="twitter:description" content="InnoDB 组成 内存结构 :
+Buffer Pool AHI Log Buffer Change Buffer 硬盘结构:
+TableSpace Redo Log UnDo Log Buffer Pool 是内存中一块连续的区域,用于缓存表和索引的数据. 用于加速数据访问与读写.
+Page buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据行（rows）、索引条目（index entries）大小为16kb. page 中存放的不是整张表 而是多行数据.">
+
+
+  
+
+
+  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+
+
+  <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
+
+
+</head>
+
+<body>
+  <div id="wrapper">
+    
+
+
+<header id="header">
+  <h1>
+    <a href="https://asgpipo.github.io/">blog collcetions</a>
+    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle theme">
+        <svg width="2rem" height="2rem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 496">
+        <path fill="currentColor" d="M8,256C8,393,119,504,256,504S504,393,504,256,393,8,256,8,8,119,8,256ZM256,440V72a184,184,0,0,1,0,368Z" transform="translate(-8 -8)"/>
+        </svg>
+    </button>
+  </h1>
+
+  <nav>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17,11H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm0,4H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2ZM11,9h6a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2ZM21,3H7A1,1,0,0,0,6,4V7H3A1,1,0,0,0,2,8V18a3,3,0,0,0,3,3H18a4,4,0,0,0,4-4V4A1,1,0,0,0,21,3ZM6,18a1,1,0,0,1-2,0V9H6Zm14-1a2,2,0,0,1-2,2H7.82A3,3,0,0,0,8,18V5H20Zm-9-4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Zm0,4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Z"/></svg>
+</span>
+      
+      <a class="link" href="/posts/">Blog</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.88,16.88a3,3,0,0,0,0,4.24,3,3,0,0,0,4.24,0,3,3,0,0,0-4.24-4.24Zm2.83,2.83a1,1,0,0,1-1.42-1.42,1,1,0,0,1,1.42,0A1,1,0,0,1,5.71,19.71ZM5,12a1,1,0,0,0,0,2,5,5,0,0,1,5,5,1,1,0,0,0,2,0,7,7,0,0,0-7-7ZM5,8a1,1,0,0,0,0,2,9,9,0,0,1,9,9,1,1,0,0,0,2,0,11.08,11.08,0,0,0-3.22-7.78A11.08,11.08,0,0,0,5,8Zm10.61.39A15.11,15.11,0,0,0,5,4,1,1,0,0,0,5,6,13,13,0,0,1,18,19a1,1,0,0,0,2,0A15.11,15.11,0,0,0,15.61,8.39Z"/></svg>
+</span>
+      
+      <a class="link" href="/index.xml">RSS</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1">
+<path d="M10.07031,20.50291a1.00008,1.00008,0,0,0-1.18115-.9834c-1.30908.24024-2.96191.27637-3.40137-.958a5.70754,5.70754,0,0,0-1.83691-2.415,1.20073,1.20073,0,0,1-.1665-.10938,1,1,0,0,0-.93067-.64551H2.54883a.99965.99965,0,0,0-1,.99512c-.00391.81543.811,1.33789,1.1416,1.51465a4.4408,4.4408,0,0,1,.92383,1.35937c.36426,1.02344,1.42285,2.57617,4.46582,2.376.001.03516.00195.06836.00244.09863l.00439.26758a1,1,0,0,0,2,0l-.00488-.31836C10.07715,21.4951,10.07031,21.22068,10.07031,20.50291Zm10.667-15.126c.03174-.125.063-.26367.09034-.41992a6.27792,6.27792,0,0,0-.40821-3.293,1.002,1.002,0,0,0-.61572-.58007c-.356-.12012-1.67041-.35645-4.18408,1.25a13.86918,13.86918,0,0,0-6.354,0C6.76221.751,5.45459.9658,5.10205,1.07908a.99744.99744,0,0,0-.63135.584,6.3003,6.3003,0,0,0-.40332,3.35644c.02442.12793.05078.2461.07813.35449A6.26928,6.26928,0,0,0,2.89014,9.20311a8.42168,8.42168,0,0,0,.04248.92187c.334,4.60254,3.334,5.98438,5.42431,6.459-.04345.125-.083.25878-.11816.40039a1.00023,1.00023,0,0,0,1.94238.47851,1.6784,1.6784,0,0,1,.46778-.87793.99947.99947,0,0,0-.5459-1.74512c-3.4541-.39453-4.95362-1.80175-5.1792-4.89843a6.61076,6.61076,0,0,1-.03369-.73828,4.25769,4.25769,0,0,1,.91943-2.71289,3.022,3.022,0,0,1,.1958-.23145.99988.99988,0,0,0,.188-1.02441,3.3876,3.3876,0,0,1-.15527-.55567A4.09356,4.09356,0,0,1,6.1167,3.06346a7.54263,7.54263,0,0,1,2.415,1.17968,1.00877,1.00877,0,0,0,.82764.13282,11.77716,11.77716,0,0,1,6.17285.001,1.00549,1.00549,0,0,0,.83056-.13769,7.572,7.572,0,0,1,2.40528-1.19043,4.03977,4.03977,0,0,1,.0874,1.57812,3.205,3.205,0,0,1-.16895.60743.9999.9999,0,0,0,.188,1.02441c.07715.08691.1543.18066.22363.26855A4.12186,4.12186,0,0,1,20,9.20311a7.03888,7.03888,0,0,1-.0376.77734c-.22021,3.05566-1.72558,4.46387-5.1958,4.85937a1,1,0,0,0-.54541,1.7461,1.63079,1.63079,0,0,1,.46631.9082,3.06079,3.06079,0,0,1,.09229.81934v2.334C14.77,21.2949,14.77,21.78025,14.77,22.00291a1,1,0,1,0,2,0c0-.2168,0-.69238.00977-1.33984V18.31346a4.8815,4.8815,0,0,0-.15479-1.31153,4.25638,4.25638,0,0,0-.11621-.416,6.51258,6.51258,0,0,0,5.44531-6.42383A8.69677,8.69677,0,0,0,22,9.20311,6.13062,6.13062,0,0,0,20.7373,5.37693Z"/></svg>
+</span>
+      
+      <a class="link" href="https://github.com/ASGPIPO">GitHub</a>
+    </span>
+    
+  </nav>
+</header>
+<hr class="head-rule"></hr>
+    
+<main id="main" class="post">
+  
+  <div class="post-heading">
+    <h1 class="post-title">InnoDB 组成</h1>
+    <div class="publish-metadata">
+      
+      <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      21 October 2025
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          1677 words
+        </span>
+      
+      
+      
+        
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ~4 mins
+        </span>
+      
+    </div>
+  </div>
+
+  
+  <div>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/mysql'>#MySQL</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/undolog'>#UndoLog</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/redolog'>#RedoLog</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/buffer_pool'>#Buffer_Pool</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F'>#日志系统</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/wal'>#WAL</a>
+    
+    <br></br>
+  </div>
+  
+  
+  
+  <details>
+    <summary>
+      <b>Table of Contents</b>
+    </summary>
+    <div class="toc numbered-subtitles"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#buffer-pool">Buffer Pool</a>
+      <ul>
+        <li><a href="#page">Page</a></li>
+      </ul>
+    </li>
+    <li><a href="#ahi">AHI</a>
+      <ul>
+        <li><a href="#作用">作用</a></li>
+      </ul>
+    </li>
+    <li><a href="#日志系统">日志系统</a>
+      <ul>
+        <li><a href="#log-buffer">Log Buffer</a></li>
+        <li><a href="#redo-log">Redo Log</a></li>
+        <li><a href="#undo-log">Undo Log</a></li>
+      </ul>
+    </li>
+    <li><a href="#change-buffer">Change Buffer</a></li>
+    <li><a href="#来源">来源</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+  
+  <article class="content numbered-subtitles">
+    
+    <h1 id="innodb-组成">InnoDB 组成</h1>
+<p><img src="/pics/MySQL/InnoDB_Structure.png" alt="Mysql 官方图示"></p>
+<p>内存结构 :</p>
+<ul>
+<li>Buffer Pool</li>
+<li>AHI</li>
+<li>Log Buffer</li>
+<li>Change Buffer</li>
+</ul>
+<p>硬盘结构:</p>
+<ul>
+<li>TableSpace</li>
+<li>Redo Log</li>
+<li>UnDo Log</li>
+</ul>
+<h2 id="buffer-pool">Buffer Pool</h2>
+<p>是内存中一块连续的区域,用于缓存表和索引的数据. 用于加速数据访问与读写.</p>
+<h3 id="page">Page</h3>
+<p>buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据行（rows）、索引条目（index entries）大小为16kb.
+page 中存放的不是整张表 而是多行数据.</p>
+<p>当进行 SQL 查找时（如 SELECT 查询），InnoDB 会：</p>
+<ol>
+<li>通过主键或索引定位到具体的 page（由空间 ID + 页号标识）。</li>
+<li>检查 Buffer Pool 中是否已有该 page（命中率高时，直接从内存返回数据）。</li>
+<li>如果未命中，从磁盘（.ibd 文件）加载整个 16KB page 到 Buffer Pool。</li>
+<li>返回所需数据行，同时将该 page 标记为“活跃”，以便后续快速访问。</li>
+</ol>
+<p><strong class=chinese>存储方式</strong></p>
+<ul>
+<li>每个 page 被连接成<strong class=chinese>双向循环链表</strong>,并分为两块区域.</li>
+<li>使用 <strong>LRU（Least Recently Used，最近最少使用</strong>）算法的变体来淘汰不常用的页面.</li>
+<li>新子列表（young sublist）（最近访问的页面）和旧子列表（old sublist）（较少访问的页面）。</li>
+<li>中点（midpoint）：young 和 old 的分界线。新加载的 page 先插入中点（old 的头部），观察其是否被访问。
+<img src="/pics/MySQL/bufferPoolList.png" alt=""></li>
+</ul>
+<h2 id="ahi">AHI</h2>
+<p>InnoDB 的自适应哈希索引，是一个内置在 Buffer Pool 中的内存哈希表，用于加速等值查找</p>
+<h3 id="作用">作用</h3>
+<ul>
+<li><strong class=chinese>加速查询</strong>：对于频繁的精确匹配查询，哈希表提供 O(1) 访问速度，比 B+ 树索引的 O(log n) 更快。</li>
+<li><strong class=chinese>动态构建</strong>：InnoDB 根据实际查询模式自动创建/删除哈希条目，无需手动配置。</li>
+<li><strong class=chinese>适用场景</strong>：读密集型工作负载，尤其是点查询（point queries），如主键查找或唯一索引等值条件。</li>
+</ul>
+<h2 id="日志系统">日志系统</h2>
+<p>InnoDB 的事务恢复基于 <strong>WAL</strong> 技术，采用 <strong>NO-FORCE + STEAL</strong> 策略，通过 <strong>Redo Log（重做）与 Undo Log（回滚）<strong class=chinese>来保障事务的</strong>持久性与原子性</strong>。</p>
+<h3 id="log-buffer">Log Buffer</h3>
+<p>Log Buffer（又称 <strong>redo log buffer</strong>）是 InnoDB 在内存中用于暂存 <strong>redo log</strong> 记录的区域。当事务修改 Buffer Pool 中的数据页时，InnoDB 会同时生成对应的 redo log（描述该物理修改），并写入 log buffer。随后，这些 redo log 会根据策略（如事务提交、超时或缓冲区满）被刷入磁盘的 redo log 文件。若数据库崩溃，InnoDB 可在重启时通过重放已持久化的 redo log，<strong class=chinese>恢复那些已提交但尚未写入数据文件的更改</strong>，从而保证事务的持久性。</p>
+<h3 id="redo-log">Redo Log</h3>
+<p>Redo log 是存储在磁盘上的物理日志，用于在数据库崩溃后恢复<strong class=chinese>已提交事务的持久化状态</strong>。它以面向存储页的方式记录修改，内容类似于“在表空间某页的偏移 Y 处写入 Z”。崩溃恢复时，InnoDB 先重做所有 redo log 记录，再通过 undo log 回滚未提交的事务，从而保证 ACID。</p>
+<p>Redo Log 是 <strong>WAL</strong>（Write-Ahead Logging）技术的核心：修改先写日志，再写数据文件，减少随机 I/O，提高性能。</p>
+<p>崩溃恢复时 InnoDB:</p>
+<ol>
+<li>重做所有已提交但未持久化的记录</li>
+<li>通过undo log 将 buffer pool 中未提交的事务回滚</li>
+</ol>
+<h3 id="undo-log">Undo Log</h3>
+<p>Undo Log 记录了事务对数据修改的“反向操作”，允许其他事务读取未修改的旧版本数据（一致性读），并在事务回滚时恢复数据。他保存了数据的“历史快照”，确保事务的 ACID 属性（原子性、一致性、隔离性、持久性）。</p>
+<p>Undo Log 主要用于：</p>
+<ul>
+<li><strong>MVCC</strong>：事务间隔离读，避免锁竞争。</li>
+<li><strong class=chinese>回滚</strong>：事务失败时撤销修改。</li>
+<li><strong class=chinese>崩溃恢复</strong>：虽不直接用于恢复，但辅助 purge 操作清理旧数据。</li>
+</ul>
+<p>Undo Log 分为两类：用户表（regular tables）的 Undo Log（需 redo 日志保护，用于崩溃恢复）和临时表（temporary tables）的 Undo Log（仅用于运行时回滚，不生成 redo 日志，提高性能）。</p>
+<p>表空间（<strong>Tablespaces</strong>）：Undo Log 存储在独立的 Undo Tablespaces（最多 128 个回滚段/表空间）和全局临时表空间（temp tablespace）。每个事务最多分配 4 个 Undo Log（分别处理用户表的 INSERT、UPDATE/DELETE 和临时表的 INSERT、UPDATE/DELETE）。</p>
+<h2 id="change-buffer">Change Buffer</h2>
+<p><img src="/pics/MySQL/changeBuffer.png" alt="img"></p>
+<p>属于 Buffer Pool 的一块内存结构,存储着**二级索引(<strong>非主索引)<strong class=chinese>发生的变更</strong>,当二级索引发生更新时如果</strong>受影响的二级索引页面不在 Buffer Pool 中,**不会立即更新到磁盘中,而是先存储到 Change Buffer <strong>当这个页面因为其他读操作被加载到 Buffer Pool 时</strong>，这些变更才会“合并”（merge）进去.</p>
+<h2 id="来源">来源</h2>
+<p><a href="https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/MySQL%E5%AE%9E%E6%88%9845%E8%AE%B2/02%20%20%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F%EF%BC%9A%E4%B8%80%E6%9D%A1SQL%E6%9B%B4%E6%96%B0%E8%AF%AD%E5%8F%A5%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%A7%E8%A1%8C%E7%9A%84%EF%BC%9F.md">02 日志系统：一条SQL更新语句是如何执行的？</a></p>
+<p><a href="https://dev.mysql.com/doc/refman/8.0/en/">MySQL 8.0 Reference Manual</a></p>
+<p><a href="https://dunwu.github.io/pages/5fe0f3/">Mysql 存储引擎 钝悟</a></p>
+<p><a href="https://www.bilibili.com/video/BV1ve411F794">5分钟精通MySql的系统框架_哔哩哔哩_bilibili</a></p>
+
+    
+  </article>
+
+  <button onclick="topFunction()" id="back-to-top" title="Go to top">Back to Top</button>
+
+  
+
+<div id="sharingbuttons">
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+</div>
+  <div class="paginator">
+    
+    <a class="link" href="https://asgpipo.github.io/posts/mysql/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/" title="数据库组成">← prev</a>
+    
+    
+    <a></a>
+    
+  </div>
+  <div class="comment">
+    
+    
+    
+      <script src="https://giscus.app/client.js"
+        data-repo="michaelneuper/website"
+        data-repo-id="R_kgDOIjPNaQ"
+        data-category="General"
+        data-category-id="DIC_kwDOIjPNac4CaklA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="gruvbox"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+  </script>
+  
+  </div>
+  
+  
+</main>
+
+    <footer id="footer">
+  <div>
+    <span>Powered by  <a class=link href=https://gohugo.io target=_blank rel=noopener>Hugo</a> | 
+Theme <a class=link href=https://github.com/michaelneuper/hugo-texify3 target=_blank rel=noopener>TeXify3</a>
+</span>
+  </div>
+  <div>
+    <span>Copyright © 2025 </span>
+  </div>
+</footer>
+
+  </div>
+
+  
+  <script src='https://asgpipo.github.io/js/script.js' defer></script>
+
+  
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/syntax.css" />
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/scale.css" />
+  
+
+  
+  
+
+  
+  
+
+</body>
+
+</html>
