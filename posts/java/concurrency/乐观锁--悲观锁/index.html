@@ -11,7 +11,7 @@
   
   
   <meta name="description" content="悲观锁
-![[Pasted image 20251012211311.png]]
+
 悲观锁的核心思想是在共享资源被操作时假设冲突一定会发生全部都加锁.
 实现方式
 
@@ -64,13 +64,20 @@ ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比
   
   <meta property="og:url" content="https://asgpipo.github.io/posts/java/concurrency/%E4%B9%90%E8%A7%82%E9%94%81--%E6%82%B2%E8%A7%82%E9%94%81/">
   <meta property="og:site_name" content="pipo&#39;s site">
-  <meta property="og:title" content="pipo&#39;s site">
-  <meta property="og:description" content="悲观锁 ![[Pasted image 20251012211311.png]] 悲观锁的核心思想是在共享资源被操作时假设冲突一定会发生全部都加锁.
+  <meta property="og:title" content="乐观锁 & 悲观锁">
+  <meta property="og:description" content="悲观锁 悲观锁的核心思想是在共享资源被操作时假设冲突一定会发生全部都加锁.
 实现方式 synchronized : Java 中的关键字，可以修饰方法或代码块，保证同一时刻只有一个线程可以执行被修饰的代码。 ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比 synchronized 更广泛的锁操作。例如，它可以实现公平锁、非公平锁，可以被中断地获取锁等。 缺点 多个线程在持有锁并请求对方已持有的锁时，会造成相互等待，导致所有线程都无法继续执行。 当一个线程获取锁失败后，会被阻塞（挂起），操作系统需要将其从运行态切换到等待态。当锁被释放时，又需要将等待的线程唤醒，这个线程上下文的切换会消耗一定的 CPU 资源。 只要有一个线程持有了锁，其他所有想要访问该资源的线程都必须等待，这会降低系统的并发性能和吞吐量。 适用场景 适合写多读少的情况,因为读操作并不对资源进行修改不会出现线程问题,而写操作要求强数值一致性所以适合悲观锁.">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-10-12T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-12T00:00:00+00:00">
     <meta property="article:tag" content="Concurrency">
+    <meta property="article:tag" content="JAVA">
+    <meta property="article:tag" content="JVM">
+    <meta property="article:tag" content="CAS">
+    <meta property="article:tag" content="OptimisticLock">
+    <meta property="article:tag" content="PessimisticLock">
 
 
   
@@ -79,11 +86,13 @@ ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比
   
   
   
-  <meta itemprop="name" content="pipo&#39;s site">
-  <meta itemprop="description" content="悲观锁 ![[Pasted image 20251012211311.png]] 悲观锁的核心思想是在共享资源被操作时假设冲突一定会发生全部都加锁.
+  <meta itemprop="name" content="乐观锁 & 悲观锁">
+  <meta itemprop="description" content="悲观锁 悲观锁的核心思想是在共享资源被操作时假设冲突一定会发生全部都加锁.
 实现方式 synchronized : Java 中的关键字，可以修饰方法或代码块，保证同一时刻只有一个线程可以执行被修饰的代码。 ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比 synchronized 更广泛的锁操作。例如，它可以实现公平锁、非公平锁，可以被中断地获取锁等。 缺点 多个线程在持有锁并请求对方已持有的锁时，会造成相互等待，导致所有线程都无法继续执行。 当一个线程获取锁失败后，会被阻塞（挂起），操作系统需要将其从运行态切换到等待态。当锁被释放时，又需要将等待的线程唤醒，这个线程上下文的切换会消耗一定的 CPU 资源。 只要有一个线程持有了锁，其他所有想要访问该资源的线程都必须等待，这会降低系统的并发性能和吞吐量。 适用场景 适合写多读少的情况,因为读操作并不对资源进行修改不会出现线程问题,而写操作要求强数值一致性所以适合悲观锁.">
-  <meta itemprop="wordCount" content="737">
-  <meta itemprop="keywords" content="Concurrency">
+  <meta itemprop="datePublished" content="2025-10-12T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2025-10-12T00:00:00+00:00">
+  <meta itemprop="wordCount" content="728">
+  <meta itemprop="keywords" content="Concurrency,JAVA,JVM,CAS,OptimisticLock,PessimisticLock">
 
   
   
@@ -98,14 +107,14 @@ ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比
 
   
   
-  <title> - pipo&#39;s site</title>
+  <title>乐观锁 &amp; 悲观锁 - pipo&#39;s site</title>
   
 
   
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="pipo&#39;s site">
-  <meta name="twitter:description" content="悲观锁 ![[Pasted image 20251012211311.png]] 悲观锁的核心思想是在共享资源被操作时假设冲突一定会发生全部都加锁.
+  <meta name="twitter:title" content="乐观锁 & 悲观锁">
+  <meta name="twitter:description" content="悲观锁 悲观锁的核心思想是在共享资源被操作时假设冲突一定会发生全部都加锁.
 实现方式 synchronized : Java 中的关键字，可以修饰方法或代码块，保证同一时刻只有一个线程可以执行被修饰的代码。 ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比 synchronized 更广泛的锁操作。例如，它可以实现公平锁、非公平锁，可以被中断地获取锁等。 缺点 多个线程在持有锁并请求对方已持有的锁时，会造成相互等待，导致所有线程都无法继续执行。 当一个线程获取锁失败后，会被阻塞（挂起），操作系统需要将其从运行态切换到等待态。当锁被释放时，又需要将等待的线程唤醒，这个线程上下文的切换会消耗一定的 CPU 资源。 只要有一个线程持有了锁，其他所有想要访问该资源的线程都必须等待，这会降低系统的并发性能和吞吐量。 适用场景 适合写多读少的情况,因为读操作并不对资源进行修改不会出现线程问题,而写操作要求强数值一致性所以适合悲观锁.">
 
 
@@ -171,13 +180,13 @@ ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比
 <main id="main" class="post">
   
   <div class="post-heading">
-    <h1 class="post-title"></h1>
+    <h1 class="post-title">乐观锁 &amp; 悲观锁</h1>
     <div class="publish-metadata">
       
       <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      1 January 0001
+      12 October 2025
       
       
         &nbsp;
@@ -185,7 +194,7 @@ ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          737 words
+          728 words
         </span>
       
       
@@ -208,6 +217,16 @@ ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比
   <div>
     
     <a class="link tag" href='https://asgpipo.github.io/tags/concurrency'>#Concurrency</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/java'>#JAVA</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/jvm'>#JVM</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/cas'>#CAS</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/optimisticlock'>#OptimisticLock</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/pessimisticlock'>#PessimisticLock</a>
     
     <br></br>
   </div>
@@ -241,7 +260,7 @@ ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比
   <article class="content numbered-subtitles">
     
     <h1 id="悲观锁">悲观锁</h1>
-<p>![[Pasted image 20251012211311.png]]
+<p><img src="/pics/Java/PessimisticLock.png" alt="">
 悲观锁的核心思想是<strong class=chinese>在共享资源被操作时假设冲突一定会发生</strong>全部都加锁.</p>
 <h2 id="实现方式">实现方式</h2>
 <ul>
@@ -257,13 +276,13 @@ ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比
 <h2 id="适用场景">适用场景</h2>
 <p>适合写多读少的情况,因为读操作并不对资源进行修改不会出现线程问题,而写操作要求强数值一致性所以适合悲观锁.</p>
 <h1 id="乐观锁">乐观锁</h1>
-<p>![[Pasted image 20251012212809.png]]
+<p><img src="pics/Java/OptimisticLock.png" alt="">
 它总是假设最好的情况，认为数据在被自己操作时不会被其他线程修改。所以它不会加锁，<strong>而是在更新数据时，去检查</strong>在此期间有没有其他线程修改过数据。</p>
 <h2 id="实现方式-1">实现方式</h2>
 <p><strong><code>concurrent.atomic</code></strong>: Java 的 <code>java.util.concurrent.atomic</code> 包下的一系列原子类，如 <code>AtomicInteger</code>, <code>AtomicLong</code> 等。它们内部使用了 CAS 机制来实现原子操作。</p>
 <h2 id="机制">机制</h2>
 <h3 id="版本控制">版本控制</h3>
-<p>![[Pasted image 20251012214721.png|400]]
+<p><img src="/pics/Java/VersionControl.png" alt="">
 在数据库中加入版本属性,当线程操作时需要携带当前操作数据的版本号,操作完成后比较此时版本与数据库中版本是否相同.</p>
 <h3 id="cascompare-and-swap">CAS(<strong>Compare And Swap</strong>)</h3>
 <p>CAS 是一个原子操作，底层依赖于一条 CPU 的原子指令。</p>
@@ -313,10 +332,10 @@ ReentrantLock: Java java.util.concurrent.locks 包下的一个类，提供了比
 </div>
   <div class="paginator">
     
-    <a></a>
+    <a class="link" href="https://asgpipo.github.io/posts/restful-api-%E8%AE%BE%E8%AE%A1/" title="RESTful API 设计原则">← prev</a>
     
     
-    <a class="link" href="https://asgpipo.github.io/posts/java/concurrency/volatile--synchronized/" title="">next →</a>
+    <a class="link" href="https://asgpipo.github.io/posts/java/concurrency/volatile--synchronized/" title="volatile &amp; synchronized">next →</a>
     
   </div>
   <div class="comment">

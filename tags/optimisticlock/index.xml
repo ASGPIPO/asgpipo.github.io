@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>OptimisticLock on pipo&#39;s site</title>
+    <link>https://asgpipo.github.io/tags/optimisticlock/</link>
+    <description>Recent content in OptimisticLock on pipo&#39;s site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Sun, 12 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/optimisticlock/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>乐观锁 &amp; 悲观锁</title>
+      <link>https://asgpipo.github.io/posts/java/concurrency/%E4%B9%90%E8%A7%82%E9%94%81--%E6%82%B2%E8%A7%82%E9%94%81/</link>
+      <pubDate>Sun, 12 Oct 2025 00:00:00 +0000</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/java/concurrency/%E4%B9%90%E8%A7%82%E9%94%81--%E6%82%B2%E8%A7%82%E9%94%81/</guid>
+      <description>&lt;h1 id=&#34;悲观锁&#34;&gt;悲观锁&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/Java/PessimisticLock.png&#34; alt=&#34;&#34;&gt;
+悲观锁的核心思想是&lt;strong&gt;在共享资源被操作时假设冲突一定会发生&lt;/strong&gt;全部都加锁.&lt;/p&gt;
+&lt;h2 id=&#34;实现方式&#34;&gt;实现方式&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;synchronized&lt;/strong&gt; : Java 中的关键字，可以修饰方法或代码块，保证同一时刻只有一个线程可以执行被修饰的代码。&lt;/li&gt;
+&lt;li&gt;ReentrantLock: Java &lt;code&gt;java.util.concurrent.locks&lt;/code&gt; 包下的一个类，提供了比 &lt;code&gt;synchronized&lt;/code&gt; 更广泛的锁操作。例如，它可以实现公平锁、非公平锁，可以被中断地获取锁等。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;缺点&#34;&gt;缺点&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;多个线程在持有锁并请求对方已持有的锁时，会造成相互等待，导致所有线程都无法继续执行。&lt;/li&gt;
+&lt;li&gt;当一个线程获取锁失败后，会被阻塞（挂起），操作系统需要将其从运行态切换到等待态。当锁被释放时，又需要将等待的线程唤醒，这个线程上下文的切换会消耗一定的 CPU 资源。&lt;/li&gt;
+&lt;li&gt;只要有一个线程持有了锁，其他所有想要访问该资源的线程都必须等待，这会降低系统的并发性能和吞吐量。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;适用场景&#34;&gt;适用场景&lt;/h2&gt;
+&lt;p&gt;适合写多读少的情况,因为读操作并不对资源进行修改不会出现线程问题,而写操作要求强数值一致性所以适合悲观锁.&lt;/p&gt;
+&lt;h1 id=&#34;乐观锁&#34;&gt;乐观锁&lt;/h1&gt;
+&lt;p&gt;&lt;img src=&#34;pics/Java/OptimisticLock.png&#34; alt=&#34;&#34;&gt;
+它总是假设最好的情况，认为数据在被自己操作时不会被其他线程修改。所以它不会加锁，&lt;strong&gt;而是在更新数据时，去检查&lt;/strong&gt;在此期间有没有其他线程修改过数据。&lt;/p&gt;
+&lt;h2 id=&#34;实现方式-1&#34;&gt;实现方式&lt;/h2&gt;
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;concurrent.atomic&lt;/code&gt;&lt;/strong&gt;: Java 的 &lt;code&gt;java.util.concurrent.atomic&lt;/code&gt; 包下的一系列原子类，如 &lt;code&gt;AtomicInteger&lt;/code&gt;, &lt;code&gt;AtomicLong&lt;/code&gt; 等。它们内部使用了 CAS 机制来实现原子操作。&lt;/p&gt;
+&lt;h2 id=&#34;机制&#34;&gt;机制&lt;/h2&gt;
+&lt;h3 id=&#34;版本控制&#34;&gt;版本控制&lt;/h3&gt;
+&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/Java/VersionControl.png&#34; alt=&#34;&#34;&gt;
+在数据库中加入版本属性,当线程操作时需要携带当前操作数据的版本号,操作完成后比较此时版本与数据库中版本是否相同.&lt;/p&gt;
+&lt;h3 id=&#34;cascompare-and-swap&#34;&gt;CAS(&lt;strong&gt;Compare And Swap&lt;/strong&gt;)&lt;/h3&gt;
+&lt;p&gt;CAS 是一个原子操作，底层依赖于一条 CPU 的原子指令。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;原子操作&lt;/strong&gt; 即最小不可拆分的操作，也就是说操作一旦开始，就不能被打断，直到操作完成。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;CAS 涉及到三个操作数：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;V&lt;/strong&gt;：要更新的变量值(Var)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;E&lt;/strong&gt;：预期值(Expected)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;N&lt;/strong&gt;：拟写入的新值(New)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;当且仅当 V 的值等于 E 时，CAS 通过原子方式用新值 N 来更新 V 的值。如果不等，说明已经有其它线程更新了 V，则当前线程放弃更新。&lt;/p&gt;
+&lt;h1 id=&#34;来源&#34;&gt;来源&lt;/h1&gt;
+&lt;p&gt;&lt;a href=&#34;https://javaguide.cn/java/concurrent/optimistic-lock-and-pessimistic-lock.html&#34;&gt;Javaguide# 乐观锁和悲观锁详解&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
