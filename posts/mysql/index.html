@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 105%">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="">
+
+  
+  
+  <meta name="description" content="索引简介
+Concept
+Index 是什么
+Index 是一种数据结构,用于加速查找和快速定位数据,.
+为什么需要 Index
+传统数据库中进行查找时往往需要在全表全库中进行查找, Index 可以帮助快速定位表,行所在的位置,避免全表查找减少硬盘IO.">
+  
+
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="https://asgpipo.github.io//images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://asgpipo.github.io//images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://asgpipo.github.io//images/favicon-16x16.png">
+
+  
+  
+  <meta name="keywords" content='hugo latex theme blog texify texify2 texify3 michael neuper'>
+  
+
+  
+  
+  <link rel="stylesheet" href='/katex/katex.min.css'>
+<script defer defer src='/katex/katex.min.js'></script>
+<script defer src='/katex/contrib/auto-render.min.js'></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError : false
+        });
+    });
+</script>
+  
+
+  
+  
+
+  
+  <meta property="og:url" content="https://asgpipo.github.io/posts/mysql/">
+  <meta property="og:site_name" content="pipo&#39;s site">
+  <meta property="og:title" content="Index">
+  <meta property="og:description" content="索引简介 Concept Index 是什么 Index 是一种数据结构,用于加速查找和快速定位数据,.
+为什么需要 Index 传统数据库中进行查找时往往需要在全表全库中进行查找, Index 可以帮助快速定位表,行所在的位置,避免全表查找减少硬盘IO.">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-10-23T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-10-23T00:00:00+00:00">
+    <meta property="article:tag" content="MySQL">
+    <meta property="article:tag" content="Index">
+    <meta property="article:tag" content="BplusTree">
+    <meta property="article:tag" content="最左前缀">
+
+
+  
+  <link rel="canonical" href="https://asgpipo.github.io/posts/mysql/">
+
+  
+  
+  
+  <meta itemprop="name" content="Index">
+  <meta itemprop="description" content="索引简介 Concept Index 是什么 Index 是一种数据结构,用于加速查找和快速定位数据,.
+为什么需要 Index 传统数据库中进行查找时往往需要在全表全库中进行查找, Index 可以帮助快速定位表,行所在的位置,避免全表查找减少硬盘IO.">
+  <meta itemprop="datePublished" content="2025-10-23T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2025-10-23T00:00:00+00:00">
+  <meta itemprop="wordCount" content="2503">
+  <meta itemprop="keywords" content="MySQL,Index,BplusTree,最左前缀">
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/common.min.e562d763c6d0825495eb17de8b2c1d9800cf7c08db1c36accedf77a5fccfc4b9.css" integrity="sha256-5WLXY8bQglSV6xfeiywdmADPfAjbHDaszt93pfzPxLk=" crossorigin="anonymous">
+  
+
+  
+  
+    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+  
+
+  
+  
+  <title>Index - pipo&#39;s site</title>
+  
+
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Index">
+  <meta name="twitter:description" content="索引简介 Concept Index 是什么 Index 是一种数据结构,用于加速查找和快速定位数据,.
+为什么需要 Index 传统数据库中进行查找时往往需要在全表全库中进行查找, Index 可以帮助快速定位表,行所在的位置,避免全表查找减少硬盘IO.">
+
+
+  
+
+
+  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+
+
+  <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
+
+
+</head>
+
+<body>
+  <div id="wrapper">
+    
+
+
+<header id="header">
+  <h1>
+    <a href="https://asgpipo.github.io/">blog collcetions</a>
+    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle theme">
+        <svg width="2rem" height="2rem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 496">
+        <path fill="currentColor" d="M8,256C8,393,119,504,256,504S504,393,504,256,393,8,256,8,8,119,8,256ZM256,440V72a184,184,0,0,1,0,368Z" transform="translate(-8 -8)"/>
+        </svg>
+    </button>
+  </h1>
+
+  <nav>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17,11H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm0,4H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2ZM11,9h6a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2ZM21,3H7A1,1,0,0,0,6,4V7H3A1,1,0,0,0,2,8V18a3,3,0,0,0,3,3H18a4,4,0,0,0,4-4V4A1,1,0,0,0,21,3ZM6,18a1,1,0,0,1-2,0V9H6Zm14-1a2,2,0,0,1-2,2H7.82A3,3,0,0,0,8,18V5H20Zm-9-4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Zm0,4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Z"/></svg>
+</span>
+      
+      <a class="link" href="/posts/">Blog</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.88,16.88a3,3,0,0,0,0,4.24,3,3,0,0,0,4.24,0,3,3,0,0,0-4.24-4.24Zm2.83,2.83a1,1,0,0,1-1.42-1.42,1,1,0,0,1,1.42,0A1,1,0,0,1,5.71,19.71ZM5,12a1,1,0,0,0,0,2,5,5,0,0,1,5,5,1,1,0,0,0,2,0,7,7,0,0,0-7-7ZM5,8a1,1,0,0,0,0,2,9,9,0,0,1,9,9,1,1,0,0,0,2,0,11.08,11.08,0,0,0-3.22-7.78A11.08,11.08,0,0,0,5,8Zm10.61.39A15.11,15.11,0,0,0,5,4,1,1,0,0,0,5,6,13,13,0,0,1,18,19a1,1,0,0,0,2,0A15.11,15.11,0,0,0,15.61,8.39Z"/></svg>
+</span>
+      
+      <a class="link" href="/index.xml">RSS</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1">
+<path d="M10.07031,20.50291a1.00008,1.00008,0,0,0-1.18115-.9834c-1.30908.24024-2.96191.27637-3.40137-.958a5.70754,5.70754,0,0,0-1.83691-2.415,1.20073,1.20073,0,0,1-.1665-.10938,1,1,0,0,0-.93067-.64551H2.54883a.99965.99965,0,0,0-1,.99512c-.00391.81543.811,1.33789,1.1416,1.51465a4.4408,4.4408,0,0,1,.92383,1.35937c.36426,1.02344,1.42285,2.57617,4.46582,2.376.001.03516.00195.06836.00244.09863l.00439.26758a1,1,0,0,0,2,0l-.00488-.31836C10.07715,21.4951,10.07031,21.22068,10.07031,20.50291Zm10.667-15.126c.03174-.125.063-.26367.09034-.41992a6.27792,6.27792,0,0,0-.40821-3.293,1.002,1.002,0,0,0-.61572-.58007c-.356-.12012-1.67041-.35645-4.18408,1.25a13.86918,13.86918,0,0,0-6.354,0C6.76221.751,5.45459.9658,5.10205,1.07908a.99744.99744,0,0,0-.63135.584,6.3003,6.3003,0,0,0-.40332,3.35644c.02442.12793.05078.2461.07813.35449A6.26928,6.26928,0,0,0,2.89014,9.20311a8.42168,8.42168,0,0,0,.04248.92187c.334,4.60254,3.334,5.98438,5.42431,6.459-.04345.125-.083.25878-.11816.40039a1.00023,1.00023,0,0,0,1.94238.47851,1.6784,1.6784,0,0,1,.46778-.87793.99947.99947,0,0,0-.5459-1.74512c-3.4541-.39453-4.95362-1.80175-5.1792-4.89843a6.61076,6.61076,0,0,1-.03369-.73828,4.25769,4.25769,0,0,1,.91943-2.71289,3.022,3.022,0,0,1,.1958-.23145.99988.99988,0,0,0,.188-1.02441,3.3876,3.3876,0,0,1-.15527-.55567A4.09356,4.09356,0,0,1,6.1167,3.06346a7.54263,7.54263,0,0,1,2.415,1.17968,1.00877,1.00877,0,0,0,.82764.13282,11.77716,11.77716,0,0,1,6.17285.001,1.00549,1.00549,0,0,0,.83056-.13769,7.572,7.572,0,0,1,2.40528-1.19043,4.03977,4.03977,0,0,1,.0874,1.57812,3.205,3.205,0,0,1-.16895.60743.9999.9999,0,0,0,.188,1.02441c.07715.08691.1543.18066.22363.26855A4.12186,4.12186,0,0,1,20,9.20311a7.03888,7.03888,0,0,1-.0376.77734c-.22021,3.05566-1.72558,4.46387-5.1958,4.85937a1,1,0,0,0-.54541,1.7461,1.63079,1.63079,0,0,1,.46631.9082,3.06079,3.06079,0,0,1,.09229.81934v2.334C14.77,21.2949,14.77,21.78025,14.77,22.00291a1,1,0,1,0,2,0c0-.2168,0-.69238.00977-1.33984V18.31346a4.8815,4.8815,0,0,0-.15479-1.31153,4.25638,4.25638,0,0,0-.11621-.416,6.51258,6.51258,0,0,0,5.44531-6.42383A8.69677,8.69677,0,0,0,22,9.20311,6.13062,6.13062,0,0,0,20.7373,5.37693Z"/></svg>
+</span>
+      
+      <a class="link" href="https://github.com/ASGPIPO">GitHub</a>
+    </span>
+    
+  </nav>
+</header>
+<hr class="head-rule"></hr>
+    
+<main id="main" class="post">
+  
+  <div class="post-heading">
+    <h1 class="post-title">Index</h1>
+    <div class="publish-metadata">
+      
+      <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      23 October 2025
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          2503 words
+        </span>
+      
+      
+      
+        
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ~5 mins
+        </span>
+      
+    </div>
+  </div>
+
+  
+  <div>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/mysql'>#MySQL</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/index'>#Index</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/bplustree'>#BplusTree</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E6%9C%80%E5%B7%A6%E5%89%8D%E7%BC%80'>#最左前缀</a>
+    
+    <br></br>
+  </div>
+  
+  
+  
+  <details>
+    <summary>
+      <b>Table of Contents</b>
+    </summary>
+    <div class="toc numbered-subtitles"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#索引简介">索引简介</a>
+      <ul>
+        <li><a href="#concept">Concept</a></li>
+        <li><a href="#contrast">Contrast</a></li>
+        <li><a href="#context">Context</a></li>
+      </ul>
+    </li>
+    <li><a href="#索引的不同分类">索引的不同分类</a>
+      <ul>
+        <li><a href="#索引的不同分类-1">索引的不同分类</a></li>
+        <li><a href="#contrast-1">Contrast</a></li>
+      </ul>
+    </li>
+    <li><a href="#索引的创建与使用">索引的创建与使用</a>
+      <ul>
+        <li><a href="#索引越多越好吗">索引越多越好吗</a></li>
+        <li><a href="#索引创建应遵循什么原则">索引创建应遵循什么原则</a></li>
+        <li><a href="#索引如何更新和维护">索引如何更新和维护?</a></li>
+        <li><a href="#索引什么时候会失效">索引什么时候会失效</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav></div>
+  </details>
+  
+  
+  <article class="content numbered-subtitles">
+    
+    <h2 id="索引简介">索引简介</h2>
+<h3 id="concept">Concept</h3>
+<h4 id="index-是什么">Index 是什么</h4>
+<p>Index 是一种数据结构,用于加速查找和快速定位数据,.</p>
+<h4 id="为什么需要-index">为什么需要 Index</h4>
+<p>传统数据库中进行查找时往往需要在全表全库中进行查找, Index 可以帮助快速定位表,行所在的位置,避免全表查找减少硬盘IO.</p>
+<h3 id="contrast">Contrast</h3>
+<h4 id="有哪些不同实现的-index">有哪些不同实现的 Index</h4>
+<p>Index有不同的数据结构,如 B+树, Hash索引, 全文索引. 在 InnoDB 中使用 B+树进行索引.</p>
+<h3 id="context">Context</h3>
+<h4 id="如何使用和创建索引">如何使用和创建索引</h4>
+<p>当创建好索引之后,只要进行<strong class=chinese>等值查询</strong> (<code>=</code> , <code>IN()</code>,  <code>&lt;=&gt;</code>) 时索引在查询条件的左侧,即可自动使用索引.</p>
+<p>创建索引:</p>
+<ul>
+<li>直接创建 <code>CREATE INDEX index_name ON table_name (key1, key2, ...)</code></li>
+<li>修改表时创建 <code>ALTER TABLE users ADD INDEX idx_email (email);</code></li>
+<li>建表时创建</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-mysql" data-lang="mysql"><span class="line"><span class="cl"><span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="nf">products</span><span class="w"> </span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">id</span><span class="w"> </span><span class="kt">INT</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">name</span><span class="w"> </span><span class="kt">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">INDEX</span><span class="w"> </span><span class="nf">idx_name</span><span class="w"> </span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><h4 id="什么时候需要索引">什么时候需要索引</h4>
+<ol>
+<li>
+<p>当前数据具有<strong class=chinese>唯一性</strong>可以当成主键.</p>
+</li>
+<li>
+<p>当某些数据段的查询十分频繁时可以考虑添加索引.即经常出现在 <strong><code>WHERE</code> 和 <code>JOIN</code></strong> 条件里.</p>
+</li>
+<li>
+<p>当前数据需要频繁排序(<strong><code>GROUP BY</code> 和 <code>ORDER BY</code></strong>) 时添加索引后就不再需要每次重排序.</p>
+</li>
+</ol>
+<h2 id="索引的不同分类">索引的不同分类</h2>
+<h3 id="索引的不同分类-1">索引的不同分类</h3>
+<p>按不同方法分,索引可以分一下几种:</p>
+<ol>
+<li>Clustered 与 Secondary</li>
+<li>B+树索引 哈希索引 全文索引</li>
+<li>主键索引 唯一索引 前缀索引 普通索引</li>
+</ol>
+<h4 id="clustered-与-secondary">Clustered 与 Secondary</h4>
+<p>在InnoDB 中 每创建一个表都会自动创建一个 Clustered 索引,在没有创建其他索引前提下所有查找都通过 Clustered进行查找.</p>
+<p>Secondary 是用户自己创建的 非主索引(二级索引)</p>
+<h4 id="哈希索引-b树索引">哈希索引 B+树索引</h4>
+<h5 id="哈希索引">哈希索引</h5>
+<p>通过哈希函数无序地将数据一一对应起来,因此哈希函数在等值查找时速度极佳 <code>O(1)</code> 但是因为哈希表的无序型使得 哈希索引无法进行范围查询.</p>
+<p>优点: 速度快 占用内存小</p>
+<p>缺点:</p>
+<ul>
+<li>不支持范围查询 模糊查询</li>
+<li>无法进行排序</li>
+<li>可能会发生哈希冲突</li>
+</ul>
+<h5 id="b-树索引">B+ 树索引</h5>
+<p>通过树结构将 从小到大 为 index 安排位置形成有序的树结构. 非子叶节点不存放数据,最后一层子叶节点从小到大进行排列,以链表形式彼此连接</p>
+<p>优点 :</p>
+<ul>
+<li>支持范围查询 模糊查询</li>
+<li>支持最左前缀匹配</li>
+<li>可以进行排序</li>
+<li>低层级树减少磁盘 IO</li>
+</ul>
+<p>缺点:</p>
+<ul>
+<li>维护树需要消耗更多资源</li>
+<li>速度相对哈希较慢 <code>O(lgN)</code></li>
+</ul>
+<h3 id="contrast-1">Contrast</h3>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">特性对比</th>
+          <th>Hash 索引</th>
+          <th>B+ 树索引</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left"><strong class=chinese>查找速度</strong></td>
+          <td>极快，平均O(1)</td>
+          <td>较快，O(logN)</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong class=chinese>存储空间</strong></td>
+          <td>通常较小</td>
+          <td>通常较大</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong class=chinese>支持的查询</strong></td>
+          <td>仅支持等值查询 (=, IN)</td>
+          <td>支持等值、范围 (&gt;, &lt;, BETWEEN)、排序和前缀模糊查询 (LIKE &lsquo;abc%&rsquo;)</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong class=chinese>哈希冲突</strong></td>
+          <td>存在，需要处理</td>
+          <td>不存在</td>
+      </tr>
+      <tr>
+          <td style="text-align: left"><strong class=chinese>维护成本</strong></td>
+          <td>高 (尤其在数据频繁变更时)</td>
+          <td>高 (需要维护树平衡)</td>
+      </tr>
+  </tbody>
+</table>
+<h2 id="索引的创建与使用">索引的创建与使用</h2>
+<p><img src="/pics/MySQL/index_create_use_mindmap.svg" alt=""></p>
+<h3 id="索引越多越好吗">索引越多越好吗</h3>
+<ul>
+<li>每一次索引的创建都要构建对应的 B+ 树,会占用一定空间</li>
+<li>索引的更新与维护会占用数据库的资源</li>
+<li>索引创建不合理会导致大量回表</li>
+</ul>
+<p>所以只有合适数量的索引才能达到最好效果.</p>
+<h3 id="索引创建应遵循什么原则">索引创建应遵循什么原则</h3>
+<h4 id="1-索引创建应该遵循最左前缀原则要把区分度大的字段排在前面这样区分度大的字段越有可能被更多的-sql-使用到">1. 索引创建应该遵循最左前缀原则,要把区分度大的字段排在前面，这样区分度大的字段越有可能被更多的 SQL 使用到</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">id</span><span class="w">	</span><span class="n">name</span><span class="w">	</span><span class="n">sex</span><span class="w">	</span><span class="k">position</span><span class="w">	</span><span class="n">Department</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">1</span><span class="w">	</span><span class="err">张三</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">软件工程师</span><span class="w">	    </span><span class="err">技术部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">2</span><span class="w">	</span><span class="err">李四</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">产品经理</span><span class="w">	      </span><span class="err">产品部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">3</span><span class="w">	</span><span class="err">王五</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">销售专员</span><span class="w">	      </span><span class="err">销售部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">4</span><span class="w">	</span><span class="err">赵六</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">人力资源专员</span><span class="w">	    </span><span class="err">人力资源部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">5</span><span class="w">	</span><span class="err">钱七</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">财务分析师</span><span class="w">	    </span><span class="err">财务部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">6</span><span class="w">	</span><span class="err">孙八</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">前端开发工程师</span><span class="w">	    </span><span class="err">技术部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">7</span><span class="w">	</span><span class="err">周九</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">市场专员</span><span class="w">	      </span><span class="err">市场部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">8</span><span class="w">	</span><span class="err">吴十</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">测试工程师</span><span class="w">	    </span><span class="err">技术部</span><span class="w">
+</span></span></span></code></pre></div><p>如果我们查找在技术部的测试工程师&quot;吴十&quot;  应该如何创建索引?</p>
+<p>依据最左前缀,我们要由上到下地不断起进行过滤,所以如此安排 (Department, position, name)</p>
+<p>注意, 应尽量<strong class=chinese>将范围查询和模糊查询靠右放置</strong>,B+树数据存储节点也是先按最左边第一个字段排序，在第一个字段的排序基础上，然后在对后续字段进行排序.</p>
+<p>![img](/home/pipo/文档/Obsidian Vault/Java/pics/BplusTreeSort.png)</p>
+<h4 id="2-应选取多读少写的常用的字段组成索引">2. 应选取多读少写的,常用的字段组成索引</h4>
+<p>选取多读少写的字段,即不更新的字段以避免频繁更新导致的树重建造成的资源浪费.</p>
+<h4 id="3-应尽量建立覆盖索引减少回表次数">3. 应尽量建立覆盖索引减少回表次数</h4>
+<p>通过覆盖索引我们只需在 Secondary 索引中查询便可以得到全部所需信息,不需要再次进入 Clusters 索引查找字段.</p>
+<p><strong class=chinese>什么是覆盖索引</strong></p>
+<p>覆盖索引就是指在当前使用索引查询中无需再次回到 Clusters 索引树即可拿到该次查询所需信息的索引.</p>
+<h3 id="索引如何更新和维护">索引如何更新和维护?</h3>
+<h4 id="1-索引更新">1. <strong class=chinese>索引更新</strong></h4>
+<p>索引更新通常发生在数据发生变化时，例如插入、删除或修改操作。索引需要相应地进行调整以反映这些变化。</p>
+<ul>
+<li>
+<p><strong class=chinese>插入数据时</strong>：</p>
+</li>
+<li>
+<p>新记录会根据索引键值插入到索引结构中。例如，在B树索引中，新键值会被插入到适当的位置，可能需要拆分节点以保持树的平衡。</p>
+</li>
+<li>
+<p><strong class=chinese>删除数据时</strong>：</p>
+</li>
+<li>
+<p>索引中的对应记录会被标记为删除或直接移除。如果删除操作导致节点变得空闲，可能会合并相邻节点以优化空间使用。</p>
+</li>
+<li>
+<p><strong class=chinese>修改数据时</strong>：</p>
+</li>
+<li>
+<p>如果修改了索引键值，索引会进行更新，可能包括删除旧键值并插入新键值。这可能导致索引树的重新平衡。</p>
+</li>
+</ul>
+<h4 id="2-索引维护">2. <strong class=chinese>索引维护</strong></h4>
+<p>索引维护是为了保持索引的高效性和准确性，通常包括以下操作：</p>
+<ul>
+<li>
+<p><strong class=chinese>索引重建</strong>：</p>
+</li>
+<li>
+<p>定期重建索引可以优化索引结构，合并碎片，释放空间，提高查询效率。重建索引通常在低峰时段进行，以减少对系统性能的影响。</p>
+</li>
+<li>
+<p><strong class=chinese>索引优化</strong>：</p>
+</li>
+<li>
+<p>优化索引结构，例如重新组织索引节点以减少树的高度，提高查询速度。这可能涉及重新平衡索引树或调整索引参数。</p>
+</li>
+<li>
+<p><strong class=chinese>清理无用索引</strong>：</p>
+</li>
+<li>
+<p>定期检查索引的使用情况，删除不再使用的索引，以避免占用不必要的存储空间和影响性能。</p>
+</li>
+<li>
+<p><strong class=chinese>索引碎片整理</strong>：</p>
+</li>
+<li>
+<p>碎片整理可以减少索引中的碎片，优化存储空间，提高访问效率。对于B树索引，这可能涉及合并相邻的空闲页。</p>
+</li>
+<li>
+<p><strong class=chinese>性能监控</strong>：</p>
+</li>
+<li>
+<p>监控索引的查询性能和存储使用情况，及时发现索引膨胀或性能下降的问题。</p>
+</li>
+<li>
+<p><strong class=chinese>分析工具</strong>：</p>
+</li>
+<li>
+<p>使用数据库的分析工具（如 <code>EXPLAIN</code> 语句）来检查查询是否有效利用索引，并根据结果调整索引策略。</p>
+</li>
+</ul>
+<h3 id="索引什么时候会失效">索引什么时候会失效</h3>
+<h4 id="1-用联合索引时加入了范围和模糊查询">1. 用联合索引时加入了范围和模糊查询</h4>
+<h4 id="2-索引使用函数或表达式">2. 索引使用函数或表达式</h4>
+<p>查询语句中，如果对索引字段**使用“函数”或“表达式”，**会导致索引失效。</p>
+<p>因为索引树存储的是索引字段的原始值，因此无法索引经过函数计算或表达式计算后的值。</p>
+<p>❌ 错误示例：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="k">SELECT</span><span class="w"> </span><span class="n">actor_id</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">actor</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">actor_id</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">TO_DAYS</span><span class="p">(</span><span class="k">current_date</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">TO_DAYS</span><span class="p">(</span><span class="n">date_col</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span><span class="w">
+</span></span></span></code></pre></div><h4 id="3-对索引隐式类型转换">3. 对索引隐式类型转换</h4>
+<p>查询语句中，如果对索引字段进行隐式类型转换，会导致索引失效。由于隐式类型转换是通过 <code>CAST</code> 函数实现的，等同于对索引列使用了函数，所以会导致索引失效。</p>
+<h4 id="4-联合索引不遵循最左匹配原则">4. 联合索引不遵循最左匹配原则</h4>
+<p>联合索引如果不遵循最左匹配原则，就会导致索引失效。原因是，在联合索引的情况下，数据是按照索引第一列排序，第一列数据相同时才会按照第二列排序。</p>
+<h4 id="5-索引列判空">5. 索引列判空</h4>
+<p><strong class=chinese>索引列与</strong> <code>NULL</code> <strong class=chinese>或者</strong> <code>NOT NULL</code> <strong class=chinese>进行判断的时候也会失效</strong>。这是因为索引并不存储空值.</p>
+<h2 id="参考">参考</h2>
+<p><a href="https://juejin.cn/post/7311623433817620517">理解Mysql索引原理及特性 | 京东物流技术团队</a></p>
+<p><a href="https://dunwu.github.io/pages/fcb19c/">https://dunwu.github.io/pages/fcb19c/</a></p>
+<p>[04 深入浅出索引（上）](<a href="https://learn.lianglianglee.com/%E4%B8%93%E6%A0%8F/MySQL%E5%AE%9E%E6%88%9845%E8%AE%B2/04">https://learn.lianglianglee.com/专栏/MySQL实战45讲/04</a>  深入浅出索引（上）.md)</p>
+<hr>
+<p>待完成</p>
+<ul>
+<li>
+<p>索引优化</p>
+</li>
+<li>
+<p>叶子节点内部查找</p>
+</li>
+</ul>
+
+    
+  </article>
+
+  <button onclick="topFunction()" id="back-to-top" title="Go to top">Back to Top</button>
+
+  
+
+<div id="sharingbuttons">
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+</div>
+  <div class="paginator">
+    
+    <a class="link" href="https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/" title="Redis 生产问题">← prev</a>
+    
+    
+    <a></a>
+    
+  </div>
+  <div class="comment">
+    
+    
+    
+      <script src="https://giscus.app/client.js"
+        data-repo="michaelneuper/website"
+        data-repo-id="R_kgDOIjPNaQ"
+        data-category="General"
+        data-category-id="DIC_kwDOIjPNac4CaklA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="gruvbox"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+  </script>
+  
+  </div>
+  
+  
+</main>
+
+    <footer id="footer">
+  <div>
+    <span>Powered by  <a class=link href=https://gohugo.io target=_blank rel=noopener>Hugo</a> | 
+Theme <a class=link href=https://github.com/michaelneuper/hugo-texify3 target=_blank rel=noopener>TeXify3</a>
+</span>
+  </div>
+  <div>
+    <span>Copyright © 2025 </span>
+  </div>
+</footer>
+
+  </div>
+
+  
+  <script src='https://asgpipo.github.io/js/script.js' defer></script>
+
+  
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/syntax.css" />
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/scale.css" />
+  
+
+  
+  
+
+  
+  
+
+</body>
+
+</html>
