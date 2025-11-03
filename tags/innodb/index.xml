@@ -14,7 +14,7 @@
       
       <guid>https://asgpipo.github.io/posts/mysql/%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/</guid>
       <description>&lt;h1 id=&#34;数据库组成&#34;&gt;数据库组成&lt;/h1&gt;
-&lt;p&gt;由 Server 层 + 存储引擎组成&lt;/p&gt;
+&lt;p&gt;由 Server 层 + 存储引擎组成.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/MySQL/DBstructure.png&#34; alt=&#34;数据库组成&#34;&gt;&lt;/p&gt;
 &lt;h2 id=&#34;server-层&#34;&gt;server 层&lt;/h2&gt;
 &lt;ol&gt;
