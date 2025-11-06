@@ -52,7 +52,7 @@
   <meta property="og:site_name" content="pipo&#39;s site">
   <meta property="og:title" content="pipo&#39;s site">
   <meta property="og:description" content="存档可能会做的一些学习笔记或者其他东西
-Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2025-10-23 InnoDB 组成 — 2025-10-21 数据库组成 — 2025-10-21 Redis 生产问题 — 2025-10-19 Redis RDB &amp; AOF — 2025-10-17 Acknowledgement This is a fork of the TeXify2 theme.">
+Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes HashMap — 2025-11-06 索引 — 2025-10-23 InnoDB 组成 — 2025-10-21 数据库组成 — 2025-10-21 Redis 生产问题 — 2025-10-19 Acknowledgement This is a fork of the TeXify2 theme.">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="website">
 
@@ -67,9 +67,9 @@ Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2
   
   <meta itemprop="name" content="pipo&#39;s site">
   <meta itemprop="description" content="存档可能会做的一些学习笔记或者其他东西
-Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2025-10-23 InnoDB 组成 — 2025-10-21 数据库组成 — 2025-10-21 Redis 生产问题 — 2025-10-19 Redis RDB &amp; AOF — 2025-10-17 Acknowledgement This is a fork of the TeXify2 theme.">
+Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes HashMap — 2025-11-06 索引 — 2025-10-23 InnoDB 组成 — 2025-10-21 数据库组成 — 2025-10-21 Redis 生产问题 — 2025-10-19 Acknowledgement This is a fork of the TeXify2 theme.">
   <meta itemprop="dateModified" content="2025-08-16T14:06:43+08:00">
-  <meta itemprop="wordCount" content="74">
+  <meta itemprop="wordCount" content="71">
 
   
   
@@ -92,7 +92,7 @@ Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="pipo&#39;s site">
   <meta name="twitter:description" content="存档可能会做的一些学习笔记或者其他东西
-Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2025-10-23 InnoDB 组成 — 2025-10-21 数据库组成 — 2025-10-21 Redis 生产问题 — 2025-10-19 Redis RDB &amp; AOF — 2025-10-17 Acknowledgement This is a fork of the TeXify2 theme.">
+Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes HashMap — 2025-11-06 索引 — 2025-10-23 InnoDB 组成 — 2025-10-21 数据库组成 — 2025-10-21 Redis 生产问题 — 2025-10-19 Acknowledgement This is a fork of the TeXify2 theme.">
 
 
   
@@ -169,6 +169,11 @@ Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2
 
 
   <li>
+    <a href="/posts/java/java_base/%E9%9B%86%E5%90%88/test/">HashMap</a>
+    <span style="color:#888;">— 2025-11-06</span>
+  </li>
+
+  <li>
     <a href="/posts/mysql/%E7%B4%A2%E5%BC%95/">索引</a>
     <span style="color:#888;">— 2025-10-23</span>
   </li>
@@ -186,11 +191,6 @@ Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2
   <li>
     <a href="/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/">Redis 生产问题</a>
     <span style="color:#888;">— 2025-10-19</span>
-  </li>
-
-  <li>
-    <a href="/posts/redis/rdb--aof/">Redis RDB &amp; AOF</a>
-    <span style="color:#888;">— 2025-10-17</span>
   </li>
 
 </ul>
@@ -213,6 +213,10 @@ Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2
             <a href="/categories/">Categories</a>
         </h3>
         <ul class="nav-list sidenav">
+            
+            <li>
+                <a href="https://asgpipo.github.io/categories/collections/">Collections</a>
+            </li>
             
             <li>
                 <a href="https://asgpipo.github.io/categories/mysql/">MySQL</a>
@@ -250,10 +254,6 @@ Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2
                 <a href="https://asgpipo.github.io/categories/algorithm/">Algorithm</a>
             </li>
             
-            <li>
-                <a href="https://asgpipo.github.io/categories/leetcode/">Leetcode</a>
-            </li>
-            
         </ul>
         
         
@@ -266,6 +266,14 @@ Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2
             <a href="/tags/">Tags</a>
         </h3>
         <ul class="nav-list sidenav">
+            
+            <li>
+                <a href="https://asgpipo.github.io/tags/hashmap/">HashMap</a>
+            </li>
+            
+            <li>
+                <a href="https://asgpipo.github.io/tags/oop/">OOP</a>
+            </li>
             
             <li>
                 <a href="https://asgpipo.github.io/tags/bplustree/">BplusTree</a>
@@ -297,14 +305,6 @@ Introduce CS 本科在读 经常不务正业 随缘写 Recent Notes 索引 — 2
             
             <li>
                 <a href="https://asgpipo.github.io/tags/undolog/">UndoLog</a>
-            </li>
-            
-            <li>
-                <a href="https://asgpipo.github.io/tags/wal/">WAL</a>
-            </li>
-            
-            <li>
-                <a href="https://asgpipo.github.io/tags/%E6%97%A5%E5%BF%97%E7%B3%BB%E7%BB%9F/">日志系统</a>
             </li>
             
         </ul>

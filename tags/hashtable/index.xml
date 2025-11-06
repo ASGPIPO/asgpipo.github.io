@@ -2,17 +2,17 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>HashTable on pipo&#39;s site</title>
-    <link>https://asgpipo.github.io/tags/hashtable/</link>
+    <link>http://localhost:1313/tags/hashtable/</link>
     <description>Recent content in HashTable on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Sat, 10 Aug 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/hashtable/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 10 Aug 2024 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/hashtable/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>哈希表基础总结</title>
-      <link>https://asgpipo.github.io/posts/%E5%93%88%E5%B8%8C%E8%A1%A8/</link>
+      <link>http://localhost:1313/posts/%E5%93%88%E5%B8%8C%E8%A1%A8/</link>
       <pubDate>Sat, 10 Aug 2024 00:00:00 +0000</pubDate>
       
-      <guid>https://asgpipo.github.io/posts/%E5%93%88%E5%B8%8C%E8%A1%A8/</guid>
+      <guid>http://localhost:1313/posts/%E5%93%88%E5%B8%8C%E8%A1%A8/</guid>
       <description>&lt;h1 id=&#34;哈希表&#34;&gt;哈希表&lt;/h1&gt;
 &lt;p&gt;&lt;!-- raw HTML omitted --&gt;哈希表(hash table)&lt;!-- raw HTML omitted --&gt;又称作散列表,它是基于键值对(key-value pair)存储和访问数据的一种非线性数据结构。&lt;/p&gt;
 &lt;p&gt;哈希表通过哈希函数将键(key)映射到特定位置来实现对数据的快速存取与访问。&lt;/p&gt;
@@ -20,7 +20,7 @@
 &lt;p&gt;哈希表虽然只要知道键通过哈希函数就可以找到值，但是在哈希表内通常同时存储着键和值。
 其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;可以用函数对应关系理解 $f(key) = address$,  $array[address] = value$。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/hashmap_hashfun.png&#34; alt=&#34;hashmap_hashfun&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/pics/hashmap_hashfun.png&#34; alt=&#34;hashmap_hashfun&#34;&gt;&lt;/p&gt;
 &lt;table&gt;
   &lt;thead&gt;
       &lt;tr&gt;
@@ -166,7 +166,7 @@
 &lt;p&gt;又或者我存入的数据很多超过了预先申请的桶大小该怎么办，如果它能够自动扩容，那么因为容器大小发生了变化哈希函数的计算方式又会变化，这可能又会引发冲突。&lt;/p&gt;
 &lt;h2 id=&#34;哈希冲突&#34;&gt;哈希冲突&lt;/h2&gt;
 &lt;p&gt;&lt;!-- raw HTML omitted --&gt;哈希冲突(hash collision)&lt;!-- raw HTML omitted --&gt;发生的原因是因为我们输入的内容要远远大于输出的内容，我们有无限的输入通过哈希函数转换成一个固定长度的索引，因此发生哈希冲突是不可避免的。&lt;/p&gt;
-&lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/hash_collision.png&#34; alt=&#34;哈希冲突图示&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://localhost:1313/pics/hash_collision.png&#34; alt=&#34;哈希冲突图示&#34;&gt;&lt;/p&gt;
 &lt;p&gt;从图中我们可以猜想，如果桶的数量越大那么发生冲突的概率越低，于是我们可以通过扩容来降低哈希冲突的概率。&lt;/p&gt;
 &lt;p&gt;于是我们引入了&lt;!-- raw HTML omitted --&gt;负荷因子(load factor)&lt;!-- raw HTML omitted --&gt;用它来衡量哈希表的冲突程度。
 $$
