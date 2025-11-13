@@ -280,13 +280,15 @@
 <hr>
 <blockquote>
 <p>大对象就是需要大量连续内存空间的对象（比如：字符串、数组）。</p>
-<p>大对象直接进入老年代的行为是由虚拟机动态决定的，它与具体使用的垃圾回收器和相关参数有关。大对象直接进入老年代是一种优化策略，旨在避免将大对象放入新生代，从而减少新生代的垃圾回收频率和成本。</p></blockquote>
+<p>大对象直接进入老年代的行为是由虚拟机动态决定的，它与具体使用的垃圾回收器和相关参数有关。大对象直接进入老年代是一种优化策略，旨在避免将大对象放入新生代，从而减少新生代的垃圾回收频率和成本。</p>
+</blockquote>
 <p>当对象经历过多次 Young GC 依旧存活达到阈值(通常是15/8) 将被移入 Old Generation.</p>
 <h2 id="method-area">Method Area</h2>
 <p>是JVM运行时内存结构中的一块 区域, 被所有JVM线程共享, 存储每个类的结构信息.</p>
 <hr>
 <blockquote>
-<p><strong><!-- raw HTML omitted -->run-time constant pool<!-- raw HTML omitted --></strong><!-- raw HTML omitted -->, <!-- raw HTML omitted --><strong><!-- raw HTML omitted -->field<!-- raw HTML omitted --></strong><!-- raw HTML omitted --> and <!-- raw HTML omitted --><strong><!-- raw HTML omitted -->method data<!-- raw HTML omitted --></strong><!-- raw HTML omitted -->, and the <!-- raw HTML omitted --><strong><!-- raw HTML omitted -->code for methods and constructors<!-- raw HTML omitted --></strong><!-- raw HTML omitted -->, including the <!-- raw HTML omitted --><strong><!-- raw HTML omitted -->special methods<!-- raw HTML omitted --></strong><!-- raw HTML omitted --> used in class and interface initialization and in instance initialization.<!-- raw HTML omitted --></p></blockquote>
+<p><strong><!-- raw HTML omitted -->run-time constant pool<!-- raw HTML omitted --></strong><!-- raw HTML omitted -->, <!-- raw HTML omitted --><strong><!-- raw HTML omitted -->field<!-- raw HTML omitted --></strong><!-- raw HTML omitted --> and <!-- raw HTML omitted --><strong><!-- raw HTML omitted -->method data<!-- raw HTML omitted --></strong><!-- raw HTML omitted -->, and the <!-- raw HTML omitted --><strong><!-- raw HTML omitted -->code for methods and constructors<!-- raw HTML omitted --></strong><!-- raw HTML omitted -->, including the <!-- raw HTML omitted --><strong><!-- raw HTML omitted -->special methods<!-- raw HTML omitted --></strong><!-- raw HTML omitted --> used in class and interface initialization and in instance initialization.<!-- raw HTML omitted --></p>
+</blockquote>
 <p><img src="/pics/Java/MethodAreaStructureInJDK1.8.png" alt=""></p>
 <h3 id="stirngtable">StirngTable</h3>
 <p>StringTable(String Pool) 在Java7之前存放在 ConstantPool,之后Method Area移动到本地内存实现,但是 StringTable 依旧在堆中.</p>
@@ -311,7 +313,8 @@
 <p>两者指向的对象不同, 而 == 是比较的引用地址,所以flase</p>
 <p>如果使用.equals() 就相同.</p>
 <p>在拼接s5时编译器进行优化,直接从StringPool找到 a b 进行拼接,发现结果是已有的 ab,</p>
-<p>于是直接指向ab.</p></blockquote>
+<p>于是直接指向ab.</p>
+</blockquote>
 <h4 id="intern方法-18">intern方法 1.8</h4>
 <p>调用字符串对象的 intern 方法，会将<!-- raw HTML omitted -->当前<!-- raw HTML omitted -->**<!-- raw HTML omitted -->堆中字符串对象的引用注册<!-- raw HTML omitted -->**到串池中</p>
 <ol>

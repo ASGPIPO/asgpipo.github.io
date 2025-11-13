@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Btrfs on pipo&#39;s site</title>
+    <link>https://asgpipo.github.io/tags/btrfs/</link>
+    <description>Recent content in Btrfs on pipo&#39;s site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 12 Nov 2025 16:30:35 +0800</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/btrfs/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Ubuntu 更换 Btrfs 子卷</title>
+      <link>https://asgpipo.github.io/posts/ubuntu%E6%9B%B4%E6%8D%A2btrfs%E5%AD%90%E5%8D%B7/</link>
+      <pubDate>Wed, 12 Nov 2025 16:30:35 +0800</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/ubuntu%E6%9B%B4%E6%8D%A2btrfs%E5%AD%90%E5%8D%B7/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;BTRFS（B-tree File System）是 Linux 内核中一个现代化的文件系统，支持快照、数据压缩、RAID 等高级功能。其中，subvolume（简称 subvol）是其核心特性之一，本质上是一个逻辑独立的命名空间。它允许在同一 BTRFS 文件系统内创建多个“虚拟分区”——这些子卷并非物理分区，而是文件系统内部的目录结构，却可像独立文件系统一样挂载、管理和操作。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;重装系统&#34;&gt;重装系统&lt;/h2&gt;
+&lt;p&gt;由于 ext4 与 BTRFS 不兼容，建议从 ext4 切换到 BTRFS 时，使用全新系统安装。在安装过程中，将系统所在磁盘格式化为 BTRFS 文件系统。&lt;/p&gt;
+&lt;h2 id=&#34;设置子卷&#34;&gt;设置子卷&lt;/h2&gt;
+&lt;p&gt;在终端中执行以下命令：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo btrfs subvolume snapshot / /@
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo btrfs subvolume create /@home
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;第一条命令：将当前系统快照备份至 /@ 子卷。&lt;/li&gt;
+&lt;li&gt;第二条命令：创建 @home 子卷，用于存储用户数据。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;配置-fstab-以挂载子卷&#34;&gt;配置 fstab 以挂载子卷&lt;/h2&gt;
+&lt;p&gt;编辑 /etc/fstab 文件：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo nano /etc/fstab
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;将原条目：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;/dev/disk/by-uuid/&amp;lt;UUID&amp;gt; / btrfs defaults &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;更新为：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;/dev/disk/by-uuid/&amp;lt;UUID&amp;gt; / btrfs &lt;span class=&#34;nv&#34;&gt;subvol&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;@,defaults &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;c1&#34;&gt;#fsck 检查顺序 &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;并在下一行添加：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;/dev/disk/by-uuid/&amp;lt;UUID&amp;gt; /home btrfs &lt;span class=&#34;nv&#34;&gt;subvol&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;@home,defaults &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt; &lt;span class=&#34;m&#34;&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;（注：&lt;!-- raw HTML omitted --&gt; 可通过 blkid 命令获取。）&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;../../pics/Random/Btrfs2.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;迁移用户数据&#34;&gt;迁移用户数据&lt;/h2&gt;
+&lt;p&gt;将 @ 子卷中的用户数据移动至 @home：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo mv /@/home/* /@home/
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;（执行前确保备份重要数据，以防意外。）&lt;/p&gt;
+&lt;h2 id=&#34;配置-grub-引导子卷&#34;&gt;配置 GRUB 引导子卷&lt;/h2&gt;
+&lt;p&gt;编辑 GRUB 配置：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo nano /etc/default/grub
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;将：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;GRUB_CMDLINE_LINUX_DEFAULT&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;quiet splash&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;修改为：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;GRUB_CMDLINE_LINUX_DEFAULT&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;s2&#34;&gt;&amp;#34;quiet splash rootflags=subvol=@&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;更新 GRUB：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo update-grub
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo grub-install
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# 根据引导模式选择：&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# UEFI: sudo grub-install --efi-directory=/boot/efi&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;# BIOS: sudo grub-install /dev/sda  # 使用 lsblk 查看磁盘设备&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;../../pics/Random/Btrfs1.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;重启与验证&#34;&gt;重启与验证&lt;/h2&gt;
+&lt;p&gt;重启系统：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo reboot
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;进入系统后，检查挂载情况：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;mount &lt;span class=&#34;p&#34;&gt;|&lt;/span&gt; grep subvol
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;若输出类似以下信息，则配置成功：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;... subvol=/@home
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;... subvol=/@
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=&#34;../../pics/Random/Btrfs3.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;p&gt;若一切正常，可再次确认 fstab 和 GRUB 配置无误。&lt;/p&gt;
+&lt;h2 id=&#34;最后的清理&#34;&gt;最后的清理&lt;/h2&gt;
+&lt;p&gt;挂载当前卷后，删除旧系统文件（保留 @ 开头的子卷）：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;shopt&lt;/span&gt; -s extglob
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo rm -rf !&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;@*&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;shopt&lt;/span&gt; -u extglob
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;（建议在 Live USB 环境下执行，以确保安全。）&lt;/p&gt;
+&lt;h2 id=&#34;常见问题排查&#34;&gt;常见问题排查&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;GRUB 进入 busybox 或 emergency mode&lt;/strong&gt; 重启时，在 GRUB 菜单按 e 编辑条目。找到以 linux 开头的行，删除 rootflags=subvol=@，按 F10 引导进入系统。然后，重新检查 fstab 和 GRUB 配置，修正后重试。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;桌面登录失败（黑屏或循环）&lt;/strong&gt; 按 Ctrl+Alt+F2 切换至 TTY，登录用户。运行 mount | grep home 检查 /home 挂载状态。若未挂载，手动执行 sudo mount /home。 用 cat /etc/fstab 验证条目是否正确（应包含 /dev/disk/by-uuid/&lt;!-- raw HTML omitted --&gt; /home btrfs subvol=@home,defaults 0 0）。若有误，按问题 1 引导非子卷模式修复。&lt;/li&gt;
+&lt;/ol&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

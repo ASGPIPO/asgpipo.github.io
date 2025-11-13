@@ -41,7 +41,8 @@
 &lt;h3 id=&#34;cascompare-and-swap&#34;&gt;CAS(&lt;strong&gt;Compare And Swap&lt;/strong&gt;)&lt;/h3&gt;
 &lt;p&gt;CAS 是一个原子操作，底层依赖于一条 CPU 的原子指令。&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;&lt;strong&gt;原子操作&lt;/strong&gt; 即最小不可拆分的操作，也就是说操作一旦开始，就不能被打断，直到操作完成。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;原子操作&lt;/strong&gt; 即最小不可拆分的操作，也就是说操作一旦开始，就不能被打断，直到操作完成。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;CAS 涉及到三个操作数：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;V&lt;/strong&gt;：要更新的变量值(Var)&lt;/li&gt;

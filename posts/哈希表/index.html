@@ -228,7 +228,8 @@
 <p>哈希表通过哈希函数将键(key)映射到特定位置来实现对数据的快速存取与访问。</p>
 <blockquote>
 <p>哈希表虽然只要知道键通过哈希函数就可以找到值，但是在哈希表内通常同时存储着键和值。
-其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。</p></blockquote>
+其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。</p>
+</blockquote>
 <p>可以用函数对应关系理解 $f(key) = address$,  $array[address] = value$。</p>
 <p><img src="/pics/hashmap_hashfun.png" alt="hashmap_hashfun"></p>
 <table>
@@ -312,7 +313,8 @@
 <li>折叠法：将关键字分割成位数相同的几部分（最后一部分的位数可以不同），然后取这几部分的叠加和（舍去进位）作为哈希地址。</li>
 <li>随机数法</li>
 <li>除留余数法：取关键字被某个不大于散列表表长m的数p除后所得的余数为散列地址。即$hash(k)=k\ mod\ p$,  $ p≤m$。不仅可以对关键字直接取模，也可在折叠法、平方取中法等运算之后取模。对p的选择很重要，一般取素数或m，若p选择不好，容易产生冲突。</li>
-</ol></blockquote>
+</ol>
+</blockquote>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">Pair</span><span class="p">{</span>	
 </span></span><span class="line"><span class="cl">	<span class="k">public</span><span class="o">:</span>
 </span></span><span class="line"><span class="cl">		<span class="n">string</span> <span class="n">value</span><span class="p">;</span>

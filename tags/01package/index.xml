@@ -28,7 +28,8 @@ dp[物品][容量]
 属性 分别是&lt;br&gt;
 c(体积)  1 3 2
 v(价值)  2 4 6
-给定背包容量为 5&lt;/p&gt;&lt;/blockquote&gt;
+给定背包容量为 5&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;table&gt;
   &lt;thead&gt;
       &lt;tr&gt;
@@ -177,7 +178,8 @@ c(体积)  1 3 2&lt;/p&gt;
 40 - 26 = 14
 21 - 14 = 7
 14 - 7 = 7
-7 - 2 = 5&lt;/p&gt;&lt;/blockquote&gt;
+7 - 2 = 5&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;可以发现 我们每次是进行 如下操作
 分为两堆石头&lt;/p&gt;
 &lt;blockquote&gt;
@@ -187,7 +189,8 @@ c(体积)  1 3 2&lt;/p&gt;
 &lt;p&gt;[21] - [14]
 [7, 2]&lt;/p&gt;
 &lt;p&gt;[7] - [2]
-[5]&lt;/p&gt;&lt;/blockquote&gt;
+[5]&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;假设有 n个石头那么可以分成
 &lt;code&gt;[a1, a2, ..., an/2] - [b1, b2, ..., bn/2]&lt;/code&gt;
 但是每次这样分放太过麻烦,其实可以直接&lt;strong&gt;转化成两个子序列问题&lt;/strong&gt;,此时就与 LC416基本相同.&lt;/p&gt;
@@ -198,7 +201,8 @@ if a1-b1 &amp;gt; 0
 (a2+a3+a4+(a1-b1)) - (b2+b3+b4) &amp;mdash;&amp;gt; (a1+a2+a3+a4) - b1 -(b2+b3+b4)&lt;/p&gt;
 &lt;p&gt;if a1 - b1 &amp;lt; 0
 (a2+a3+a4) - (-(a1-b1)+b2+b3+b4) &amp;mdash;&amp;gt; (a2+a3+a4) + a1 - (b1+b2+b3+b4)
-从推导过程可看出每次碰撞产生的新石头再次加入到碰撞中与之前相同,所以无需每次分放.&lt;/p&gt;&lt;/blockquote&gt;
+从推导过程可看出每次碰撞产生的新石头再次加入到碰撞中与之前相同,所以无需每次分放.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;那么任务就是 找出&lt;code&gt;arr1 + arr2 = arr&lt;/code&gt;并且使得 &lt;code&gt;arr1 - arr2&lt;/code&gt;最小,这时我们发现其与 LC416的相似处.
 可以通过找arr1 == sum/2 然后 sum -= 2*arr1 获得最小值.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;stones&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
@@ -228,7 +232,8 @@ if a1-b1 &amp;gt; 0
 1 + 1 + 1 - 1 + 1 = 3
 1 + 1 + 1 + 1 - 1 = 3
 -1 + 1 + 1 + 1 + 1 = 3
-所有能组合为3的情况有5种&lt;/p&gt;&lt;/blockquote&gt;
+所有能组合为3的情况有5种&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;此时问题就是必须把所有物品放入背包,每个物品有两种状态&amp;quot;+&amp;ldquo;和&amp;rdquo;-&amp;quot;,这两种状态与0与1基本一致,那么背包的容量范围就是&lt;code&gt;[-sum, sum]&lt;/code&gt;,于是可以写出如下代码.(这里很像一次操作,是在背包内减去或者加入体积为arr[index]的物品)&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;arr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sum&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;dp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sum&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;

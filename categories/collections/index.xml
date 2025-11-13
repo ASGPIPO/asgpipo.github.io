@@ -9,13 +9,14 @@
     <lastBuildDate>Thu, 06 Nov 2025 15:34:35 +0800</lastBuildDate><atom:link href="https://asgpipo.github.io/categories/collections/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>HashMap</title>
-      <link>https://asgpipo.github.io/posts/java/java_base/%E9%9B%86%E5%90%88/test/</link>
+      <link>https://asgpipo.github.io/posts/java/java_base/%E9%9B%86%E5%90%88/hashmap/</link>
       <pubDate>Thu, 06 Nov 2025 15:34:35 +0800</pubDate>
       
-      <guid>https://asgpipo.github.io/posts/java/java_base/%E9%9B%86%E5%90%88/test/</guid>
+      <guid>https://asgpipo.github.io/posts/java/java_base/%E9%9B%86%E5%90%88/hashmap/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;date_creation: 2025-10-13 17:26&lt;/p&gt;
-&lt;p&gt;date_modify: 2025-11-16 15:34&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;date_modify: 2025-11-16 15:34&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h1 id=&#34;hashmap&#34;&gt;HashMap&lt;/h1&gt;
 &lt;p&gt;HashMap 是 Java 中常用的键值对几何结构，通过生成唯一的 Key 查找和存放删除 Value, 通常查找时间复杂度是 &lt;code&gt;O(1)&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;其中通过 Key 来生成 Hash 值选择位置存放,因此 HashMap 的 Key 必须是唯一的,但是 Value 可以重复.&lt;/p&gt;

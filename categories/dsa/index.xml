@@ -310,7 +310,8 @@
 &lt;p&gt;&lt;strong&gt;空间效率&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;在初始化列表时，系统会为列表分配“初始容量”，该容量可能超出实际需求；并且，扩容机制通常是按照特定倍率（例如 2 倍）进行扩容的，扩容后的容量也可能超出实际需求。因此，&lt;strong&gt;基于数组实现的栈可能造成一定的空间浪费&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;然而，由于链表节点需要额外存储指针，&lt;strong&gt;因此链表节点占用的空间相对较大&lt;/strong&gt;。&lt;/p&gt;
-&lt;p&gt;综上，我们不能简单地确定哪种实现更加节省内存，需要针对具体情况进行分析。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;综上，我们不能简单地确定哪种实现更加节省内存，需要针对具体情况进行分析。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h2 id=&#34;栈相关练习题&#34;&gt;栈相关练习题&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;二叉树的迭代法进行前中后序遍历
@@ -543,7 +544,8 @@
 &lt;p&gt;哈希表通过哈希函数将键(key)映射到特定位置来实现对数据的快速存取与访问。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;哈希表虽然只要知道键通过哈希函数就可以找到值，但是在哈希表内通常同时存储着键和值。
-其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。&lt;/p&gt;&lt;/blockquote&gt;
+其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;可以用函数对应关系理解 $f(key) = address$,  $array[address] = value$。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/hashmap_hashfun.png&#34; alt=&#34;hashmap_hashfun&#34;&gt;&lt;/p&gt;
 &lt;table&gt;
@@ -627,7 +629,8 @@
 &lt;li&gt;折叠法：将关键字分割成位数相同的几部分（最后一部分的位数可以不同），然后取这几部分的叠加和（舍去进位）作为哈希地址。&lt;/li&gt;
 &lt;li&gt;随机数法&lt;/li&gt;
 &lt;li&gt;除留余数法：取关键字被某个不大于散列表表长m的数p除后所得的余数为散列地址。即$hash(k)=k\ mod\ p$,  $ p≤m$。不仅可以对关键字直接取模，也可在折叠法、平方取中法等运算之后取模。对p的选择很重要，一般取素数或m，若p选择不好，容易产生冲突。&lt;/li&gt;
-&lt;/ol&gt;&lt;/blockquote&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Pair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;	
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;public&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;n&#34;&gt;string&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;

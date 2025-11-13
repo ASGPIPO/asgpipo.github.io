@@ -27,7 +27,8 @@
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;读操作&lt;/strong&gt;：直接共享原始数据，&lt;strong&gt;无需复制&lt;/strong&gt;；&lt;/li&gt;
 &lt;li&gt;&lt;strong&gt;写操作&lt;/strong&gt;：触发复制，之后修改的是副本，不影响原数据。&lt;/li&gt;
-&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
 &lt;h3 id=&#34;2-自动通过配置文件&#34;&gt;2. 自动(通过配置文件)&lt;/h3&gt;
 &lt;p&gt;Redis 支持通过在 &lt;code&gt;redis.conf&lt;/code&gt; 文件中配置 &lt;code&gt;save&lt;/code&gt; 选项，让服务器每隔一段时间自动执行一次 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;code&gt;save&lt;/code&gt; 选项可以设置多个保存条件，只要其中任意一个条件被满足，服务器就会执行 &lt;code&gt;BGSAVE&lt;/code&gt; 命令。&lt;/p&gt;
 &lt;p&gt;【示例】&lt;code&gt;redis.conf&lt;/code&gt; 中自动保存配置&lt;/p&gt;

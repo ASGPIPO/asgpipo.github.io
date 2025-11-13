@@ -20,7 +20,8 @@
 &lt;li&gt;&lt;a href=&#34;https://leetcode.cn/problems/binary-tree-preorder-traversal/&#34;&gt;144.二叉树的前序遍历&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://leetcode.cn/problems/binary-tree-inorder-traversal/&#34;&gt;94.二叉树的中序遍历&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://leetcode.cn/problems/binary-tree-postorder-traversal/&#34;&gt;145.二叉树的后序遍历&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
 &lt;h2 id=&#34;前序遍历法&#34;&gt;前序遍历法&lt;/h2&gt;
 &lt;p&gt;不通过递归来实现二叉树的遍历，就需要一种数据结构能够记录我们的遍历顺序，并能按照某种顺序输出。&lt;/p&gt;
 &lt;p&gt;其中栈便是一种实现这种功能的数据结构，遵循着FILO规则我们可以轻易想到如果按照 &lt;strong&gt;&lt;code&gt;右 左 前&lt;/code&gt;&lt;/strong&gt; 的顺序放入栈，那么再依次弹出即可。&lt;/p&gt;
@@ -269,7 +270,8 @@
 &lt;h3 id=&#34;核心思想算法&#34;&gt;核心思想算法&lt;/h3&gt;
 &lt;p&gt;​	从图中我们可以看出，每次只有遍历完当前层的所有节点后，才到下一层进行遍历，像这种从一个节点开始，像辐射一样把所有可行的路径探索后才访问下一层的访问方式叫做&lt;!-- raw HTML omitted --&gt;广度优先搜索(Breadth-first search)&lt;!-- raw HTML omitted --&gt;简称&lt;strong&gt;BFS&lt;/strong&gt;。&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;BFS是从根节点开始，沿着树的宽度遍历树的节点。如果所有节点均被访问，则算法中止。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;BFS是从根节点开始，沿着树的宽度遍历树的节点。如果所有节点均被访问，则算法中止。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;使用队列来存储每一层的节点。&lt;/p&gt;

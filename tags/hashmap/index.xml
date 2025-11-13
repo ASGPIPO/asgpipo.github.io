@@ -9,13 +9,14 @@
     <lastBuildDate>Thu, 06 Nov 2025 15:34:35 +0800</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/hashmap/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>HashMap</title>
-      <link>https://asgpipo.github.io/posts/java/java_base/%E9%9B%86%E5%90%88/test/</link>
+      <link>https://asgpipo.github.io/posts/java/java_base/%E9%9B%86%E5%90%88/hashmap/</link>
       <pubDate>Thu, 06 Nov 2025 15:34:35 +0800</pubDate>
       
-      <guid>https://asgpipo.github.io/posts/java/java_base/%E9%9B%86%E5%90%88/test/</guid>
+      <guid>https://asgpipo.github.io/posts/java/java_base/%E9%9B%86%E5%90%88/hashmap/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;date_creation: 2025-10-13 17:26&lt;/p&gt;
-&lt;p&gt;date_modify: 2025-11-16 15:34&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;date_modify: 2025-11-16 15:34&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h1 id=&#34;hashmap&#34;&gt;HashMap&lt;/h1&gt;
 &lt;p&gt;HashMap 是 Java 中常用的键值对几何结构，通过生成唯一的 Key 查找和存放删除 Value, 通常查找时间复杂度是 &lt;code&gt;O(1)&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;其中通过 Key 来生成 Hash 值选择位置存放,因此 HashMap 的 Key 必须是唯一的,但是 Value 可以重复.&lt;/p&gt;
@@ -348,7 +349,8 @@
 &lt;p&gt;哈希表通过哈希函数将键(key)映射到特定位置来实现对数据的快速存取与访问。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;哈希表虽然只要知道键通过哈希函数就可以找到值，但是在哈希表内通常同时存储着键和值。
-其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。&lt;/p&gt;&lt;/blockquote&gt;
+其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;可以用函数对应关系理解 $f(key) = address$,  $array[address] = value$。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/hashmap_hashfun.png&#34; alt=&#34;hashmap_hashfun&#34;&gt;&lt;/p&gt;
 &lt;table&gt;
@@ -432,7 +434,8 @@
 &lt;li&gt;折叠法：将关键字分割成位数相同的几部分（最后一部分的位数可以不同），然后取这几部分的叠加和（舍去进位）作为哈希地址。&lt;/li&gt;
 &lt;li&gt;随机数法&lt;/li&gt;
 &lt;li&gt;除留余数法：取关键字被某个不大于散列表表长m的数p除后所得的余数为散列地址。即$hash(k)=k\ mod\ p$,  $ p≤m$。不仅可以对关键字直接取模，也可在折叠法、平方取中法等运算之后取模。对p的选择很重要，一般取素数或m，若p选择不好，容易产生冲突。&lt;/li&gt;
-&lt;/ol&gt;&lt;/blockquote&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Pair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;	
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;public&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;n&#34;&gt;string&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;

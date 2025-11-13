@@ -217,7 +217,7 @@
         <li><a href="#引用计数器">引用计数器</a></li>
         <li><a href="#可达性分析算法">可达性分析算法</a></li>
         <li><a href="#方法区回收或meta-space">方法区回收(或Meta Space)</a></li>
-        <li><a href="#finalize"><!-- raw HTML omitted -->finalize()<!-- raw HTML omitted --></a></li>
+        <li><a href="#finalize">finalize()</a></li>
       </ul>
     </li>
     <li><a href="#gc-主要作用范围">GC 主要作用范围</a>
@@ -228,16 +228,16 @@
         <li><a href="#full-gc">Full GC</a></li>
       </ul>
     </li>
-    <li><a href="#引用类型"><!-- raw HTML omitted -->引用类型<!-- raw HTML omitted --></a>
+    <li><a href="#引用类型">引用类型</a>
       <ul>
         <li><a href="#strongreference">StrongReference</a></li>
         <li><a href="#softreference">SoftReference</a></li>
         <li><a href="#weakreference">WeakReference</a></li>
-        <li><a href="#"><strong><!-- raw HTML omitted -->PhantomReference<!-- raw HTML omitted --></strong></a></li>
+        <li><a href="#"><strong>PhantomReference</strong></a></li>
         <li><a href="#referencequeue">ReferenceQueue</a></li>
       </ul>
     </li>
-    <li><a href="#垃圾回收算法"><!-- raw HTML omitted -->垃圾回收算法<!-- raw HTML omitted --></a>
+    <li><a href="#垃圾回收算法">垃圾回收算法</a>
       <ul>
         <li><a href="#标记-清除mark-sweep">标记-清除（Mark-Sweep）</a></li>
         <li><a href="#标记-整理mark-compact">标记-整理（Mark-Compact）</a></li>
@@ -255,14 +255,16 @@
   <article class="content numbered-subtitles">
     
     <blockquote>
-<p><!-- raw HTML omitted -->GC（Garbage Collection）是<!-- raw HTML omitted --><!-- raw HTML omitted --> <!-- raw HTML omitted --><a href="https://www.yuque.com/xkfpipv/hwbfiy/diw7o8r28acyynrt"><!-- raw HTML omitted -->JVM<!-- raw HTML omitted --></a><strong><!-- raw HTML omitted --> 中实现自动内存管理的一类机制的统称<!-- raw HTML omitted --><strong><strong><!-- raw HTML omitted -->，其<!-- raw HTML omitted --></strong></strong><!-- raw HTML omitted -->具体实现包括 Parallel、G1、ZGC<!-- raw HTML omitted --><strong><strong><!-- raw HTML omitted --> 等垃圾回收器。<!-- raw HTML omitted --></strong></strong><!-- raw HTML omitted -->GC 主要作用于堆（Heap）内存<!-- raw HTML omitted --><strong><strong><!-- raw HTML omitted -->——在<!-- raw HTML omitted --></strong></strong><!-- raw HTML omitted -->新生代执行 Minor GC，在老年代触发 Major GC 或 Full GC<!-- raw HTML omitted -->****<!-- raw HTML omitted -->。虽然 GC 不直接管理直接内存，但会间接影响其回收（例如通过 GC 触发 Cleaner 释放 DirectByteBuffer）。在 JVM 架构中，GC 与运行时数据区（Runtime Data Area）、执行引擎（Execution Engine）、本地方法接口（Native Method Interface）等组件协同工作，共同支撑 Java 程序的运行。<!-- raw HTML omitted --></strong></p></blockquote>
+<p><!-- raw HTML omitted -->GC（Garbage Collection）是<!-- raw HTML omitted --><!-- raw HTML omitted --> <!-- raw HTML omitted --><a href="https://www.yuque.com/xkfpipv/hwbfiy/diw7o8r28acyynrt"><!-- raw HTML omitted -->JVM<!-- raw HTML omitted --></a><strong><!-- raw HTML omitted --> 中实现自动内存管理的一类机制的统称<!-- raw HTML omitted --><strong><strong><!-- raw HTML omitted -->，其<!-- raw HTML omitted --></strong></strong><!-- raw HTML omitted -->具体实现包括 Parallel、G1、ZGC<!-- raw HTML omitted --><strong><strong><!-- raw HTML omitted --> 等垃圾回收器。<!-- raw HTML omitted --></strong></strong><!-- raw HTML omitted -->GC 主要作用于堆（Heap）内存<!-- raw HTML omitted --><strong><strong><!-- raw HTML omitted -->——在<!-- raw HTML omitted --></strong></strong><!-- raw HTML omitted -->新生代执行 Minor GC，在老年代触发 Major GC 或 Full GC<!-- raw HTML omitted -->****<!-- raw HTML omitted -->。虽然 GC 不直接管理直接内存，但会间接影响其回收（例如通过 GC 触发 Cleaner 释放 DirectByteBuffer）。在 JVM 架构中，GC 与运行时数据区（Runtime Data Area）、执行引擎（Execution Engine）、本地方法接口（Native Method Interface）等组件协同工作，共同支撑 Java 程序的运行。<!-- raw HTML omitted --></strong></p>
+</blockquote>
 <h2 id="什么是可被回收的如何判断">什么是可被回收的,如何判断?</h2>
 <hr>
 <h3 id="引用计数器">引用计数器</h3>
 <p>通过一个计数器标记一个对象被引用的次数来判断是否进行垃圾回收,当引用数量为 0 时在垃圾回收时将会进行回收.</p>
 <p>问题: 出现循环引用时将导致无法释放内存.</p>
 <blockquote>
-<p>如 A 引用 B,B 引用 A.</p></blockquote>
+<p>如 A 引用 B,B 引用 A.</p>
+</blockquote>
 <p><img src="/pics/Java/cricleReference.jpeg" alt="循环引用"></p>
 <h3 id="可达性分析算法">可达性分析算法</h3>
 <p>GC 会从一组“GC 根”（GCRoots）出发，沿着引用链一路向下找到所有可达对象。这些可达对象被认为是“存活”的，不会被回收。其他不可达的对象（被称为“可回收对象”）则有资格被回收。</p>

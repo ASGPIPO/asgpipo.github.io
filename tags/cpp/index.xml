@@ -28,7 +28,8 @@ dp[物品][容量]
 属性 分别是&lt;br&gt;
 c(体积)  1 3 2
 v(价值)  2 4 6
-给定背包容量为 5&lt;/p&gt;&lt;/blockquote&gt;
+给定背包容量为 5&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;table&gt;
   &lt;thead&gt;
       &lt;tr&gt;
@@ -177,7 +178,8 @@ c(体积)  1 3 2&lt;/p&gt;
 40 - 26 = 14
 21 - 14 = 7
 14 - 7 = 7
-7 - 2 = 5&lt;/p&gt;&lt;/blockquote&gt;
+7 - 2 = 5&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;可以发现 我们每次是进行 如下操作
 分为两堆石头&lt;/p&gt;
 &lt;blockquote&gt;
@@ -187,7 +189,8 @@ c(体积)  1 3 2&lt;/p&gt;
 &lt;p&gt;[21] - [14]
 [7, 2]&lt;/p&gt;
 &lt;p&gt;[7] - [2]
-[5]&lt;/p&gt;&lt;/blockquote&gt;
+[5]&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;假设有 n个石头那么可以分成
 &lt;code&gt;[a1, a2, ..., an/2] - [b1, b2, ..., bn/2]&lt;/code&gt;
 但是每次这样分放太过麻烦,其实可以直接&lt;strong&gt;转化成两个子序列问题&lt;/strong&gt;,此时就与 LC416基本相同.&lt;/p&gt;
@@ -198,7 +201,8 @@ if a1-b1 &amp;gt; 0
 (a2+a3+a4+(a1-b1)) - (b2+b3+b4) &amp;mdash;&amp;gt; (a1+a2+a3+a4) - b1 -(b2+b3+b4)&lt;/p&gt;
 &lt;p&gt;if a1 - b1 &amp;lt; 0
 (a2+a3+a4) - (-(a1-b1)+b2+b3+b4) &amp;mdash;&amp;gt; (a2+a3+a4) + a1 - (b1+b2+b3+b4)
-从推导过程可看出每次碰撞产生的新石头再次加入到碰撞中与之前相同,所以无需每次分放.&lt;/p&gt;&lt;/blockquote&gt;
+从推导过程可看出每次碰撞产生的新石头再次加入到碰撞中与之前相同,所以无需每次分放.&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;那么任务就是 找出&lt;code&gt;arr1 + arr2 = arr&lt;/code&gt;并且使得 &lt;code&gt;arr1 - arr2&lt;/code&gt;最小,这时我们发现其与 LC416的相似处.
 可以通过找arr1 == sum/2 然后 sum -= 2*arr1 获得最小值.&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;stones&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;i&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;++&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
@@ -228,7 +232,8 @@ if a1-b1 &amp;gt; 0
 1 + 1 + 1 - 1 + 1 = 3
 1 + 1 + 1 + 1 - 1 = 3
 -1 + 1 + 1 + 1 + 1 = 3
-所有能组合为3的情况有5种&lt;/p&gt;&lt;/blockquote&gt;
+所有能组合为3的情况有5种&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;此时问题就是必须把所有物品放入背包,每个物品有两种状态&amp;quot;+&amp;ldquo;和&amp;rdquo;-&amp;quot;,这两种状态与0与1基本一致,那么背包的容量范围就是&lt;code&gt;[-sum, sum]&lt;/code&gt;,于是可以写出如下代码.(这里很像一次操作,是在背包内减去或者加入体积为arr[index]的物品)&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;arr&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;size&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;()&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;vector&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&#34;kt&#34;&gt;int&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sum&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;*&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;2&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;+&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;));&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;n&#34;&gt;dp&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;mi&#34;&gt;0&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;][&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;sum&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;1&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;
@@ -508,7 +513,8 @@ if a1-b1 &amp;gt; 0
 &lt;li&gt;&lt;a href=&#34;https://leetcode.cn/problems/binary-tree-preorder-traversal/&#34;&gt;144.二叉树的前序遍历&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://leetcode.cn/problems/binary-tree-inorder-traversal/&#34;&gt;94.二叉树的中序遍历&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://leetcode.cn/problems/binary-tree-postorder-traversal/&#34;&gt;145.二叉树的后序遍历&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;/ul&gt;
+&lt;/blockquote&gt;
 &lt;h2 id=&#34;前序遍历法&#34;&gt;前序遍历法&lt;/h2&gt;
 &lt;p&gt;不通过递归来实现二叉树的遍历，就需要一种数据结构能够记录我们的遍历顺序，并能按照某种顺序输出。&lt;/p&gt;
 &lt;p&gt;其中栈便是一种实现这种功能的数据结构，遵循着FILO规则我们可以轻易想到如果按照 &lt;strong&gt;&lt;code&gt;右 左 前&lt;/code&gt;&lt;/strong&gt; 的顺序放入栈，那么再依次弹出即可。&lt;/p&gt;
@@ -757,7 +763,8 @@ if a1-b1 &amp;gt; 0
 &lt;h3 id=&#34;核心思想算法&#34;&gt;核心思想算法&lt;/h3&gt;
 &lt;p&gt;​	从图中我们可以看出，每次只有遍历完当前层的所有节点后，才到下一层进行遍历，像这种从一个节点开始，像辐射一样把所有可行的路径探索后才访问下一层的访问方式叫做&lt;!-- raw HTML omitted --&gt;广度优先搜索(Breadth-first search)&lt;!-- raw HTML omitted --&gt;简称&lt;strong&gt;BFS&lt;/strong&gt;。&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;BFS是从根节点开始，沿着树的宽度遍历树的节点。如果所有节点均被访问，则算法中止。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;BFS是从根节点开始，沿着树的宽度遍历树的节点。如果所有节点均被访问，则算法中止。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;ol&gt;
 &lt;li&gt;
 &lt;p&gt;使用队列来存储每一层的节点。&lt;/p&gt;
@@ -1159,7 +1166,8 @@ if a1-b1 &amp;gt; 0
 &lt;p&gt;&lt;strong&gt;空间效率&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;在初始化列表时，系统会为列表分配“初始容量”，该容量可能超出实际需求；并且，扩容机制通常是按照特定倍率（例如 2 倍）进行扩容的，扩容后的容量也可能超出实际需求。因此，&lt;strong&gt;基于数组实现的栈可能造成一定的空间浪费&lt;/strong&gt;。&lt;/p&gt;
 &lt;p&gt;然而，由于链表节点需要额外存储指针，&lt;strong&gt;因此链表节点占用的空间相对较大&lt;/strong&gt;。&lt;/p&gt;
-&lt;p&gt;综上，我们不能简单地确定哪种实现更加节省内存，需要针对具体情况进行分析。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;综上，我们不能简单地确定哪种实现更加节省内存，需要针对具体情况进行分析。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h2 id=&#34;栈相关练习题&#34;&gt;栈相关练习题&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;二叉树的迭代法进行前中后序遍历
@@ -1392,7 +1400,8 @@ if a1-b1 &amp;gt; 0
 &lt;p&gt;哈希表通过哈希函数将键(key)映射到特定位置来实现对数据的快速存取与访问。&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;哈希表虽然只要知道键通过哈希函数就可以找到值，但是在哈希表内通常同时存储着键和值。
-其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。&lt;/p&gt;&lt;/blockquote&gt;
+其主要原因是当出现哈希冲突(hash collision)时需要通过键来确定多个值具体属于哪个键。&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;p&gt;可以用函数对应关系理解 $f(key) = address$,  $array[address] = value$。&lt;/p&gt;
 &lt;p&gt;&lt;img src=&#34;https://asgpipo.github.io/pics/hashmap_hashfun.png&#34; alt=&#34;hashmap_hashfun&#34;&gt;&lt;/p&gt;
 &lt;table&gt;
@@ -1476,7 +1485,8 @@ if a1-b1 &amp;gt; 0
 &lt;li&gt;折叠法：将关键字分割成位数相同的几部分（最后一部分的位数可以不同），然后取这几部分的叠加和（舍去进位）作为哈希地址。&lt;/li&gt;
 &lt;li&gt;随机数法&lt;/li&gt;
 &lt;li&gt;除留余数法：取关键字被某个不大于散列表表长m的数p除后所得的余数为散列地址。即$hash(k)=k\ mod\ p$,  $ p≤m$。不仅可以对关键字直接取模，也可在折叠法、平方取中法等运算之后取模。对p的选择很重要，一般取素数或m，若p选择不好，容易产生冲突。&lt;/li&gt;
-&lt;/ol&gt;&lt;/blockquote&gt;
+&lt;/ol&gt;
+&lt;/blockquote&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-cpp&#34; data-lang=&#34;cpp&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;struct&lt;/span&gt; &lt;span class=&#34;nc&#34;&gt;Pair&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;	
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;	&lt;span class=&#34;k&#34;&gt;public&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;:&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;		&lt;span class=&#34;n&#34;&gt;string&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;value&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;

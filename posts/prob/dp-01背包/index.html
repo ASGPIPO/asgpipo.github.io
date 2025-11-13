@@ -245,7 +245,8 @@ dp[物品][容量]
 属性 分别是<br>
 c(体积)  1 3 2
 v(价值)  2 4 6
-给定背包容量为 5</p></blockquote>
+给定背包容量为 5</p>
+</blockquote>
 <table>
   <thead>
       <tr>
@@ -394,7 +395,8 @@ c(体积)  1 3 2</p>
 40 - 26 = 14
 21 - 14 = 7
 14 - 7 = 7
-7 - 2 = 5</p></blockquote>
+7 - 2 = 5</p>
+</blockquote>
 <p>可以发现 我们每次是进行 如下操作
 分为两堆石头</p>
 <blockquote>
@@ -404,7 +406,8 @@ c(体积)  1 3 2</p>
 <p>[21] - [14]
 [7, 2]</p>
 <p>[7] - [2]
-[5]</p></blockquote>
+[5]</p>
+</blockquote>
 <p>假设有 n个石头那么可以分成
 <code>[a1, a2, ..., an/2] - [b1, b2, ..., bn/2]</code>
 但是每次这样分放太过麻烦,其实可以直接<strong class=chinese>转化成两个子序列问题</strong>,此时就与 LC416基本相同.</p>
@@ -415,7 +418,8 @@ if a1-b1 &gt; 0
 (a2+a3+a4+(a1-b1)) - (b2+b3+b4) &mdash;&gt; (a1+a2+a3+a4) - b1 -(b2+b3+b4)</p>
 <p>if a1 - b1 &lt; 0
 (a2+a3+a4) - (-(a1-b1)+b2+b3+b4) &mdash;&gt; (a2+a3+a4) + a1 - (b1+b2+b3+b4)
-从推导过程可看出每次碰撞产生的新石头再次加入到碰撞中与之前相同,所以无需每次分放.</p></blockquote>
+从推导过程可看出每次碰撞产生的新石头再次加入到碰撞中与之前相同,所以无需每次分放.</p>
+</blockquote>
 <p>那么任务就是 找出<code>arr1 + arr2 = arr</code>并且使得 <code>arr1 - arr2</code>最小,这时我们发现其与 LC416的相似处.
 可以通过找arr1 == sum/2 然后 sum -= 2*arr1 获得最小值.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">stones</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
@@ -445,7 +449,8 @@ if a1-b1 &gt; 0
 1 + 1 + 1 - 1 + 1 = 3
 1 + 1 + 1 + 1 - 1 = 3
 -1 + 1 + 1 + 1 + 1 = 3
-所有能组合为3的情况有5种</p></blockquote>
+所有能组合为3的情况有5种</p>
+</blockquote>
 <p>此时问题就是必须把所有物品放入背包,每个物品有两种状态&quot;+&ldquo;和&rdquo;-&quot;,这两种状态与0与1基本一致,那么背包的容量范围就是<code>[-sum, sum]</code>,于是可以写出如下代码.(这里很像一次操作,是在背包内减去或者加入体积为arr[index]的物品)</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">vector</span><span class="o">&lt;&lt;</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">dp</span><span class="p">(</span><span class="n">arr</span><span class="p">.</span><span class="n">size</span><span class="p">()</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">sum</span><span class="o">*</span><span class="mi">2</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">));</span>
 </span></span><span class="line"><span class="cl"><span class="n">dp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">sum</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
