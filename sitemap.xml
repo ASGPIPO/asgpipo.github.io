@@ -2,19 +2,34 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://asgpipo.github.io/categories/</loc>
+    <lastmod>2025-12-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/posts/</loc>
+    <lastmod>2025-12-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/tags/</loc>
+    <lastmod>2025-12-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/posts/caffeine/</loc>
+    <lastmod>2025-12-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/categories/w-tinylru/</loc>
+    <lastmod>2025-12-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/</loc>
+    <lastmod>2025-12-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/tags/%E7%AE%97%E6%B3%95/</loc>
+    <lastmod>2025-12-10T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://asgpipo.github.io/tags/%E7%BC%93%E5%AD%98/</loc>
+    <lastmod>2025-12-10T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://asgpipo.github.io/tags/btrfs/</loc>
     <lastmod>2025-11-12T16:30:35+08:00</lastmod>
   </url><url>
-    <loc>https://asgpipo.github.io/categories/</loc>
-    <lastmod>2025-11-12T16:30:35+08:00</lastmod>
-  </url><url>
     <loc>https://asgpipo.github.io/tags/filesystem/</loc>
-    <lastmod>2025-11-12T16:30:35+08:00</lastmod>
-  </url><url>
-    <loc>https://asgpipo.github.io/posts/</loc>
-    <lastmod>2025-11-12T16:30:35+08:00</lastmod>
-  </url><url>
-    <loc>https://asgpipo.github.io/tags/</loc>
     <lastmod>2025-11-12T16:30:35+08:00</lastmod>
   </url><url>
     <loc>https://asgpipo.github.io/posts/ubuntu%E6%9B%B4%E6%8D%A2btrfs%E5%AD%90%E5%8D%B7/</loc>
@@ -87,9 +102,6 @@
     <lastmod>2025-10-19T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://asgpipo.github.io/posts/redis/redis-%E7%94%9F%E4%BA%A7%E9%97%AE%E9%A2%98/</loc>
-    <lastmod>2025-10-19T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://asgpipo.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91/</loc>
     <lastmod>2025-10-19T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://asgpipo.github.io/posts/redis/rdb--aof/</loc>

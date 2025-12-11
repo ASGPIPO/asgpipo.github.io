@@ -10,7 +10,21 @@
 
   
   
-  <meta name="description" content=".">
+  <meta name="description" content="W-TinyLFU
+前置理解
+SLRU 分段最久未使用
+分段的意思是将原来只有一段的队列分成两段，一段为保护段另一段为试用段，其内部逻辑与 LRU 相同。
+核心流程：
+
+新数据会进入试用段
+试用段中的数据再次被访问进入保护段
+保护段中被淘汰的数据会回到试用段
+
+SLRU 相比 LRU 的优势
+在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致缓存污染，SLRU的多级淘汰制可以减少这种情况的发送。
+
+CountMinSketch 近似计数器器
+原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
   
 
   
@@ -47,31 +61,34 @@
   
 
   
-  <meta property="og:url" content="https://asgpipo.github.io/posts/ubuntu%E6%9B%B4%E6%8D%A2btrfs%E5%AD%90%E5%8D%B7/">
+  <meta property="og:url" content="https://asgpipo.github.io/posts/caffeine/">
   <meta property="og:site_name" content="pipo&#39;s site">
-  <meta property="og:title" content="Ubuntu 更换 Btrfs 子卷">
-  <meta property="og:description" content=".">
+  <meta property="og:title" content="W-TinyLFU">
+  <meta property="og:description" content="W-TinyLFU 前置理解 SLRU 分段最久未使用 分段的意思是将原来只有一段的队列分成两段，一段为保护段另一段为试用段，其内部逻辑与 LRU 相同。 核心流程：
+新数据会进入试用段 试用段中的数据再次被访问进入保护段 保护段中被淘汰的数据会回到试用段 SLRU 相比 LRU 的优势 在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致缓存污染，SLRU的多级淘汰制可以减少这种情况的发送。 CountMinSketch 近似计数器器 原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2025-11-12T16:30:35+08:00">
-    <meta property="article:modified_time" content="2025-11-12T16:30:35+08:00">
-    <meta property="article:tag" content="FileSystem">
-    <meta property="article:tag" content="Btrfs">
+    <meta property="article:published_time" content="2025-12-10T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-12-10T00:00:00+00:00">
+    <meta property="article:tag" content="缓存">
+    <meta property="article:tag" content="算法">
+    <meta property="article:tag" content="后端开发">
 
 
   
-  <link rel="canonical" href="https://asgpipo.github.io/posts/ubuntu%E6%9B%B4%E6%8D%A2btrfs%E5%AD%90%E5%8D%B7/">
+  <link rel="canonical" href="https://asgpipo.github.io/posts/caffeine/">
 
   
   
   
-  <meta itemprop="name" content="Ubuntu 更换 Btrfs 子卷">
-  <meta itemprop="description" content=".">
-  <meta itemprop="datePublished" content="2025-11-12T16:30:35+08:00">
-  <meta itemprop="dateModified" content="2025-11-12T16:30:35+08:00">
-  <meta itemprop="wordCount" content="793">
-  <meta itemprop="keywords" content="FileSystem,Btrfs">
+  <meta itemprop="name" content="W-TinyLFU">
+  <meta itemprop="description" content="W-TinyLFU 前置理解 SLRU 分段最久未使用 分段的意思是将原来只有一段的队列分成两段，一段为保护段另一段为试用段，其内部逻辑与 LRU 相同。 核心流程：
+新数据会进入试用段 试用段中的数据再次被访问进入保护段 保护段中被淘汰的数据会回到试用段 SLRU 相比 LRU 的优势 在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致缓存污染，SLRU的多级淘汰制可以减少这种情况的发送。 CountMinSketch 近似计数器器 原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
+  <meta itemprop="datePublished" content="2025-12-10T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2025-12-10T00:00:00+00:00">
+  <meta itemprop="wordCount" content="588">
+  <meta itemprop="keywords" content="缓存,算法,后端开发">
 
   
   
@@ -86,14 +103,15 @@
 
   
   
-  <title>Ubuntu 更换 Btrfs 子卷 - pipo&#39;s site</title>
+  <title>W-TinyLFU - pipo&#39;s site</title>
   
 
   
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Ubuntu 更换 Btrfs 子卷">
-  <meta name="twitter:description" content=".">
+  <meta name="twitter:title" content="W-TinyLFU">
+  <meta name="twitter:description" content="W-TinyLFU 前置理解 SLRU 分段最久未使用 分段的意思是将原来只有一段的队列分成两段，一段为保护段另一段为试用段，其内部逻辑与 LRU 相同。 核心流程：
+新数据会进入试用段 试用段中的数据再次被访问进入保护段 保护段中被淘汰的数据会回到试用段 SLRU 相比 LRU 的优势 在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致缓存污染，SLRU的多级淘汰制可以减少这种情况的发送。 CountMinSketch 近似计数器器 原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
 
 
   
@@ -158,13 +176,13 @@
 <main id="main" class="post">
   
   <div class="post-heading">
-    <h1 class="post-title">Ubuntu 更换 Btrfs 子卷</h1>
+    <h1 class="post-title">W-TinyLFU</h1>
     <div class="publish-metadata">
       
       <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      12 November 2025
+      10 December 2025
       
       
         &nbsp;
@@ -172,7 +190,7 @@
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          793 words
+          588 words
         </span>
       
       
@@ -194,9 +212,11 @@
   
   <div>
     
-    <a class="link tag" href='https://asgpipo.github.io/tags/filesystem'>#FileSystem</a>
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E7%BC%93%E5%AD%98'>#缓存</a>
     
-    <a class="link tag" href='https://asgpipo.github.io/tags/btrfs'>#Btrfs</a>
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E7%AE%97%E6%B3%95'>#算法</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91'>#后端开发</a>
     
     <br></br>
   </div>
@@ -209,14 +229,13 @@
     </summary>
     <div class="toc numbered-subtitles"><nav id="TableOfContents">
   <ul>
-    <li><a href="#重装系统">重装系统</a></li>
-    <li><a href="#设置子卷">设置子卷</a></li>
-    <li><a href="#配置-fstab-以挂载子卷">配置 fstab 以挂载子卷</a></li>
-    <li><a href="#迁移用户数据">迁移用户数据</a></li>
-    <li><a href="#配置-grub-引导子卷">配置 GRUB 引导子卷</a></li>
-    <li><a href="#重启与验证">重启与验证</a></li>
-    <li><a href="#最后的清理">最后的清理</a></li>
-    <li><a href="#常见问题排查">常见问题排查</a></li>
+    <li><a href="#w-tinylfu">W-TinyLFU</a>
+      <ul>
+        <li><a href="#前置理解">前置理解</a></li>
+        <li><a href="#w-tinylfu-1">W-TinyLFU</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">Reference</a></li>
   </ul>
 </nav></div>
   </details>
@@ -224,70 +243,38 @@
   
   <article class="content numbered-subtitles">
     
-    <blockquote>
-<p>BTRFS（B-tree File System）是 Linux 内核中一个现代化的文件系统，支持快照、数据压缩、RAID 等高级功能。其中，subvolume（简称 subvol）是其核心特性之一，本质上是一个逻辑独立的命名空间。它允许在同一 BTRFS 文件系统内创建多个“虚拟分区”——这些子卷并非物理分区，而是文件系统内部的目录结构，却可像独立文件系统一样挂载、管理和操作。</p>
-</blockquote>
-<h2 id="重装系统">重装系统</h2>
-<p>由于 ext4 与 BTRFS 不兼容，建议从 ext4 切换到 BTRFS 时，使用全新系统安装。在安装过程中，将系统所在磁盘格式化为 BTRFS 文件系统。</p>
-<h2 id="设置子卷">设置子卷</h2>
-<p>在终端中执行以下命令：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo btrfs subvolume snapshot / /@
-</span></span><span class="line"><span class="cl">sudo btrfs subvolume create /@home
-</span></span></code></pre></div><ul>
-<li>第一条命令：将当前系统快照备份至 /@ 子卷。</li>
-<li>第二条命令：创建 @home 子卷，用于存储用户数据。</li>
-</ul>
-<h2 id="配置-fstab-以挂载子卷">配置 fstab 以挂载子卷</h2>
-<p>编辑 /etc/fstab 文件：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo nano /etc/fstab
-</span></span></code></pre></div><p>将原条目：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/dev/disk/by-uuid/&lt;UUID&gt; / btrfs defaults <span class="m">0</span> <span class="m">1</span>
-</span></span></code></pre></div><p>更新为：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/dev/disk/by-uuid/&lt;UUID&gt; / btrfs <span class="nv">subvol</span><span class="o">=</span>@,defaults <span class="m">0</span> <span class="m">0</span> <span class="c1">#fsck 检查顺序 </span>
-</span></span></code></pre></div><p>并在下一行添加：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">/dev/disk/by-uuid/&lt;UUID&gt; /home btrfs <span class="nv">subvol</span><span class="o">=</span>@home,defaults <span class="m">0</span> <span class="m">0</span>
-</span></span></code></pre></div><p>（注：<!-- raw HTML omitted --> 可通过 blkid 命令获取。）</p>
-<p><img src="../../pics/Random/Btrfs2.png" alt=""></p>
-<h2 id="迁移用户数据">迁移用户数据</h2>
-<p>将 @ 子卷中的用户数据移动至 @home：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo mv /@/home/* /@home/
-</span></span></code></pre></div><p>（执行前确保备份重要数据，以防意外。）</p>
-<h2 id="配置-grub-引导子卷">配置 GRUB 引导子卷</h2>
-<p>编辑 GRUB 配置：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo nano /etc/default/grub
-</span></span></code></pre></div><p>将：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="o">=</span><span class="s2">&#34;quiet splash&#34;</span>
-</span></span></code></pre></div><p>修改为：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nv">GRUB_CMDLINE_LINUX_DEFAULT</span><span class="o">=</span><span class="s2">&#34;quiet splash rootflags=subvol=@&#34;</span>
-</span></span></code></pre></div><p>更新 GRUB：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo update-grub
-</span></span><span class="line"><span class="cl">sudo grub-install
-</span></span><span class="line"><span class="cl"><span class="c1"># 根据引导模式选择：</span>
-</span></span><span class="line"><span class="cl"><span class="c1"># UEFI: sudo grub-install --efi-directory=/boot/efi</span>
-</span></span><span class="line"><span class="cl"><span class="c1"># BIOS: sudo grub-install /dev/sda  # 使用 lsblk 查看磁盘设备</span>
-</span></span></code></pre></div><p><img src="../../pics/Random/Btrfs1.png" alt=""></p>
-<h2 id="重启与验证">重启与验证</h2>
-<p>重启系统：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo reboot
-</span></span></code></pre></div><p>进入系统后，检查挂载情况：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">mount <span class="p">|</span> grep subvol
-</span></span></code></pre></div><p>若输出类似以下信息，则配置成功：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-text" data-lang="text"><span class="line"><span class="cl">... subvol=/@home
-</span></span><span class="line"><span class="cl">... subvol=/@
-</span></span></code></pre></div><p><img src="../../pics/Random/Btrfs3.png" alt=""></p>
-<p>若一切正常，可再次确认 fstab 和 GRUB 配置无误。</p>
-<h2 id="最后的清理">最后的清理</h2>
-<p>挂载当前卷后，删除旧系统文件（保留 @ 开头的子卷）：</p>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="nb">shopt</span> -s extglob
-</span></span><span class="line"><span class="cl">sudo rm -rf !<span class="o">(</span>@*<span class="o">)</span>
-</span></span><span class="line"><span class="cl"><span class="nb">shopt</span> -u extglob
-</span></span></code></pre></div><p>（建议在 Live USB 环境下执行，以确保安全。）</p>
-<h2 id="常见问题排查">常见问题排查</h2>
+    <h2 id="w-tinylfu">W-TinyLFU</h2>
+<h3 id="前置理解">前置理解</h3>
+<h4 id="slru-分段最久未使用">SLRU 分段最久未使用</h4>
+<p>分段的意思是将原来只有一段的队列分成两段，一段为<strong class=chinese>保护段</strong>另一段为<strong class=chinese>试用段</strong>，其内部逻辑与 LRU 相同。
+核心流程：</p>
 <ol>
-<li><strong>GRUB 进入 busybox 或 emergency mode</strong> 重启时，在 GRUB 菜单按 e 编辑条目。找到以 linux 开头的行，删除 rootflags=subvol=@，按 F10 引导进入系统。然后，重新检查 fstab 和 GRUB 配置，修正后重试。</li>
-<li><strong>桌面登录失败（黑屏或循环）</strong> 按 Ctrl+Alt+F2 切换至 TTY，登录用户。运行 mount | grep home 检查 /home 挂载状态。若未挂载，手动执行 sudo mount /home。 用 cat /etc/fstab 验证条目是否正确（应包含 /dev/disk/by-uuid/<!-- raw HTML omitted --> /home btrfs subvol=@home,defaults 0 0）。若有误，按问题 1 引导非子卷模式修复。</li>
+<li>新数据会进入试用段</li>
+<li>试用段中的数据再次被访问进入保护段</li>
+<li>保护段中被淘汰的数据会回到试用段
+<img src="/pics/SLRU.png" alt="">
+<strong>SLRU 相比 LRU 的优势</strong>
+在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致<strong class=chinese>缓存污染</strong>，SLRU的多级淘汰制可以减少这种情况的发送。</li>
 </ol>
-
+<h4 id="countminsketch-近似计数器器">CountMinSketch 近似计数器器</h4>
+<p>原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。<img src="/pics/CountMinSketch.png" alt=""></p>
+<h3 id="w-tinylfu-1">W-TinyLFU</h3>
+<p>LRU窗口缓存 + CountMinSketch + SLRU
+核心流程：</p>
+<ol>
+<li>新加入的缓存进入 LRU 窗口缓存</li>
+<li>被窗口淘汰的缓存如果SLRU段未满则直接进入</li>
+<li>否则从 SLRU尾部选出将被淘汰的缓存 PK 最少使用的会被淘汰，胜利的会进入 SLRU</li>
+</ol>
+<p><img src="/pics/WTiny-LFU.png" alt=""></p>
+<h2 id="reference">Reference</h2>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">title: &#34;W-TinyLFU缓存淘汰策略W-TinyLFU是一种非常优秀的缓存淘汰策略，它综合的考虑了现实场景中可能会遇到的各种问 - 掘金&#34;
+</span></span><span class="line"><span class="cl">image: &#34;https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9cb71ed5731e4cddb4c664381140c6f7~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp?&#34;
+</span></span><span class="line"><span class="cl">description: &#34;W-TinyLFU是一种非常优秀的缓存淘汰策略，它综合的考虑了现实场景中可能会遇到的各种问题，具有能够提高缓存命中率的准入策略，带有LFU的基于频率的优点，还具备元素保鲜机制，同时还能保证低空间消耗。&#34;
+</span></span><span class="line"><span class="cl">url: &#34;https://juejin.cn/post/7144327955353698334#heading-6&#34;
+</span></span><span class="line"><span class="cl">favicon: &#34;&#34;
+</span></span><span class="line"><span class="cl">aspectRatio: &#34;22.90249433106576&#34;
+</span></span></code></pre></div>
     
   </article>
 
@@ -322,10 +309,10 @@
 </div>
   <div class="paginator">
     
-    <a class="link" href="https://asgpipo.github.io/posts/java/java_base/%E9%9B%86%E5%90%88/hashmap/" title="HashMap">← prev</a>
+    <a class="link" href="https://asgpipo.github.io/posts/ubuntu%E6%9B%B4%E6%8D%A2btrfs%E5%AD%90%E5%8D%B7/" title="Ubuntu 更换 Btrfs 子卷">← prev</a>
     
     
-    <a class="link" href="https://asgpipo.github.io/posts/caffeine/" title="W-TinyLFU">next →</a>
+    <a></a>
     
   </div>
   <div class="comment">
