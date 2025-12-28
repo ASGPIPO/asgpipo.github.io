@@ -10,21 +10,9 @@
 
   
   
-  <meta name="description" content="W-TinyLFU
-前置理解
-SLRU 分段最久未使用
-分段的意思是将原来只有一段的队列分成两段，一段为 保护段 另一段为 试用段，其内部逻辑与 LRU 相同。
-核心流程：
-
-新数据会进入试用段
-试用段中的数据再次被访问进入保护段
-保护段中被淘汰的数据会回到试用段
-
-SLRU 相比 LRU 的优势
-在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 缓存污染，SLRU 的多级淘汰制可以减少这种情况的发送。
-
-CountMinSketch 近似计数器器
-原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
+  <meta name="description" content="跨域与 CORS
+1) 什么是跨域
+浏览器判断“是否同源/是否跨域（跨源）”只看 协议 &#43; 域名 &#43; 端口（scheme/host/port）。三者任意一个不同，就是跨域。">
   
 
   
@@ -61,34 +49,32 @@ CountMinSketch 近似计数器器
   
 
   
-  <meta property="og:url" content="https://asgpipo.github.io/posts/caffeine/">
+  <meta property="og:url" content="https://asgpipo.github.io/posts/nginx/%E8%B7%A8%E5%9F%9F/">
   <meta property="og:site_name" content="pipo&#39;s site">
-  <meta property="og:title" content="W-TinyLFU">
-  <meta property="og:description" content="W-TinyLFU 前置理解 SLRU 分段最久未使用 分段的意思是将原来只有一段的队列分成两段，一段为 保护段 另一段为 试用段，其内部逻辑与 LRU 相同。 核心流程：
-新数据会进入试用段 试用段中的数据再次被访问进入保护段 保护段中被淘汰的数据会回到试用段 SLRU 相比 LRU 的优势 在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 缓存污染，SLRU 的多级淘汰制可以减少这种情况的发送。 CountMinSketch 近似计数器器 原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
+  <meta property="og:title" content="跨域">
+  <meta property="og:description" content="跨域与 CORS 1) 什么是跨域 浏览器判断“是否同源/是否跨域（跨源）”只看 协议 &#43; 域名 &#43; 端口（scheme/host/port）。三者任意一个不同，就是跨域。">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
-    <meta property="article:published_time" content="2025-12-10T00:00:00+00:00">
-    <meta property="article:modified_time" content="2025-12-10T00:00:00+00:00">
-    <meta property="article:tag" content="缓存">
-    <meta property="article:tag" content="算法">
-    <meta property="article:tag" content="后端开发">
+    <meta property="article:published_time" content="2025-12-16T15:07:12+08:00">
+    <meta property="article:modified_time" content="2025-12-16T15:07:12+08:00">
+    <meta property="article:tag" content="CORS">
+    <meta property="article:tag" content="HTTP">
+    <meta property="article:tag" content="请求头">
 
 
   
-  <link rel="canonical" href="https://asgpipo.github.io/posts/caffeine/">
+  <link rel="canonical" href="https://asgpipo.github.io/posts/nginx/%E8%B7%A8%E5%9F%9F/">
 
   
   
   
-  <meta itemprop="name" content="W-TinyLFU">
-  <meta itemprop="description" content="W-TinyLFU 前置理解 SLRU 分段最久未使用 分段的意思是将原来只有一段的队列分成两段，一段为 保护段 另一段为 试用段，其内部逻辑与 LRU 相同。 核心流程：
-新数据会进入试用段 试用段中的数据再次被访问进入保护段 保护段中被淘汰的数据会回到试用段 SLRU 相比 LRU 的优势 在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 缓存污染，SLRU 的多级淘汰制可以减少这种情况的发送。 CountMinSketch 近似计数器器 原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
-  <meta itemprop="datePublished" content="2025-12-10T00:00:00+00:00">
-  <meta itemprop="dateModified" content="2025-12-10T00:00:00+00:00">
-  <meta itemprop="wordCount" content="580">
-  <meta itemprop="keywords" content="缓存,算法,后端开发">
+  <meta itemprop="name" content="跨域">
+  <meta itemprop="description" content="跨域与 CORS 1) 什么是跨域 浏览器判断“是否同源/是否跨域（跨源）”只看 协议 &#43; 域名 &#43; 端口（scheme/host/port）。三者任意一个不同，就是跨域。">
+  <meta itemprop="datePublished" content="2025-12-16T15:07:12+08:00">
+  <meta itemprop="dateModified" content="2025-12-16T15:07:12+08:00">
+  <meta itemprop="wordCount" content="1219">
+  <meta itemprop="keywords" content="CORS,HTTP,请求头">
 
   
   
@@ -103,15 +89,14 @@ CountMinSketch 近似计数器器
 
   
   
-  <title>W-TinyLFU - pipo&#39;s site</title>
+  <title>跨域 - pipo&#39;s site</title>
   
 
   
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="W-TinyLFU">
-  <meta name="twitter:description" content="W-TinyLFU 前置理解 SLRU 分段最久未使用 分段的意思是将原来只有一段的队列分成两段，一段为 保护段 另一段为 试用段，其内部逻辑与 LRU 相同。 核心流程：
-新数据会进入试用段 试用段中的数据再次被访问进入保护段 保护段中被淘汰的数据会回到试用段 SLRU 相比 LRU 的优势 在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 缓存污染，SLRU 的多级淘汰制可以减少这种情况的发送。 CountMinSketch 近似计数器器 原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
+  <meta name="twitter:title" content="跨域">
+  <meta name="twitter:description" content="跨域与 CORS 1) 什么是跨域 浏览器判断“是否同源/是否跨域（跨源）”只看 协议 &#43; 域名 &#43; 端口（scheme/host/port）。三者任意一个不同，就是跨域。">
 
 
   
@@ -176,13 +161,13 @@ CountMinSketch 近似计数器器
 <main id="main" class="post">
   
   <div class="post-heading">
-    <h1 class="post-title">W-TinyLFU</h1>
+    <h1 class="post-title">跨域</h1>
     <div class="publish-metadata">
       
       <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      10 December 2025
+      16 December 2025
       
       
         &nbsp;
@@ -190,7 +175,7 @@ CountMinSketch 近似计数器器
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          580 words
+          1219 words
         </span>
       
       
@@ -203,7 +188,7 @@ CountMinSketch 近似计数器器
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          ~2 mins
+          ~3 mins
         </span>
       
     </div>
@@ -212,11 +197,11 @@ CountMinSketch 近似计数器器
   
   <div>
     
-    <a class="link tag" href='https://asgpipo.github.io/tags/%E7%BC%93%E5%AD%98'>#缓存</a>
+    <a class="link tag" href='https://asgpipo.github.io/tags/cors'>#CORS</a>
     
-    <a class="link tag" href='https://asgpipo.github.io/tags/%E7%AE%97%E6%B3%95'>#算法</a>
+    <a class="link tag" href='https://asgpipo.github.io/tags/http'>#HTTP</a>
     
-    <a class="link tag" href='https://asgpipo.github.io/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91'>#后端开发</a>
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E8%AF%B7%E6%B1%82%E5%A4%B4'>#请求头</a>
     
     <br></br>
   </div>
@@ -229,10 +214,11 @@ CountMinSketch 近似计数器器
     </summary>
     <div class="toc numbered-subtitles"><nav id="TableOfContents">
   <ul>
-    <li><a href="#w-tinylfu">W-TinyLFU</a>
+    <li><a href="#跨域与-cors">跨域与 CORS</a>
       <ul>
-        <li><a href="#前置理解">前置理解</a></li>
-        <li><a href="#w-tinylfu-1">W-TinyLFU</a></li>
+        <li><a href="#1-什么是跨域">1) 什么是跨域</a></li>
+        <li><a href="#2-请求头是什么">2) 请求头是什么</a></li>
+        <li><a href="#3-cors-把跨域请求分为两类">3) CORS 把跨域请求分为两类</a></li>
       </ul>
     </li>
     <li><a href="#reference">Reference</a></li>
@@ -243,38 +229,92 @@ CountMinSketch 近似计数器器
   
   <article class="content numbered-subtitles">
     
-    <h2 id="w-tinylfu">W-TinyLFU</h2>
-<h3 id="前置理解">前置理解</h3>
-<h4 id="slru-分段最久未使用">SLRU 分段最久未使用</h4>
-<p>分段的意思是将原来只有一段的队列分成两段，一段为 <strong class=chinese>保护段</strong> 另一段为 <strong class=chinese>试用段</strong>，其内部逻辑与 LRU 相同。
-核心流程：</p>
+    <h2 id="跨域与-cors">跨域与 CORS</h2>
+<h3 id="1-什么是跨域">1) 什么是跨域</h3>
+<p>浏览器判断“是否同源/是否跨域（跨源）”只看 <strong>协议 + 域名 + 端口</strong>（scheme/host/port）。三者任意一个不同，就是跨域。</p>
+<ul>
+<li><code>http://localhost:8001</code> → <code>http://localhost:8002</code>：跨域（端口不同）</li>
+<li><code>http://a.com</code> → <code>https://a.com</code>：跨域（协议不同）</li>
+<li><code>http://a.com</code> → <code>http://b.com</code>：跨域（域名不同）</li>
+</ul>
+<p>注意：<strong>path 不参与跨域判断</strong>。<br>
+（同源/CORS 概览）https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS</p>
+<hr>
+<h3 id="2-请求头是什么">2) 请求头是什么</h3>
+<p>HTTP 请求由「请求行 + 请求头(headers) + 空行 + 可选正文(body)」组成。</p>
+<ul>
+<li><strong class=chinese>请求头</strong>：一堆 <code>Key: Value</code>，描述这次请求的“元信息/上下文”，比如：
+<ul>
+<li><code>Host</code>：要访问哪个站点（虚拟主机选择相关）</li>
+<li><code>Origin</code>：浏览器自动带的“发起请求的源”（跨域时关键）</li>
+<li><code>Accept</code>：期望响应的数据类型</li>
+<li><code>Content-Type</code>：<strong>请求 body 的格式</strong>（POST/PUT 等常见）</li>
+<li><code>Authorization</code>：认证信息（常触发预检）</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="3-cors-把跨域请求分为两类">3) CORS 把跨域请求分为两类</h3>
+<p>核心区别：<strong>是否需要 preflight（预检 OPTIONS）</strong>。</p>
+<h4 id="a-简单请求simple-request">A. 简单请求（simple request）</h4>
+<p>跨域情况下满足条件 → 浏览器 <strong class=chinese>直接发送真正请求</strong>，不先发 OPTIONS。</p>
+<p>简单请求需要同时满足：</p>
 <ol>
-<li>新数据会进入试用段</li>
-<li>试用段中的数据再次被访问进入保护段</li>
-<li>保护段中被淘汰的数据会回到试用段
-<img src="/pics/SLRU.png" alt="">
-<strong>SLRU 相比 LRU 的优势</strong>
-在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 <strong class=chinese>缓存污染</strong>，SLRU 的多级淘汰制可以减少这种情况的发送。</li>
+<li>方法是：<code>GET</code> / <code>HEAD</code> / <code>POST</code></li>
+<li>你在代码里手动设置的请求头属于“安全白名单”（不展开死背，记住：<code>Authorization</code>、自定义 <code>X-*</code> 往往会让它变非简单）</li>
+<li>若是 <code>POST</code>，<code>Content-Type</code> 只能是以下三种之一：
+<ul>
+<li><code>application/x-www-form-urlencoded</code></li>
+<li><code>multipart/form-data</code></li>
+<li><code>text/plain</code></li>
+</ul>
+</li>
 </ol>
-<h4 id="countminsketch-近似计数器器">CountMinSketch 近似计数器器</h4>
-<p>原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。<img src="/pics/CountMinSketch.png" alt=""></p>
-<h3 id="w-tinylfu-1">W-TinyLFU</h3>
-<p>LRU 窗口缓存 + CountMinSketch + SLRU
-核心流程：</p>
+<p>（Simple requests 条件）https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests</p>
+<p><strong class=chinese>简单请求的流程</strong></p>
 <ol>
-<li>新加入的缓存进入 LRU 窗口缓存</li>
-<li>被窗口淘汰的缓存如果 SLRU 段未满则直接进入</li>
-<li>否则从 SLRU 尾部选出将被淘汰的缓存 PK 最少使用的会被淘汰，胜利的会进入 SLRU</li>
+<li>浏览器发送真正请求（带 <code>Origin</code>）到跨域服务器</li>
+<li>服务器返回响应</li>
+<li>浏览器检查响应里是否允许该源读取结果：
+<ul>
+<li>看 <code>Access-Control-Allow-Origin</code></li>
+<li>若允许 → JS 能读到响应</li>
+<li>若不允许/缺失 → <strong>请求可能已到后端，但浏览器不让 JS 读取响应</strong>（控制台报 CORS）</li>
+</ul>
+</li>
 </ol>
-<p><img src="/pics/WTiny-LFU.png" alt=""></p>
+<p><strong class=chinese>重要纠错</strong>：<code>Access-Control-Allow-Origin</code> 的值只能是：</p>
+<ul>
+<li><code>*</code> 或者 一个 <strong>origin（协议+域名+端口）</strong>，比如 <code>http://localhost:8001</code><br>
+<strong>不能带 path</strong>
+<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin">https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin</a></li>
+</ul>
+<hr>
+<h4 id="b-非简单请求preflighted-request">B. 非简单请求（preflighted request）</h4>
+<p>只要不满足简单请求条件（常见原因：<code>Content-Type: application/json</code>、带 <code>Authorization</code>、方法是 PUT/DELETE 等），浏览器通常会：</p>
+<p><strong>先发预检 OPTIONS</strong>（preflight），问服务器“我等会儿这样请求行不行？”</p>
+<p>预检请求大概长这样：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">OPTIONS /api HTTP/1.1
+</span></span><span class="line"><span class="cl">Origin: http://localhost:8001
+</span></span><span class="line"><span class="cl">Access-Control-Request-Method: POST
+</span></span><span class="line"><span class="cl">Access-Control-Request-Headers: authorization, content-type
+</span></span></code></pre></div><p>服务器如果同意，需要在 <strong>OPTIONS 的响应</strong> 里声明允许，例如：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">Access-Control-Allow-Origin: http://localhost:8001
+</span></span><span class="line"><span class="cl">Access-Control-Allow-Methods: POST
+</span></span><span class="line"><span class="cl">Access-Control-Allow-Headers: Authorization, Content-Type
+</span></span></code></pre></div><ul>
+<li><code>Access-Control-Allow-Headers</code> / <code>Allow-Methods</code> <strong class=chinese>不要求完全一致</strong></li>
+<li>只要它们的允许集合 <strong class=chinese>包含</strong> 预检里声明要用的那些即可（集合“超集”覆盖请求即可；从请求角度看就是“请求需求是允许集的子集/真子集”）。<br>
+<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests">https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests</a></li>
+</ul>
+<p>通过预检后，浏览器才会发真正请求；预检不通过，真正请求通常不会发出。</p>
+<hr>
 <h2 id="reference">Reference</h2>
-<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">title: &#34;W-TinyLFU缓存淘汰策略W-TinyLFU是一种非常优秀的缓存淘汰策略，它综合的考虑了现实场景中可能会遇到的各种问 - 掘金&#34;
-</span></span><span class="line"><span class="cl">image: &#34;https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9cb71ed5731e4cddb4c664381140c6f7~tplv-k3u1fbpfcp-zoom-in-crop-mark:1512:0:0:0.awebp?&#34;
-</span></span><span class="line"><span class="cl">description: &#34;W-TinyLFU是一种非常优秀的缓存淘汰策略，它综合的考虑了现实场景中可能会遇到的各种问题，具有能够提高缓存命中率的准入策略，带有LFU的基于频率的优点，还具备元素保鲜机制，同时还能保证低空间消耗。&#34;
-</span></span><span class="line"><span class="cl">url: &#34;https://juejin.cn/post/7144327955353698334#heading-6&#34;
-</span></span><span class="line"><span class="cl">favicon: &#34;&#34;
-</span></span><span class="line"><span class="cl">aspectRatio: &#34;22.90249433106576&#34;
-</span></span></code></pre></div>
+<p><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">Cross-Origin Resource Sharing (CORS)| MDN</a>
+<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests">Preflight 机制| MDN</a>
+<a href="https://www.rfc-editor.org/rfc/rfc9110.html">HTTP 报文结构</a><br>
+<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type">Content-Type</a></p>
+
     
   </article>
 
@@ -309,10 +349,10 @@ CountMinSketch 近似计数器器
 </div>
   <div class="paginator">
     
-    <a class="link" href="https://asgpipo.github.io/posts/ubuntu%E6%9B%B4%E6%8D%A2btrfs%E5%AD%90%E5%8D%B7/" title="Ubuntu 更换 Btrfs 子卷">← prev</a>
+    <a class="link" href="https://asgpipo.github.io/posts/nginx/location%E5%8C%B9%E9%85%8D/" title="Location匹配">← prev</a>
     
     
-    <a class="link" href="https://asgpipo.github.io/posts/nginx/nginx%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" title="Nginx快速入门">next →</a>
+    <a class="link" href="https://asgpipo.github.io/posts/java/java_base/io/java-%E5%9F%BA%E7%A1%80-io/" title="Java基础IO">next →</a>
     
   </div>
   <div class="comment">

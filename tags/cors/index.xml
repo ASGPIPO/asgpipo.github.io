@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>CORS on pipo&#39;s site</title>
+    <link>https://asgpipo.github.io/tags/cors/</link>
+    <description>Recent content in CORS on pipo&#39;s site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 16 Dec 2025 15:07:12 +0800</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/cors/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>跨域</title>
+      <link>https://asgpipo.github.io/posts/nginx/%E8%B7%A8%E5%9F%9F/</link>
+      <pubDate>Tue, 16 Dec 2025 15:07:12 +0800</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/nginx/%E8%B7%A8%E5%9F%9F/</guid>
+      <description>&lt;h2 id=&#34;跨域与-cors&#34;&gt;跨域与 CORS&lt;/h2&gt;
+&lt;h3 id=&#34;1-什么是跨域&#34;&gt;1) 什么是跨域&lt;/h3&gt;
+&lt;p&gt;浏览器判断“是否同源/是否跨域（跨源）”只看 &lt;strong&gt;协议 + 域名 + 端口&lt;/strong&gt;（scheme/host/port）。三者任意一个不同，就是跨域。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;http://localhost:8001&lt;/code&gt; → &lt;code&gt;http://localhost:8002&lt;/code&gt;：跨域（端口不同）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;http://a.com&lt;/code&gt; → &lt;code&gt;https://a.com&lt;/code&gt;：跨域（协议不同）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;http://a.com&lt;/code&gt; → &lt;code&gt;http://b.com&lt;/code&gt;：跨域（域名不同）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;注意：&lt;strong&gt;path 不参与跨域判断&lt;/strong&gt;。&lt;br&gt;
+（同源/CORS 概览）https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;2-请求头是什么&#34;&gt;2) 请求头是什么&lt;/h3&gt;
+&lt;p&gt;HTTP 请求由「请求行 + 请求头(headers) + 空行 + 可选正文(body)」组成。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;请求头&lt;/strong&gt;：一堆 &lt;code&gt;Key: Value&lt;/code&gt;，描述这次请求的“元信息/上下文”，比如：
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Host&lt;/code&gt;：要访问哪个站点（虚拟主机选择相关）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Origin&lt;/code&gt;：浏览器自动带的“发起请求的源”（跨域时关键）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Accept&lt;/code&gt;：期望响应的数据类型&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Content-Type&lt;/code&gt;：&lt;strong&gt;请求 body 的格式&lt;/strong&gt;（POST/PUT 等常见）&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;Authorization&lt;/code&gt;：认证信息（常触发预检）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;3-cors-把跨域请求分为两类&#34;&gt;3) CORS 把跨域请求分为两类&lt;/h3&gt;
+&lt;p&gt;核心区别：&lt;strong&gt;是否需要 preflight（预检 OPTIONS）&lt;/strong&gt;。&lt;/p&gt;
+&lt;h4 id=&#34;a-简单请求simple-request&#34;&gt;A. 简单请求（simple request）&lt;/h4&gt;
+&lt;p&gt;跨域情况下满足条件 → 浏览器 &lt;strong&gt;直接发送真正请求&lt;/strong&gt;，不先发 OPTIONS。&lt;/p&gt;
+&lt;p&gt;简单请求需要同时满足：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;方法是：&lt;code&gt;GET&lt;/code&gt; / &lt;code&gt;HEAD&lt;/code&gt; / &lt;code&gt;POST&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;你在代码里手动设置的请求头属于“安全白名单”（不展开死背，记住：&lt;code&gt;Authorization&lt;/code&gt;、自定义 &lt;code&gt;X-*&lt;/code&gt; 往往会让它变非简单）&lt;/li&gt;
+&lt;li&gt;若是 &lt;code&gt;POST&lt;/code&gt;，&lt;code&gt;Content-Type&lt;/code&gt; 只能是以下三种之一：
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;application/x-www-form-urlencoded&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;multipart/form-data&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;text/plain&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;（Simple requests 条件）https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;简单请求的流程&lt;/strong&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;浏览器发送真正请求（带 &lt;code&gt;Origin&lt;/code&gt;）到跨域服务器&lt;/li&gt;
+&lt;li&gt;服务器返回响应&lt;/li&gt;
+&lt;li&gt;浏览器检查响应里是否允许该源读取结果：
+&lt;ul&gt;
+&lt;li&gt;看 &lt;code&gt;Access-Control-Allow-Origin&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;若允许 → JS 能读到响应&lt;/li&gt;
+&lt;li&gt;若不允许/缺失 → &lt;strong&gt;请求可能已到后端，但浏览器不让 JS 读取响应&lt;/strong&gt;（控制台报 CORS）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;strong&gt;重要纠错&lt;/strong&gt;：&lt;code&gt;Access-Control-Allow-Origin&lt;/code&gt; 的值只能是：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;*&lt;/code&gt; 或者 一个 &lt;strong&gt;origin（协议+域名+端口）&lt;/strong&gt;，比如 &lt;code&gt;http://localhost:8001&lt;/code&gt;&lt;br&gt;
+&lt;strong&gt;不能带 path&lt;/strong&gt;
+&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin&#34;&gt;https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h4 id=&#34;b-非简单请求preflighted-request&#34;&gt;B. 非简单请求（preflighted request）&lt;/h4&gt;
+&lt;p&gt;只要不满足简单请求条件（常见原因：&lt;code&gt;Content-Type: application/json&lt;/code&gt;、带 &lt;code&gt;Authorization&lt;/code&gt;、方法是 PUT/DELETE 等），浏览器通常会：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;先发预检 OPTIONS&lt;/strong&gt;（preflight），问服务器“我等会儿这样请求行不行？”&lt;/p&gt;
+&lt;p&gt;预检请求大概长这样：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;OPTIONS /api HTTP/1.1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Origin: http://localhost:8001
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Request-Method: POST
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Request-Headers: authorization, content-type
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;服务器如果同意，需要在 &lt;strong&gt;OPTIONS 的响应&lt;/strong&gt; 里声明允许，例如：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Allow-Origin: http://localhost:8001
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Allow-Methods: POST
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Allow-Headers: Authorization, Content-Type
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;Access-Control-Allow-Headers&lt;/code&gt; / &lt;code&gt;Allow-Methods&lt;/code&gt; &lt;strong&gt;不要求完全一致&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;只要它们的允许集合 &lt;strong&gt;包含&lt;/strong&gt; 预检里声明要用的那些即可（集合“超集”覆盖请求即可；从请求角度看就是“请求需求是允许集的子集/真子集”）。&lt;br&gt;
+&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests&#34;&gt;https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;通过预检后，浏览器才会发真正请求；预检不通过，真正请求通常不会发出。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;reference&#34;&gt;Reference&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS&#34;&gt;Cross-Origin Resource Sharing (CORS)| MDN&lt;/a&gt;
+&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests&#34;&gt;Preflight 机制| MDN&lt;/a&gt;
+&lt;a href=&#34;https://www.rfc-editor.org/rfc/rfc9110.html&#34;&gt;HTTP 报文结构&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type&#34;&gt;Content-Type&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
