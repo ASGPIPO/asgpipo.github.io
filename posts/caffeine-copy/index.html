@@ -10,7 +10,21 @@
 
   
   
-  <meta name="description" content="哈希冲突">
+  <meta name="description" content="W-TinyLFU
+前置理解
+SLRU 分段最久未使用
+分段的意思是将原来只有一段的队列分成两段，一段为 保护段 另一段为 试用段，其内部逻辑与 LRU 相同。
+核心流程：
+
+新数据会进入试用段
+试用段中的数据再次被访问进入保护段
+保护段中被淘汰的数据会回到试用段
+
+SLRU 相比 LRU 的优势
+在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 缓存污染，SLRU 的多级淘汰制可以减少这种情况的发送。
+
+CountMinSketch 近似计数器器
+原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
   
 
   
@@ -47,24 +61,34 @@
   
 
   
-  <meta property="og:url" content="http://localhost:1313/posts/%E5%93%88%E5%B8%8C%E5%86%B2%E7%AA%81/">
+  <meta property="og:url" content="http://localhost:1313/posts/caffeine-copy/">
   <meta property="og:site_name" content="pipo&#39;s site">
-  <meta property="og:title" content="pipo&#39;s site">
-  <meta property="og:description" content="哈希冲突">
+  <meta property="og:title" content="W-TinyLFU">
+  <meta property="og:description" content="W-TinyLFU 前置理解 SLRU 分段最久未使用 分段的意思是将原来只有一段的队列分成两段，一段为 保护段 另一段为 试用段，其内部逻辑与 LRU 相同。 核心流程：
+新数据会进入试用段 试用段中的数据再次被访问进入保护段 保护段中被淘汰的数据会回到试用段 SLRU 相比 LRU 的优势 在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 缓存污染，SLRU 的多级淘汰制可以减少这种情况的发送。 CountMinSketch 近似计数器器 原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-12-10T00:00:00+00:00">
+    <meta property="article:modified_time" content="2025-12-10T00:00:00+00:00">
+    <meta property="article:tag" content="缓存">
+    <meta property="article:tag" content="算法">
+    <meta property="article:tag" content="后端开发">
 
 
   
-  <link rel="canonical" href="http://localhost:1313/posts/%E5%93%88%E5%B8%8C%E5%86%B2%E7%AA%81/">
+  <link rel="canonical" href="http://localhost:1313/posts/caffeine-copy/">
 
   
   
   
-  <meta itemprop="name" content="pipo&#39;s site">
-  <meta itemprop="description" content="哈希冲突">
-  <meta itemprop="wordCount" content="4">
+  <meta itemprop="name" content="W-TinyLFU">
+  <meta itemprop="description" content="W-TinyLFU 前置理解 SLRU 分段最久未使用 分段的意思是将原来只有一段的队列分成两段，一段为 保护段 另一段为 试用段，其内部逻辑与 LRU 相同。 核心流程：
+新数据会进入试用段 试用段中的数据再次被访问进入保护段 保护段中被淘汰的数据会回到试用段 SLRU 相比 LRU 的优势 在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 缓存污染，SLRU 的多级淘汰制可以减少这种情况的发送。 CountMinSketch 近似计数器器 原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
+  <meta itemprop="datePublished" content="2025-12-10T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2025-12-10T00:00:00+00:00">
+  <meta itemprop="wordCount" content="386">
+  <meta itemprop="keywords" content="缓存,算法,后端开发">
 
   
   
@@ -79,14 +103,15 @@
 
   
   
-  <title> - pipo&#39;s site</title>
+  <title>W-TinyLFU - pipo&#39;s site</title>
   
 
   
   
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="pipo&#39;s site">
-  <meta name="twitter:description" content="哈希冲突">
+  <meta name="twitter:title" content="W-TinyLFU">
+  <meta name="twitter:description" content="W-TinyLFU 前置理解 SLRU 分段最久未使用 分段的意思是将原来只有一段的队列分成两段，一段为 保护段 另一段为 试用段，其内部逻辑与 LRU 相同。 核心流程：
+新数据会进入试用段 试用段中的数据再次被访问进入保护段 保护段中被淘汰的数据会回到试用段 SLRU 相比 LRU 的优势 在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 缓存污染，SLRU 的多级淘汰制可以减少这种情况的发送。 CountMinSketch 近似计数器器 原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。">
 
 
   
@@ -141,7 +166,7 @@
 <path d="M10.07031,20.50291a1.00008,1.00008,0,0,0-1.18115-.9834c-1.30908.24024-2.96191.27637-3.40137-.958a5.70754,5.70754,0,0,0-1.83691-2.415,1.20073,1.20073,0,0,1-.1665-.10938,1,1,0,0,0-.93067-.64551H2.54883a.99965.99965,0,0,0-1,.99512c-.00391.81543.811,1.33789,1.1416,1.51465a4.4408,4.4408,0,0,1,.92383,1.35937c.36426,1.02344,1.42285,2.57617,4.46582,2.376.001.03516.00195.06836.00244.09863l.00439.26758a1,1,0,0,0,2,0l-.00488-.31836C10.07715,21.4951,10.07031,21.22068,10.07031,20.50291Zm10.667-15.126c.03174-.125.063-.26367.09034-.41992a6.27792,6.27792,0,0,0-.40821-3.293,1.002,1.002,0,0,0-.61572-.58007c-.356-.12012-1.67041-.35645-4.18408,1.25a13.86918,13.86918,0,0,0-6.354,0C6.76221.751,5.45459.9658,5.10205,1.07908a.99744.99744,0,0,0-.63135.584,6.3003,6.3003,0,0,0-.40332,3.35644c.02442.12793.05078.2461.07813.35449A6.26928,6.26928,0,0,0,2.89014,9.20311a8.42168,8.42168,0,0,0,.04248.92187c.334,4.60254,3.334,5.98438,5.42431,6.459-.04345.125-.083.25878-.11816.40039a1.00023,1.00023,0,0,0,1.94238.47851,1.6784,1.6784,0,0,1,.46778-.87793.99947.99947,0,0,0-.5459-1.74512c-3.4541-.39453-4.95362-1.80175-5.1792-4.89843a6.61076,6.61076,0,0,1-.03369-.73828,4.25769,4.25769,0,0,1,.91943-2.71289,3.022,3.022,0,0,1,.1958-.23145.99988.99988,0,0,0,.188-1.02441,3.3876,3.3876,0,0,1-.15527-.55567A4.09356,4.09356,0,0,1,6.1167,3.06346a7.54263,7.54263,0,0,1,2.415,1.17968,1.00877,1.00877,0,0,0,.82764.13282,11.77716,11.77716,0,0,1,6.17285.001,1.00549,1.00549,0,0,0,.83056-.13769,7.572,7.572,0,0,1,2.40528-1.19043,4.03977,4.03977,0,0,1,.0874,1.57812,3.205,3.205,0,0,1-.16895.60743.9999.9999,0,0,0,.188,1.02441c.07715.08691.1543.18066.22363.26855A4.12186,4.12186,0,0,1,20,9.20311a7.03888,7.03888,0,0,1-.0376.77734c-.22021,3.05566-1.72558,4.46387-5.1958,4.85937a1,1,0,0,0-.54541,1.7461,1.63079,1.63079,0,0,1,.46631.9082,3.06079,3.06079,0,0,1,.09229.81934v2.334C14.77,21.2949,14.77,21.78025,14.77,22.00291a1,1,0,1,0,2,0c0-.2168,0-.69238.00977-1.33984V18.31346a4.8815,4.8815,0,0,0-.15479-1.31153,4.25638,4.25638,0,0,0-.11621-.416,6.51258,6.51258,0,0,0,5.44531-6.42383A8.69677,8.69677,0,0,0,22,9.20311,6.13062,6.13062,0,0,0,20.7373,5.37693Z"/></svg>
 </span>
       
-      <a class="link" href="https://github.com/michaelneuper/hugo-texify3">GitHub</a>
+      <a class="link" href="https://github.com/ASGPIPO">GitHub</a>
     </span>
     
   </nav>
@@ -151,13 +176,13 @@
 <main id="main" class="post">
   
   <div class="post-heading">
-    <h1 class="post-title"></h1>
+    <h1 class="post-title">W-TinyLFU</h1>
     <div class="publish-metadata">
       
       <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      1 January 0001
+      10 December 2025
       
       
         &nbsp;
@@ -165,7 +190,7 @@
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          4 words
+          386 words
         </span>
       
       
@@ -185,13 +210,62 @@
   </div>
 
   
+  <div>
+    
+    <a class="link tag" href='http://localhost:1313/tags/%E7%BC%93%E5%AD%98'>#缓存</a>
+    
+    <a class="link tag" href='http://localhost:1313/tags/%E7%AE%97%E6%B3%95'>#算法</a>
+    
+    <a class="link tag" href='http://localhost:1313/tags/%E5%90%8E%E7%AB%AF%E5%BC%80%E5%8F%91'>#后端开发</a>
+    
+    <br></br>
+  </div>
   
+  
+  
+  <details>
+    <summary>
+      <b>Table of Contents</b>
+    </summary>
+    <div class="toc numbered-subtitles"><nav id="TableOfContents">
+  <ul>
+    <li><a href="#w-tinylfu">W-TinyLFU</a>
+      <ul>
+        <li><a href="#前置理解">前置理解</a></li>
+        <li><a href="#w-tinylfu-1">W-TinyLFU</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></div>
+  </details>
   
   
   <article class="content numbered-subtitles">
     
-    <h1 id="哈希冲突">哈希冲突</h1>
-
+    <h2 id="w-tinylfu">W-TinyLFU</h2>
+<h3 id="前置理解">前置理解</h3>
+<h4 id="slru-分段最久未使用">SLRU 分段最久未使用</h4>
+<p>分段的意思是将原来只有一段的队列分成两段，一段为 <strong class=chinese>保护段</strong> 另一段为 <strong class=chinese>试用段</strong>，其内部逻辑与 LRU 相同。
+核心流程：</p>
+<ol>
+<li>新数据会进入试用段</li>
+<li>试用段中的数据再次被访问进入保护段</li>
+<li>保护段中被淘汰的数据会回到试用段
+<img src="/picg" alt="">
+<strong>SLRU 相比 LRU 的优势</strong>
+在 LRU 场景下 如果短时有大量新的 散列的非热点数据访问可能导致缓存中的热点数据被移除替换导致 <strong class=chinese>缓存污染</strong>，SLRU 的多级淘汰制可以减少这种情况的发送。</li>
+</ol>
+<h4 id="countminsketch-近似计数器器">CountMinSketch 近似计数器器</h4>
+<p>原理与布隆过滤器类似，将输入的元素通过散列函数映射到不同的数组位置，每个位置每被映射一次该处的计数器就加一。当请求结果时就返回散列结果中计数最小的值作为计数结果，所以会导致类似布隆过滤器“假阳性”的问题，也就是返回计数比实际计数偏大。<img src="/pics/CountMinSketch.png" alt=""></p>
+<h3 id="w-tinylfu-1">W-TinyLFU</h3>
+<p>LRU 窗口缓存 + CountMinSketch + SLRU
+核心流程：</p>
+<ol>
+<li>新加入的缓存进入 LRU 窗口缓存</li>
+<li>被窗口淘汰的缓存如果 SLRU 段未满则直接进入</li>
+<li>否则从 SLRU 尾部选出将被淘汰的缓存 PK 最少使用的会被淘Reference</li>
+</ol>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"></code></pre></div>
     
   </article>
 
@@ -226,10 +300,10 @@
 </div>
   <div class="paginator">
     
-    <a></a>
+    <a class="link" href="http://localhost:1313/posts/caffeine/" title="W-TinyLFU">← prev</a>
     
     
-    <a class="link" href="http://localhost:1313/posts/%E5%93%88%E5%B8%8C%E8%A1%A8/" title="哈希表基础总结">next →</a>
+    <a class="link" href="http://localhost:1313/posts/nginx/nginx%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8/" title="Nginx快速入门">next →</a>
     
   </div>
   <div class="comment">
@@ -265,7 +339,7 @@ Theme <a class=link href=https://github.com/michaelneuper/hugo-texify3 target=_b
 </span>
   </div>
   <div>
-    <span>Copyright © 2025 </span>
+    <span>Copyright © 2026 </span>
   </div>
 </footer>
 

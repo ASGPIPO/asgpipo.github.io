@@ -76,7 +76,7 @@
   <meta itemprop="description" content="字节流和字符流 字符流文件: .txt、.json、.csv、.xml 等 二进制文件（字节流）：图片、视频、.pdf、.docx、.jar 等 本质上都是字节，只是字符流通过字符集编码，二进制文件不能直接当成文本去解码">
   <meta itemprop="datePublished" content="2025-12-27T21:47:35+08:00">
   <meta itemprop="dateModified" content="2025-12-27T21:47:35+08:00">
-  <meta itemprop="wordCount" content="887">
+  <meta itemprop="wordCount" content="2014">
   <meta itemprop="keywords" content="字节流,字符流">
 
   
@@ -178,7 +178,7 @@
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          887 words
+          2014 words
         </span>
       
       
@@ -191,7 +191,7 @@
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          ~2 mins
+          ~5 mins
         </span>
       
     </div>
@@ -220,6 +220,7 @@
         <li><a href="#读写字符流">读写字符流</a></li>
         <li><a href="#读写字节流二进制">读写字节流（二进制）</a></li>
         <li><a href="#缓存使用">缓存使用</a></li>
+        <li><a href="#randomaccessfile">RandomAccessFile</a></li>
       </ul>
     </li>
     <li><a href="#reference">Reference</a></li>
@@ -359,6 +360,178 @@ new FileReader(filePath) // 内部实际是 new InputStreamReader(new FileInputS
       </tr>
   </tbody>
 </table>
+<hr>
+<h3 id="randomaccessfile">RandomAccessFile</h3>
+<p>用于解决无法随机访问读写的问题而诞生，但因为其比较底层，现在被 <code>FileChannel</code> + <code>MappedByteBuffer</code> 代替</p>
+<ul>
+<li><strong>RAF 的本质：</strong> 它是一个带“指针（File Pointer）”的状态机。</li>
+<li><strong>并发冲突点：</strong> 指针是共享资源。多线程必须通过 <code>new</code> 多个 RAF 实例来实现“逻辑上的无状态”，或者在单实例下使用 <code>synchronized</code>（但会退化为单线程）。</li>
+</ul>
+<h4 id="如何使用"><strong class=chinese>如何使用</strong></h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 创建</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">RandomAccessFile</span><span class="w"> </span><span class="n">raf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RandomAccessFile</span><span class="p">(</span><span class="n">inputPath</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//基础读写</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//获取文件长度与申请空间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">length</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">setLength</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// 预分配是防止文件碎片化和频繁扩容的关键</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//刷盘</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">getFD</span><span class="p">.</span><span class="na">sync</span><span class="p">();</span><span class="w">
+</span></span></span></code></pre></div><p><strong>❓ 提问</strong>：</p>
+<ol>
+<li>
+<p>为什么这里不需要向上面一样包装 <code>BufferedInput/OutputStream</code>？</p>
+<p><code>BufferedOutputStream</code> 的存在是为了给那些“一次只写一个字节/少量字节”，进行缓冲减少频繁直接调用 native 方法写入。它在内存里开辟一个 8KB 的数组，凑够了再调一次系统内核（System Call）。</p>
+</li>
+<li>
+<p>为什么要避免多次直接调用系统内核去写入？</p>
+<p>调用系统内核需要从用户态转变为内核态，该过程耗费大量时间会消耗 CPU 周期，要减少不必要的损耗。 这也就是为什么在非强一致性操作中常使用 <code>raf.getFD.sync()</code> 而不使用 <code>RandomAccessFile(inputPath, &quot;rwd/rws&quot;)</code>;</p>
+</li>
+<li>
+<p>为什么要刷盘？</p>
+<p>write() 成功不代表数据落盘，只代表数据进入了内核缓存。</p>
+</li>
+<li>
+<p>如果我在 FileOutputStream 套了 BufferedputStream 我每次读取少量数据后就 write 是否会让其失效？</p>
+<p>只要 buffer 没满、没手动 flush、没 close，数据就停留在用户态的 byte [] 数组里，不触发系统调用。</p>
+</li>
+</ol>
+<table>
+  <thead>
+      <tr>
+          <th>触发时机</th>
+          <th>是否切换内核态</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>write(b) 但 buffer 未满</td>
+          <td>❌ 否，纯内存操作</td>
+      </tr>
+      <tr>
+          <td>write(b) 导致 buffer 满了</td>
+          <td>✅ 是，自动调用底层 write</td>
+      </tr>
+      <tr>
+          <td>手动调用 flush()</td>
+          <td>✅ 是</td>
+      </tr>
+      <tr>
+          <td>调用 close()</td>
+          <td>✅ 是（内部先 flush）</td>
+      </tr>
+  </tbody>
+</table>
+<hr>
+<h4 id="实战示例多线程复制文件">实战示例（多线程复制文件）</h4>
+<p>要求:</p>
+<ul>
+<li>使用 RAF 读取原数据获取长度，预分配空间，为每个子线程分配任务</li>
+<li>使用线程池和 <code>CompletableFuture</code> 完成子线程调用与任务执行</li>
+<li>使子线程只工作在自己被分配到的区间内</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">RandomAccessFile</span><span class="w"> </span><span class="n">raf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RandomAccessFile</span><span class="p">(</span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;rw&#34;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">//获取长度，为预分配空间和切片做准备</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="kt">long</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">raf</span><span class="p">.</span><span class="na">length</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">//根据线程数量切片</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="kt">long</span><span class="w"> </span><span class="n">splitSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">16</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">//分配空间后写入刷盘</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">raf</span><span class="p">.</span><span class="na">setLength</span><span class="p">(</span><span class="n">length</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">raf</span><span class="p">.</span><span class="na">getFD</span><span class="p">().</span><span class="na">sync</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">ThreadPoolExecutor</span><span class="w"> </span><span class="n">executor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadpool</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">List</span><span class="o">&lt;</span><span class="n">CompletableFuture</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">cf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">				
+</span></span></span><span class="line"><span class="cl"><span class="w">				</span><span class="c1">//步长为每个子线程获得的工作量</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">long</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">length</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">splitSize</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">length</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                        </span><span class="k">break</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="kt">long</span><span class="w"> </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="c1">//如果剩余数据不足分片大小，则只设置剩余大小</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="kt">long</span><span class="w"> </span><span class="n">end</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">splitSize</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="n">length</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">splitSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="n">cf</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="n">CompletableFuture</span><span class="p">.</span><span class="na">supplyAsync</span><span class="p">(()</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">singleCopy</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">Task</span><span class="p">(</span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">,</span><span class="w"> </span><span class="n">input</span><span class="p">,</span><span class="w"> </span><span class="n">output</span><span class="p">)),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                            </span><span class="n">executor</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">CompletableFuture</span><span class="p">.</span><span class="na">allOf</span><span class="p">(</span><span class="n">cf</span><span class="p">.</span><span class="na">toArray</span><span class="p">(</span><span class="n">CompletableFuture</span><span class="o">[]</span><span class="p">::</span><span class="k">new</span><span class="p">)).</span><span class="na">join</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w"> </span><span class="k">finally</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">executor</span><span class="p">.</span><span class="na">shutdown</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">try</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">executor</span><span class="p">.</span><span class="na">awaitTermination</span><span class="p">(</span><span class="n">5</span><span class="p">,</span><span class="w"> </span><span class="n">TimeUnit</span><span class="p">.</span><span class="na">SECONDS</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                        </span><span class="n">executor</span><span class="p">.</span><span class="na">shutdownNow</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">InterruptedException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="n">executor</span><span class="p">.</span><span class="na">shutdownNow</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="n">Thread</span><span class="p">.</span><span class="na">currentThread</span><span class="p">().</span><span class="na">interrupt</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">class</span> <span class="nc">Task</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">startOffset</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">endOffset</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">inputPath</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">outputPath</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">   
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="nf">Task</span><span class="p">(</span><span class="kt">long</span><span class="w"> </span><span class="n">startOffset</span><span class="p">,</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">endOffset</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">inputPath</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">outputPath</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">startOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">startOffset</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">endOffset</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">endOffset</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">inputPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">inputPath</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">outputPath</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">outputPath</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">singleCopy</span><span class="p">(</span><span class="n">Task</span><span class="w"> </span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">RandomAccessFile</span><span class="w"> </span><span class="n">read</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RandomAccessFile</span><span class="p">(</span><span class="n">task</span><span class="p">.</span><span class="na">inputPath</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;r&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">RandomAccessFile</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RandomAccessFile</span><span class="p">(</span><span class="n">task</span><span class="p">.</span><span class="na">outputPath</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;rw&#34;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">//设置读取和写入的偏移量，也就是开始坐标</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">read</span><span class="p">.</span><span class="na">seek</span><span class="p">(</span><span class="n">task</span><span class="p">.</span><span class="na">startOffset</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">target</span><span class="p">.</span><span class="na">seek</span><span class="p">(</span><span class="n">task</span><span class="p">.</span><span class="na">startOffset</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="kt">int</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">byte</span><span class="o">[</span><span class="n">81920</span><span class="o">]</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">//使用局部变量记录当前读取到的位置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="kt">long</span><span class="w"> </span><span class="n">currentPos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="p">.</span><span class="na">startOffset</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">currentPos</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">task</span><span class="p">.</span><span class="na">endOffset</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">	            </span><span class="c1">//如果剩余量小于 buffer 里读取到的长度，则只读取 剩余工作量</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	            </span><span class="c1">//避免污染其他线程的工作区间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="kt">long</span><span class="w"> </span><span class="n">remaining</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">task</span><span class="p">.</span><span class="na">endOffset</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">currentPos</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="kt">int</span><span class="w"> </span><span class="n">maxRead</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="n">Math</span><span class="p">.</span><span class="na">min</span><span class="p">(</span><span class="n">buffer</span><span class="p">.</span><span class="na">length</span><span class="p">,</span><span class="w"> </span><span class="n">remaining</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">0</span><span class="p">,</span><span class="w"> </span><span class="n">maxRead</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">len</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="o">-</span><span class="n">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                    </span><span class="k">break</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">target</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">0</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">currentPos</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">len</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">target</span><span class="p">.</span><span class="na">getFD</span><span class="p">().</span><span class="na">sync</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">FileNotFoundException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">// TODO Auto-generated catch block</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">e</span><span class="p">.</span><span class="na">printStackTrace</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">IOException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">// TODO Auto-generated catch block</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">e</span><span class="p">.</span><span class="na">printStackTrace</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&#34;success!&#34;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><blockquote>
+<p>⚠️ 注意
+为什么这里不使用 <code>getFilePointer()</code> 去直接获取当前偏移量位置，而是使用局部变量？
+答案依旧是 <code>getFilePointer()</code> 是用的 native 方法，会从用户态切换到内核态</p>
+</blockquote>
 <h2 id="reference">Reference</h2>
 
     
@@ -434,7 +607,7 @@ Theme <a class=link href=https://github.com/michaelneuper/hugo-texify3 target=_b
 </span>
   </div>
   <div>
-    <span>Copyright © 2025 </span>
+    <span>Copyright © 2026 </span>
   </div>
 </footer>
 
