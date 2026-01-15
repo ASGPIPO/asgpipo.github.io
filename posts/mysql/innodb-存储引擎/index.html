@@ -110,7 +110,7 @@ Page buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据�
 
   
   
-    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/content.min.f51fb43fa8f51b0642996f60541954a19ce736770f5baa9e690f79c9d1fa6421.css" integrity="sha256-9R&#43;0P6j1GwZCmW9gVBlUoZznNncPW6qeaQ95ydH6ZCE=" crossorigin="anonymous">
   
 
   
@@ -131,7 +131,7 @@ Page buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据�
   
 
 
-  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/single.min.3a3345f1d6f04a7a511a9c33d043ebb4ca4d7e5c3ae16c2b41f44a71138579db.css" integrity="sha256-OjNF8dbwSnpRGpwz0EPrtMpNflw64WwrQfRKcROFeds=" crossorigin="anonymous">
 
 
   <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
@@ -187,6 +187,14 @@ Page buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据�
 </header>
 <hr class="head-rule"></hr>
     
+
+
+  
+    
+      
+    
+  
+
 <main id="main" class="post">
   
   <div class="post-heading">
@@ -243,34 +251,7 @@ Page buffer pool 中存放着 许多 page, 每个 page 记录着表中的数据�
   
   
   
-  <details>
-    <summary>
-      <b>Table of Contents</b>
-    </summary>
-    <div class="toc numbered-subtitles"><nav id="TableOfContents">
-  <ul>
-    <li><a href="#buffer-pool">Buffer Pool</a>
-      <ul>
-        <li><a href="#page">Page</a></li>
-      </ul>
-    </li>
-    <li><a href="#ahi">AHI</a>
-      <ul>
-        <li><a href="#作用">作用</a></li>
-      </ul>
-    </li>
-    <li><a href="#日志系统">日志系统</a>
-      <ul>
-        <li><a href="#log-buffer">Log Buffer</a></li>
-        <li><a href="#redo-log">Redo Log</a></li>
-        <li><a href="#undo-log">Undo Log</a></li>
-      </ul>
-    </li>
-    <li><a href="#change-buffer">Change Buffer</a></li>
-    <li><a href="#来源">来源</a></li>
-  </ul>
-</nav></div>
-  </details>
+    
   
   
   <article class="content numbered-subtitles">
@@ -413,7 +394,123 @@ page 中存放的不是整张表 而是多行数据.</p>
   </div>
   
   
+
+<aside class="toc-sidebar" data-toc-sidebar>
+  <h4 data-toc-toggle>Table of Contents</h4>
+  <nav><nav id="TableOfContents">
+  <ul>
+    <li><a href="#buffer-pool">Buffer Pool</a>
+      <ul>
+        <li><a href="#page">Page</a></li>
+      </ul>
+    </li>
+    <li><a href="#ahi">AHI</a>
+      <ul>
+        <li><a href="#作用">作用</a></li>
+      </ul>
+    </li>
+    <li><a href="#日志系统">日志系统</a>
+      <ul>
+        <li><a href="#log-buffer">Log Buffer</a></li>
+        <li><a href="#redo-log">Redo Log</a></li>
+        <li><a href="#undo-log">Undo Log</a></li>
+      </ul>
+    </li>
+    <li><a href="#change-buffer">Change Buffer</a></li>
+    <li><a href="#来源">来源</a></li>
+  </ul>
+</nav></nav>
+</aside>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toc = document.querySelector('nav#TableOfContents');
+    const links = toc ? toc.querySelectorAll('a') : [];
+    const sections = new Array(links.length);
+    
+    if (!toc || links.length === 0) return;
+
+    
+    links.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      
+      const id = decodeURIComponent(href.substring(1)); 
+      const section = document.getElementById(id);
+      sections[index] = section;
+
+      
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+          history.pushState(null, null, href);
+        }
+      });
+    });
+
+    
+    const observerOptions = {
+      root: null,
+      
+      
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          
+          
+          links.forEach(link => {
+             link.classList.remove('active');
+             if(link.parentElement.classList.contains('active')){
+                link.parentElement.classList.remove('active');
+             }
+          });
+
+          
+          
+          const activeLink = toc.querySelector(`a[href="#${encodeURIComponent(id)}"]`) || 
+                             toc.querySelector(`a[href="#${id}"]`); 
+          
+          if (activeLink) {
+            activeLink.classList.add('active');
+            
+            activeLink.parentElement.classList.add('active');
+          }
+        }
+      });
+    }, observerOptions);
+
+    
+    sections.forEach(section => {
+      if (section) observer.observe(section);
+    });
+
+    
+    const toggleBtn = document.querySelector('[data-toc-toggle]');
+    const sidebar = document.querySelector('[data-toc-sidebar]');
+    
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', () => {
+        
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      
+      if (window.innerWidth <= 1350 && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+
+  
 </main>
+
 
     <footer id="footer">
   <div>

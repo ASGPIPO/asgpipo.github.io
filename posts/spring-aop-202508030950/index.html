@@ -55,7 +55,7 @@
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2025-08-03T00:00:00+00:00">
-    <meta property="article:modified_time" content="2025-08-16T14:06:43+08:00">
+    <meta property="article:modified_time" content="2026-01-14T21:52:12+08:00">
     <meta property="article:tag" content="Spring">
     <meta property="article:tag" content="AOP">
 
@@ -69,7 +69,7 @@
   <meta itemprop="name" content="Spring Aop">
   <meta itemprop="description" content="Sample article showcasing basic Markdown syntax and formatting for HTML elements.">
   <meta itemprop="datePublished" content="2025-08-03T00:00:00+00:00">
-  <meta itemprop="dateModified" content="2025-08-16T14:06:43+08:00">
+  <meta itemprop="dateModified" content="2026-01-14T21:52:12+08:00">
   <meta itemprop="wordCount" content="1320">
   <meta itemprop="keywords" content="Spring,AOP">
 
@@ -81,7 +81,7 @@
 
   
   
-    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/content.min.f51fb43fa8f51b0642996f60541954a19ce736770f5baa9e690f79c9d1fa6421.css" integrity="sha256-9R&#43;0P6j1GwZCmW9gVBlUoZznNncPW6qeaQ95ydH6ZCE=" crossorigin="anonymous">
   
 
   
@@ -99,7 +99,7 @@
   
 
 
-  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/single.min.3a3345f1d6f04a7a511a9c33d043ebb4ca4d7e5c3ae16c2b41f44a71138579db.css" integrity="sha256-OjNF8dbwSnpRGpwz0EPrtMpNflw64WwrQfRKcROFeds=" crossorigin="anonymous">
 
 
   <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
@@ -155,6 +155,14 @@
 </header>
 <hr class="head-rule"></hr>
     
+
+
+  
+    
+      
+    
+  
+
 <main id="main" class="post">
   
   <div class="post-heading">
@@ -203,24 +211,7 @@
   
   
   
-  <details>
-    <summary>
-      <b>Table of Contents</b>
-    </summary>
-    <div class="toc numbered-subtitles"><nav id="TableOfContents">
-  <ul>
-    <li><a href="#1aopaspect-oriented-programming-面向切面编程">1.AOP(<strong>Aspect-Oriented Programming</strong>) 面向切面编程</a></li>
-    <li><a href="#2-aop核心概念">2. AOP核心概念</a>
-      <ul>
-        <li><a href="#1-pointcut">1. PointCut</a></li>
-        <li><a href="#2--joinpoint">2.  JoinPoint</a></li>
-        <li><a href="#3advice">3.Advice</a></li>
-      </ul>
-    </li>
-    <li><a href="#3示例">3.示例</a></li>
-  </ul>
-</nav></div>
-  </details>
+    
   
   
   <article class="content numbered-subtitles">
@@ -230,7 +221,7 @@
 <p>解耦代码
 eg: 有多段类似业务代码,执行时需要进行log输出和判断</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Service</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UserService</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UserService</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">addUser</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
@@ -243,10 +234,10 @@ eg: 有多段类似业务代码,执行时需要进行log输出和判断</p>
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;delete user: &#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div><p>传统方法:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Service</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UserService</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UserService</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">addUser</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;[log] method addUser&#34;</span><span class="p">)</span><span class="w">
@@ -260,12 +251,12 @@ eg: 有多段类似业务代码,执行时需要进行log输出和判断</p>
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">logAfter</span><span class="p">();</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div><p>每段业务需要编写对应log输出或者是调用对应的日志输出方法,对业务代码侵入性强,出现了代码冗余.</p>
 <p>AOP:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//UserService</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Service</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UserService</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Service</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UserService</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">addUser</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">age</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
@@ -278,13 +269,13 @@ eg: 有多段类似业务代码,执行时需要进行log输出和判断</p>
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;delete user: &#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//LogAspect</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Aspect</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Component</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">LogAspect</span><span class="w"> </span><span class="p">{</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="c1">//LogAspect</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Aspect</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Component</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">LogAspect</span><span class="w"> </span><span class="p">{</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nd">@Pointcut</span><span class="p">((</span><span class="s">&#34;within(@org.springframework.stereotype.Service *)&#34;</span><span class="p">))</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// @Around(execution(* com.example.service.*.*(..)))  </span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">logPoint</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w">
@@ -298,7 +289,7 @@ eg: 有多段类似业务代码,执行时需要进行log输出和判断</p>
 </span></span></span><span class="line"><span class="cl"><span class="w">	    </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;[log] 耗时：&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="p">(</span><span class="n">end</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&#34;ms&#34;</span><span class="p">);</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">	    </span><span class="k">return</span><span class="w"> </span><span class="n">proceed</span><span class="p">;</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div><p>AOP仅需要编写好对应的切面代码,即可监听控制所需要的代码</p>
 <h2 id="2-aop核心概念">2. AOP核心概念</h2>
 <table>
@@ -345,13 +336,13 @@ eg: 有多段类似业务代码,执行时需要进行log输出和判断</p>
 </ul>
 <p>eg:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Pointcut</span><span class="p">((</span><span class="s">&#34;within(@org.springframework.stereotype.Service *)&#34;</span><span class="p">))</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">logPoint</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">logPoint</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Pointcut</span><span class="p">(</span><span class="s">&#34;execution(* com.example.springBean.UserService.*(..))&#34;</span><span class="p">)</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">ExceptionAspectLogPoint</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Pointcut</span><span class="p">(</span><span class="s">&#34;execution(* com.example.springBean.UserService.*(..))&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">ExceptionAspectLogPoint</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Pointcut</span><span class="p">(</span><span class="s">&#34;@annotation(com.example.springBean.RequireAdmin)&#34;</span><span class="p">)</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">SecurityAspect</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Pointcut</span><span class="p">(</span><span class="s">&#34;@annotation(com.example.springBean.RequireAdmin)&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">SecurityAspect</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w">
 </span></span></span></code></pre></div><p>创建切入点后进行重命名,可以简化后续Advice的使用</p>
 <h3 id="2--joinpoint">2.  JoinPoint</h3>
 <ul>
@@ -405,7 +396,7 @@ JoinPoint不能用在@Around, @Around需要使用 ProceedingJoinPoint</li>
 <li>ProceedingJoinPoint</li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Around</span><span class="p">(</span><span class="s">&#34;logPoint&#34;</span><span class="p">)</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">Method</span><span class="p">(</span><span class="n">ProceedingJoinPoint</span><span class="w"> </span><span class="n">joinPoint</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Throwable</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="n">Object</span><span class="w"> </span><span class="nf">Method</span><span class="p">(</span><span class="n">ProceedingJoinPoint</span><span class="w"> </span><span class="n">joinPoint</span><span class="p">)</span><span class="w"> </span><span class="kd">throws</span><span class="w"> </span><span class="n">Throwable</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kt">boolean</span><span class="w"> </span><span class="n">hasPermission</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">checkPermission</span><span class="p">();</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">hasPermission</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -416,7 +407,7 @@ JoinPoint不能用在@Around, @Around需要使用 ProceedingJoinPoint</li>
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;[Around] No permission, method skipped.&#34;</span><span class="p">);</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w"> </span><span class="c1">// 或者 throw new AccessDeniedException();</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div><p><strong class=chinese>新增的关键方法</strong></p>
 <table>
   <thead>
@@ -479,19 +470,19 @@ JoinPoint不能用在@Around, @Around需要使用 ProceedingJoinPoint</li>
 <h2 id="3示例">3.示例</h2>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.springBean</span><span class="p">;</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Arrays</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">java.util.Arrays</span><span class="p">;</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.JoinPoint</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.ProceedingJoinPoint</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.AfterThrowing</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.Around</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.Aspect</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.Pointcut</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Component</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.JoinPoint</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.ProceedingJoinPoint</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.AfterThrowing</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.Around</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.Aspect</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.aspectj.lang.annotation.Pointcut</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Component</span><span class="p">;</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Aspect</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Component</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">LogAspect</span><span class="w"> </span><span class="p">{</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Aspect</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Component</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">LogAspect</span><span class="w"> </span><span class="p">{</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nd">@Pointcut</span><span class="p">((</span><span class="s">&#34;within(@org.springframework.stereotype.Service *)&#34;</span><span class="p">))</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">logPoint</span><span class="p">()</span><span class="w"> </span><span class="p">{}</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
@@ -533,14 +524,14 @@ JoinPoint不能用在@Around, @Around需要使用 ProceedingJoinPoint</li>
 </span></span></span><span class="line"><span class="cl"><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.springBean</span><span class="p">;</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Service</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.beans.factory.annotation.Autowired</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">org.springframework.stereotype.Service</span><span class="p">;</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Service</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UserService</span><span class="w"> </span><span class="p">{</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Service</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">UserService</span><span class="w"> </span><span class="p">{</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">currentUser</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;admin&#34;</span><span class="p">;</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
@@ -555,19 +546,19 @@ JoinPoint不能用在@Around, @Around需要使用 ProceedingJoinPoint</li>
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">&#34;delete user: &#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">id</span><span class="p">);</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span><span class="w"> </span><span class="nn">com.example.springBean</span><span class="p">;</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.lang.annotation.ElementType</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.lang.annotation.Retention</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.lang.annotation.RetentionPolicy</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kn">import</span><span class="w"> </span><span class="nn">java.lang.annotation.Target</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">java.lang.annotation.ElementType</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">java.lang.annotation.Retention</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">java.lang.annotation.RetentionPolicy</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kn">import</span><span class="w"> </span><span class="nn">java.lang.annotation.Target</span><span class="p">;</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Target</span><span class="p">(</span><span class="n">ElementType</span><span class="p">.</span><span class="na">METHOD</span><span class="p">)</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nd">@Retention</span><span class="p">(</span><span class="n">RetentionPolicy</span><span class="p">.</span><span class="na">RUNTIME</span><span class="p">)</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="nd">@interface</span><span class="w"> </span><span class="n">RequireAdmin</span><span class="w"> </span><span class="p">{</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Target</span><span class="p">(</span><span class="n">ElementType</span><span class="p">.</span><span class="na">METHOD</span><span class="p">)</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Retention</span><span class="p">(</span><span class="n">RetentionPolicy</span><span class="p">.</span><span class="na">RUNTIME</span><span class="p">)</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="nd">@interface</span><span class="w"> </span><span class="n">RequireAdmin</span><span class="w"> </span><span class="p">{</span><span class="w">  
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">String</span><span class="w"> </span><span class="nf">value</span><span class="p">()</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="s">&#34;admin&#34;</span><span class="p">;</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div>
     
   </article>
@@ -633,7 +624,113 @@ JoinPoint不能用在@Around, @Around需要使用 ProceedingJoinPoint</li>
   </div>
   
   
+
+<aside class="toc-sidebar" data-toc-sidebar>
+  <h4 data-toc-toggle>Table of Contents</h4>
+  <nav><nav id="TableOfContents">
+  <ul>
+    <li><a href="#1aopaspect-oriented-programming-面向切面编程">1.AOP(<strong>Aspect-Oriented Programming</strong>) 面向切面编程</a></li>
+    <li><a href="#2-aop核心概念">2. AOP核心概念</a>
+      <ul>
+        <li><a href="#1-pointcut">1. PointCut</a></li>
+        <li><a href="#2--joinpoint">2.  JoinPoint</a></li>
+        <li><a href="#3advice">3.Advice</a></li>
+      </ul>
+    </li>
+    <li><a href="#3示例">3.示例</a></li>
+  </ul>
+</nav></nav>
+</aside>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toc = document.querySelector('nav#TableOfContents');
+    const links = toc ? toc.querySelectorAll('a') : [];
+    const sections = new Array(links.length);
+    
+    if (!toc || links.length === 0) return;
+
+    
+    links.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      
+      const id = decodeURIComponent(href.substring(1)); 
+      const section = document.getElementById(id);
+      sections[index] = section;
+
+      
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+          history.pushState(null, null, href);
+        }
+      });
+    });
+
+    
+    const observerOptions = {
+      root: null,
+      
+      
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          
+          
+          links.forEach(link => {
+             link.classList.remove('active');
+             if(link.parentElement.classList.contains('active')){
+                link.parentElement.classList.remove('active');
+             }
+          });
+
+          
+          
+          const activeLink = toc.querySelector(`a[href="#${encodeURIComponent(id)}"]`) || 
+                             toc.querySelector(`a[href="#${id}"]`); 
+          
+          if (activeLink) {
+            activeLink.classList.add('active');
+            
+            activeLink.parentElement.classList.add('active');
+          }
+        }
+      });
+    }, observerOptions);
+
+    
+    sections.forEach(section => {
+      if (section) observer.observe(section);
+    });
+
+    
+    const toggleBtn = document.querySelector('[data-toc-toggle]');
+    const sidebar = document.querySelector('[data-toc-sidebar]');
+    
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', () => {
+        
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      
+      if (window.innerWidth <= 1350 && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+
+  
 </main>
+
 
     <footer id="footer">
   <div>

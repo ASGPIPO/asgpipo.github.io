@@ -97,7 +97,7 @@ sudo systemctl start nginx #启动 Nginx
 
   
   
-    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/content.min.f51fb43fa8f51b0642996f60541954a19ce736770f5baa9e690f79c9d1fa6421.css" integrity="sha256-9R&#43;0P6j1GwZCmW9gVBlUoZznNncPW6qeaQ95ydH6ZCE=" crossorigin="anonymous">
   
 
   
@@ -115,7 +115,7 @@ sudo systemctl start nginx #启动 Nginx
   
 
 
-  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/single.min.3a3345f1d6f04a7a511a9c33d043ebb4ca4d7e5c3ae16c2b41f44a71138579db.css" integrity="sha256-OjNF8dbwSnpRGpwz0EPrtMpNflw64WwrQfRKcROFeds=" crossorigin="anonymous">
 
 
   <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
@@ -171,6 +171,14 @@ sudo systemctl start nginx #启动 Nginx
 </header>
 <hr class="head-rule"></hr>
     
+
+
+  
+    
+      
+    
+  
+
 <main id="main" class="post">
   
   <div class="post-heading">
@@ -219,31 +227,7 @@ sudo systemctl start nginx #启动 Nginx
   
   
   
-  <details>
-    <summary>
-      <b>Table of Contents</b>
-    </summary>
-    <div class="toc numbered-subtitles"><nav id="TableOfContents">
-  <ul>
-    <li><a href="#安装">安装</a>
-      <ul>
-        <li><a href="#导入源debianubuntu">导入源（Debian/Ubuntu）</a></li>
-        <li><a href="#安装-nginx-软件包">安装 Nginx 软件包</a></li>
-      </ul>
-    </li>
-    <li><a href="#启动与配置">启动与配置</a>
-      <ul>
-        <li><a href="#检查语法错误与查看配置所在位置">检查语法错误与查看配置所在位置</a></li>
-        <li><a href="#查看配置">查看配置</a></li>
-        <li><a href="#快速配置">快速配置</a></li>
-        <li><a href="#反代短链接不跳转上游依赖-host-头">反代短链接不跳转：上游依赖 Host 头</a></li>
-        <li><a href="#验证方法">验证方法</a></li>
-      </ul>
-    </li>
-    <li><a href="#reference">Reference</a></li>
-  </ul>
-</nav></div>
-  </details>
+    
   
   
   <article class="content numbered-subtitles">
@@ -276,15 +260,15 @@ sudo systemctl start nginx #启动 Nginx
 </span></span></code></pre></div><hr>
 <h3 id="查看配置">查看配置</h3>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="k">user</span>  <span class="s">nginx</span><span class="p">;</span> <span class="c1">#用户
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">worker_processes</span>  <span class="s">auto</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl"><span class="k">worker_processes</span>  <span class="s">auto</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">error_log</span>  <span class="s">/var/log/nginx/error.log</span> <span class="s">notice</span><span class="p">;</span> <span class="c1">#日志地址
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="k">pid</span>        <span class="s">/run/nginx.pid</span><span class="p">;</span> 
+</span></span></span><span class="line"><span class="cl"><span class="k">pid</span>        <span class="s">/run/nginx.pid</span><span class="p">;</span> 
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">events</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="kn">worker_connections</span>  <span class="mi">1024</span><span class="p">;</span> <span class="c1">#最大链接线程数
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="k">http</span> <span class="p">{</span>
@@ -299,32 +283,32 @@ sudo systemctl start nginx #启动 Nginx
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="kn">sendfile</span>        <span class="no">on</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="c1">#tcp_nopush     on;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="kn">keepalive_timeout</span>  <span class="mi">65</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1">#gzip  on;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="kn">include</span> <span class="s">/etc/nginx/conf.d/*.conf</span><span class="p">;</span>  <span class="c1">#具体配置位置
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-nginx" data-lang="nginx"><span class="line"><span class="cl"><span class="k">server</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="kn">listen</span>       <span class="mi">80</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="kn">server_name</span>  <span class="s">localhost</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1">#access_log  /var/log/nginx/host.access.log  main;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="c1">#    location /index {
 </span></span></span><span class="line"><span class="cl"><span class="c1">#        root   /usr/share/nginx/html;
 </span></span></span><span class="line"><span class="cl"><span class="c1">#        index  index.html index.htm;
 </span></span></span><span class="line"><span class="cl"><span class="c1">#    }
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kn">location</span> <span class="s">/</span> <span class="p">{</span> 
+</span></span></span><span class="line"><span class="cl">	<span class="kn">location</span> <span class="s">/</span> <span class="p">{</span> 
 </span></span><span class="line"><span class="cl">	<span class="kn">root</span> <span class="s">html</span><span class="p">;</span> <span class="c1"># 网站根目录 
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kn">index</span> <span class="s">index.html</span> <span class="s">index.htm</span><span class="p">;</span> <span class="c1"># 默认首页文件 
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="p">}</span>
+</span></span></span><span class="line"><span class="cl">	<span class="kn">index</span> <span class="s">index.html</span> <span class="s">index.htm</span><span class="p">;</span> <span class="c1"># 默认首页文件 
+</span></span></span><span class="line"><span class="cl">	<span class="p">}</span>
 </span></span><span class="line"><span class="cl">    <span class="c1">#error_page  404              /404.html;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1"># redirect server error pages to the static page /50x.html
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="kn">error_page</span>   <span class="mi">500</span> <span class="mi">502</span> <span class="mi">503</span> <span class="mi">504</span>  <span class="s">/50x.html</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="kn">location</span> <span class="p">=</span> <span class="s">/50x.html</span> <span class="p">{</span>
@@ -332,33 +316,33 @@ sudo systemctl start nginx #启动 Nginx
 </span></span><span class="line"><span class="cl">    <span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1"># proxy the PHP scripts to Apache listening on 127.0.0.1:80
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1">#location ~ \.php$ {
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#    proxy_pass   http://127.0.0.1;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#}
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1"># pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#    proxy_pass   http://127.0.0.1;
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#}
+</span></span></span><span class="line"><span class="cl">    <span class="c1"># pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1">#location ~ \.php$ {
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#    root           html;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#    fastcgi_pass   127.0.0.1:9000;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#    fastcgi_index  index.php;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#    include        fastcgi_params;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#}
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#    root           html;
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#    fastcgi_pass   127.0.0.1:9000;
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#    fastcgi_index  index.php;
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#    include        fastcgi_params;
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#}
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1"># deny access to .htaccess files, if Apache&#39;s document root
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1"># concurs with nginx&#39;s one
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">    <span class="c1"># concurs with nginx&#39;s one
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">    <span class="c1">#location ~ /\.ht {
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#    deny  all;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">#}
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#    deny  all;
+</span></span></span><span class="line"><span class="cl">    <span class="c1">#}
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><hr>
 <h3 id="快速配置">快速配置</h3>
 <p><strong>目标 访问 test: 8005 跳转到本地 index.html</strong></p>
@@ -451,13 +435,13 @@ sudo systemctl start nginx #启动 Nginx
 </span></span><span class="line"><span class="cl">  <span class="kn">proxy_pass</span> <span class="s">https://nurl.ink</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="c1"># 方案 A：写死上游域名
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="s">nurl.ink</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">  <span class="kn">proxy_set_header</span> <span class="s">Host</span> <span class="s">nurl.ink</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="c1"># 方案 B：用变量（
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="c1"># proxy_set_header Host $proxy_host;
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">  <span class="c1"># proxy_set_header Host $proxy_host;
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">  <span class="c1"># 保留原始信息
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Host</span> <span class="nv">$host</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">  <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Host</span> <span class="nv">$host</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-Proto</span> <span class="nv">$scheme</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="kn">proxy_set_header</span> <span class="s">X-Forwarded-For</span> <span class="nv">$proxy_add_x_forwarded_for</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
@@ -550,7 +534,120 @@ sudo systemctl start nginx #启动 Nginx
   </div>
   
   
+
+<aside class="toc-sidebar" data-toc-sidebar>
+  <h4 data-toc-toggle>Table of Contents</h4>
+  <nav><nav id="TableOfContents">
+  <ul>
+    <li><a href="#安装">安装</a>
+      <ul>
+        <li><a href="#导入源debianubuntu">导入源（Debian/Ubuntu）</a></li>
+        <li><a href="#安装-nginx-软件包">安装 Nginx 软件包</a></li>
+      </ul>
+    </li>
+    <li><a href="#启动与配置">启动与配置</a>
+      <ul>
+        <li><a href="#检查语法错误与查看配置所在位置">检查语法错误与查看配置所在位置</a></li>
+        <li><a href="#查看配置">查看配置</a></li>
+        <li><a href="#快速配置">快速配置</a></li>
+        <li><a href="#反代短链接不跳转上游依赖-host-头">反代短链接不跳转：上游依赖 Host 头</a></li>
+        <li><a href="#验证方法">验证方法</a></li>
+      </ul>
+    </li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></nav>
+</aside>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toc = document.querySelector('nav#TableOfContents');
+    const links = toc ? toc.querySelectorAll('a') : [];
+    const sections = new Array(links.length);
+    
+    if (!toc || links.length === 0) return;
+
+    
+    links.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      
+      const id = decodeURIComponent(href.substring(1)); 
+      const section = document.getElementById(id);
+      sections[index] = section;
+
+      
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+          history.pushState(null, null, href);
+        }
+      });
+    });
+
+    
+    const observerOptions = {
+      root: null,
+      
+      
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          
+          
+          links.forEach(link => {
+             link.classList.remove('active');
+             if(link.parentElement.classList.contains('active')){
+                link.parentElement.classList.remove('active');
+             }
+          });
+
+          
+          
+          const activeLink = toc.querySelector(`a[href="#${encodeURIComponent(id)}"]`) || 
+                             toc.querySelector(`a[href="#${id}"]`); 
+          
+          if (activeLink) {
+            activeLink.classList.add('active');
+            
+            activeLink.parentElement.classList.add('active');
+          }
+        }
+      });
+    }, observerOptions);
+
+    
+    sections.forEach(section => {
+      if (section) observer.observe(section);
+    });
+
+    
+    const toggleBtn = document.querySelector('[data-toc-toggle]');
+    const sidebar = document.querySelector('[data-toc-sidebar]');
+    
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', () => {
+        
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      
+      if (window.innerWidth <= 1350 && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+
+  
 </main>
+
 
     <footer id="footer">
   <div>

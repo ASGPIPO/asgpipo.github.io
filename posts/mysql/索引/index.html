@@ -90,7 +90,7 @@ Index 是一种数据结构,用于加速查找和快速定位数据,.
 
   
   
-    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/content.min.f51fb43fa8f51b0642996f60541954a19ce736770f5baa9e690f79c9d1fa6421.css" integrity="sha256-9R&#43;0P6j1GwZCmW9gVBlUoZznNncPW6qeaQ95ydH6ZCE=" crossorigin="anonymous">
   
 
   
@@ -109,7 +109,7 @@ Index 是一种数据结构,用于加速查找和快速定位数据,.
   
 
 
-  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/single.min.3a3345f1d6f04a7a511a9c33d043ebb4ca4d7e5c3ae16c2b41f44a71138579db.css" integrity="sha256-OjNF8dbwSnpRGpwz0EPrtMpNflw64WwrQfRKcROFeds=" crossorigin="anonymous">
 
 
   <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
@@ -165,6 +165,14 @@ Index 是一种数据结构,用于加速查找和快速定位数据,.
 </header>
 <hr class="head-rule"></hr>
     
+
+
+  
+    
+      
+    
+  
+
 <main id="main" class="post">
   
   <div class="post-heading">
@@ -217,37 +225,7 @@ Index 是一种数据结构,用于加速查找和快速定位数据,.
   
   
   
-  <details>
-    <summary>
-      <b>Table of Contents</b>
-    </summary>
-    <div class="toc numbered-subtitles"><nav id="TableOfContents">
-  <ul>
-    <li><a href="#索引简介">索引简介</a>
-      <ul>
-        <li><a href="#concept">Concept</a></li>
-        <li><a href="#contrast">Contrast</a></li>
-        <li><a href="#context">Context</a></li>
-      </ul>
-    </li>
-    <li><a href="#索引的不同分类">索引的不同分类</a>
-      <ul>
-        <li><a href="#索引的不同分类-1">索引的不同分类</a></li>
-        <li><a href="#contrast-1">Contrast</a></li>
-      </ul>
-    </li>
-    <li><a href="#索引的创建与使用">索引的创建与使用</a>
-      <ul>
-        <li><a href="#索引越多越好吗">索引越多越好吗</a></li>
-        <li><a href="#索引创建应遵循什么原则">索引创建应遵循什么原则</a></li>
-        <li><a href="#索引如何更新和维护">索引如何更新和维护?</a></li>
-        <li><a href="#索引什么时候会失效">索引什么时候会失效</a></li>
-      </ul>
-    </li>
-    <li><a href="#参考">参考</a></li>
-  </ul>
-</nav></div>
-  </details>
+    
   
   
   <article class="content numbered-subtitles">
@@ -371,14 +349,14 @@ Index 是一种数据结构,用于加速查找和快速定位数据,.
 <h3 id="索引创建应遵循什么原则">索引创建应遵循什么原则</h3>
 <h4 id="1-索引创建应该遵循最左前缀原则要把区分度大的字段排在前面这样区分度大的字段越有可能被更多的-sql-使用到">1. 索引创建应该遵循最左前缀原则,要把区分度大的字段排在前面，这样区分度大的字段越有可能被更多的 SQL 使用到</h4>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-sql" data-lang="sql"><span class="line"><span class="cl"><span class="n">id</span><span class="w">	</span><span class="n">name</span><span class="w">	</span><span class="n">sex</span><span class="w">	</span><span class="k">position</span><span class="w">	</span><span class="n">Department</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">1</span><span class="w">	</span><span class="err">张三</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">软件工程师</span><span class="w">	    </span><span class="err">技术部</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">2</span><span class="w">	</span><span class="err">李四</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">产品经理</span><span class="w">	      </span><span class="err">产品部</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">3</span><span class="w">	</span><span class="err">王五</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">销售专员</span><span class="w">	      </span><span class="err">销售部</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">4</span><span class="w">	</span><span class="err">赵六</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">人力资源专员</span><span class="w">	    </span><span class="err">人力资源部</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">5</span><span class="w">	</span><span class="err">钱七</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">财务分析师</span><span class="w">	    </span><span class="err">财务部</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">6</span><span class="w">	</span><span class="err">孙八</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">前端开发工程师</span><span class="w">	    </span><span class="err">技术部</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">7</span><span class="w">	</span><span class="err">周九</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">市场专员</span><span class="w">	      </span><span class="err">市场部</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="mi">8</span><span class="w">	</span><span class="err">吴十</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">测试工程师</span><span class="w">	    </span><span class="err">技术部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="mi">1</span><span class="w">	</span><span class="err">张三</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">软件工程师</span><span class="w">	    </span><span class="err">技术部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="mi">2</span><span class="w">	</span><span class="err">李四</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">产品经理</span><span class="w">	      </span><span class="err">产品部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="mi">3</span><span class="w">	</span><span class="err">王五</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">销售专员</span><span class="w">	      </span><span class="err">销售部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="mi">4</span><span class="w">	</span><span class="err">赵六</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">人力资源专员</span><span class="w">	    </span><span class="err">人力资源部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="mi">5</span><span class="w">	</span><span class="err">钱七</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">财务分析师</span><span class="w">	    </span><span class="err">财务部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="mi">6</span><span class="w">	</span><span class="err">孙八</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">前端开发工程师</span><span class="w">	    </span><span class="err">技术部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="mi">7</span><span class="w">	</span><span class="err">周九</span><span class="w">	</span><span class="err">男</span><span class="w">	</span><span class="err">市场专员</span><span class="w">	      </span><span class="err">市场部</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="mi">8</span><span class="w">	</span><span class="err">吴十</span><span class="w">	</span><span class="err">女</span><span class="w">	</span><span class="err">测试工程师</span><span class="w">	    </span><span class="err">技术部</span><span class="w">
 </span></span></span></code></pre></div><p>如果我们查找在技术部的测试工程师&quot;吴十&quot;  应该如何创建索引?</p>
 <p>依据最左前缀,我们要由上到下地不断起进行过滤,所以如此安排 (Department, position, name)</p>
 <p>注意, 应尽量<strong class=chinese>将范围查询和模糊查询靠右放置</strong>,B+树数据存储节点也是先按最左边第一个字段排序，在第一个字段的排序基础上，然后在对后续字段进行排序.</p>
@@ -544,7 +522,126 @@ Index 是一种数据结构,用于加速查找和快速定位数据,.
   </div>
   
   
+
+<aside class="toc-sidebar" data-toc-sidebar>
+  <h4 data-toc-toggle>Table of Contents</h4>
+  <nav><nav id="TableOfContents">
+  <ul>
+    <li><a href="#索引简介">索引简介</a>
+      <ul>
+        <li><a href="#concept">Concept</a></li>
+        <li><a href="#contrast">Contrast</a></li>
+        <li><a href="#context">Context</a></li>
+      </ul>
+    </li>
+    <li><a href="#索引的不同分类">索引的不同分类</a>
+      <ul>
+        <li><a href="#索引的不同分类-1">索引的不同分类</a></li>
+        <li><a href="#contrast-1">Contrast</a></li>
+      </ul>
+    </li>
+    <li><a href="#索引的创建与使用">索引的创建与使用</a>
+      <ul>
+        <li><a href="#索引越多越好吗">索引越多越好吗</a></li>
+        <li><a href="#索引创建应遵循什么原则">索引创建应遵循什么原则</a></li>
+        <li><a href="#索引如何更新和维护">索引如何更新和维护?</a></li>
+        <li><a href="#索引什么时候会失效">索引什么时候会失效</a></li>
+      </ul>
+    </li>
+    <li><a href="#参考">参考</a></li>
+  </ul>
+</nav></nav>
+</aside>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toc = document.querySelector('nav#TableOfContents');
+    const links = toc ? toc.querySelectorAll('a') : [];
+    const sections = new Array(links.length);
+    
+    if (!toc || links.length === 0) return;
+
+    
+    links.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      
+      const id = decodeURIComponent(href.substring(1)); 
+      const section = document.getElementById(id);
+      sections[index] = section;
+
+      
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+          history.pushState(null, null, href);
+        }
+      });
+    });
+
+    
+    const observerOptions = {
+      root: null,
+      
+      
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          
+          
+          links.forEach(link => {
+             link.classList.remove('active');
+             if(link.parentElement.classList.contains('active')){
+                link.parentElement.classList.remove('active');
+             }
+          });
+
+          
+          
+          const activeLink = toc.querySelector(`a[href="#${encodeURIComponent(id)}"]`) || 
+                             toc.querySelector(`a[href="#${id}"]`); 
+          
+          if (activeLink) {
+            activeLink.classList.add('active');
+            
+            activeLink.parentElement.classList.add('active');
+          }
+        }
+      });
+    }, observerOptions);
+
+    
+    sections.forEach(section => {
+      if (section) observer.observe(section);
+    });
+
+    
+    const toggleBtn = document.querySelector('[data-toc-toggle]');
+    const sidebar = document.querySelector('[data-toc-sidebar]');
+    
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', () => {
+        
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      
+      if (window.innerWidth <= 1350 && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+
+  
 </main>
+
 
     <footer id="footer">
   <div>

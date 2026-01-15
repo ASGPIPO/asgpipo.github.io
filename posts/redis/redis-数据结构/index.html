@@ -82,7 +82,7 @@
 
   
   
-    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/content.min.f51fb43fa8f51b0642996f60541954a19ce736770f5baa9e690f79c9d1fa6421.css" integrity="sha256-9R&#43;0P6j1GwZCmW9gVBlUoZznNncPW6qeaQ95ydH6ZCE=" crossorigin="anonymous">
   
 
   
@@ -100,7 +100,7 @@
   
 
 
-  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/single.min.3a3345f1d6f04a7a511a9c33d043ebb4ca4d7e5c3ae16c2b41f44a71138579db.css" integrity="sha256-OjNF8dbwSnpRGpwz0EPrtMpNflw64WwrQfRKcROFeds=" crossorigin="anonymous">
 
 
   <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
@@ -156,6 +156,14 @@
 </header>
 <hr class="head-rule"></hr>
     
+
+
+  
+    
+      
+    
+  
+
 <main id="main" class="post">
   
   <div class="post-heading">
@@ -206,45 +214,7 @@
   
   
   
-  <details>
-    <summary>
-      <b>Table of Contents</b>
-    </summary>
-    <div class="toc numbered-subtitles"><nav id="TableOfContents">
-  <ul>
-    <li><a href="#o1-获取长度"><code>O(1)</code> 获取长度</a></li>
-    <li><a href="#杜绝缓冲区溢出">杜绝缓冲区溢出</a></li>
-    <li><a href="#空间预分配--惰性空间">空间预分配 &amp; 惰性空间</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#特点">特点</a></li>
-    <li><a href="#结构">结构</a></li>
-  </ul>
-
-  <ul>
-    <li><a href="#底层结构">底层结构</a></li>
-    <li><a href="#扩容与缩容机制">扩容与缩容机制</a>
-      <ul>
-        <li><a href="#1-触发条件基于负载因子">1. 触发条件（基于负载因子）</a></li>
-        <li><a href="#2-扩容过程渐进式-rehash"><strong>2. 扩容过程（渐进式 rehash）</strong></a></li>
-      </ul>
-    </li>
-    <li><a href="#三关键特点与代价">三、关键特点与代价</a>
-      <ul>
-        <li><a href="#优点">优点</a></li>
-        <li><a href="#缺点">缺点</a></li>
-      </ul>
-    </li>
-  </ul>
-
-  <ul>
-    <li><a href="#底层结构-1">底层结构</a></li>
-    <li><a href="#创建过程">创建过程</a></li>
-    <li><a href="#redis为什么使用跳表而不是用b树">Redis为什么使用跳表而不是用B+树?</a></li>
-  </ul>
-</nav></div>
-  </details>
+    
   
   
   <article class="content numbered-subtitles">
@@ -304,9 +274,9 @@
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">sdshdr</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">len</span><span class="p">;</span> <span class="c1">// 已使用字节数（字符串长度）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">int</span> <span class="n">free</span><span class="p">;</span><span class="c1">// 未使用字节数
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">char</span> <span class="n">buf</span><span class="p">[];</span><span class="c1">// 实际字符存储区（以 \0 结尾，但内容可含 \0）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">free</span><span class="p">;</span><span class="c1">// 未使用字节数
+</span></span></span><span class="line"><span class="cl">	<span class="kt">char</span> <span class="n">buf</span><span class="p">[];</span><span class="c1">// 实际字符存储区（以 \0 结尾，但内容可含 \0）
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><hr>
 <h1 id="链表">链表</h1>
 <h2 id="特点">特点</h2>
@@ -336,8 +306,8 @@
 <p>Redis 字典由 <strong class=chinese>两个哈希表</strong>（<code>ht[0]</code> 和 <code>ht[1]</code>）组成：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">dict</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">dictht</span> <span class="n">ht</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>       <span class="c1">// ht[0]: 主表；ht[1]: rehash 时的新表
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">rehashidx</span><span class="p">;</span>      <span class="c1">// rehash 进度，-1 表示未进行
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">dict</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">rehashidx</span><span class="p">;</span>      <span class="c1">// rehash 进度，-1 表示未进行
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">dict</span><span class="p">;</span>
 </span></span></code></pre></div><ul>
 <li>每个哈希表（<code>dictht</code>）是一个 <strong>数组 + 单向链表</strong>：
 <ul>
@@ -426,24 +396,24 @@
 <p>节点:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl"><span class="c1">//Zset 对象的元素值
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">sds</span> <span class="n">ele</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="n">sds</span> <span class="n">ele</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//元素权重值,用于排序
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">double</span> <span class="n">score</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="kt">double</span> <span class="n">score</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//后向指针
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">backward</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">backward</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//节点的level数组，保存每层上的前向指针和跨度
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">struct</span> <span class="n">zskiplistLevel</span> <span class="p">{</span>
+</span></span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">zskiplistLevel</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">forward</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">		<span class="c1">//跨度
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">span</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">span</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="n">level</span><span class="p">[];</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">zskiplistNode</span><span class="p">;</span>
 </span></span></code></pre></div><p>顶层结构:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplist</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">header</span><span class="p">,</span> <span class="o">*</span><span class="n">tail</span><span class="p">;</span>  <span class="c1">// 头尾指针（O(1) 访问）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>                 <span class="c1">// 节点总数（O(1) 获取长度）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">level</span><span class="p">;</span>                            <span class="c1">// 当前跳表最大层数（不含头节点）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">zskiplist</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>                 <span class="c1">// 节点总数（O(1) 获取长度）
+</span></span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">level</span><span class="p">;</span>                            <span class="c1">// 当前跳表最大层数（不含头节点）
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">zskiplist</span><span class="p">;</span>
 </span></span></code></pre></div><ul>
 <li><code>header</code> 是一个 <strong class=chinese>特殊的头节点</strong>，不存实际数据（<code>ele = NULL</code>, <code>score = 0</code>），但有完整的 <code>level[]</code> 数组（如 32 层或 64 层）。</li>
 <li><code>tail</code> 指向最后一个<strong class=chinese>真实数据节点</strong>（用于 <code>ZREVRANGE</code> 等反向操作）。</li>
@@ -638,7 +608,134 @@
   </div>
   
   
+
+<aside class="toc-sidebar" data-toc-sidebar>
+  <h4 data-toc-toggle>Table of Contents</h4>
+  <nav><nav id="TableOfContents">
+  <ul>
+    <li><a href="#o1-获取长度"><code>O(1)</code> 获取长度</a></li>
+    <li><a href="#杜绝缓冲区溢出">杜绝缓冲区溢出</a></li>
+    <li><a href="#空间预分配--惰性空间">空间预分配 &amp; 惰性空间</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#特点">特点</a></li>
+    <li><a href="#结构">结构</a></li>
+  </ul>
+
+  <ul>
+    <li><a href="#底层结构">底层结构</a></li>
+    <li><a href="#扩容与缩容机制">扩容与缩容机制</a>
+      <ul>
+        <li><a href="#1-触发条件基于负载因子">1. 触发条件（基于负载因子）</a></li>
+        <li><a href="#2-扩容过程渐进式-rehash"><strong>2. 扩容过程（渐进式 rehash）</strong></a></li>
+      </ul>
+    </li>
+    <li><a href="#三关键特点与代价">三、关键特点与代价</a>
+      <ul>
+        <li><a href="#优点">优点</a></li>
+        <li><a href="#缺点">缺点</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#底层结构-1">底层结构</a></li>
+    <li><a href="#创建过程">创建过程</a></li>
+    <li><a href="#redis为什么使用跳表而不是用b树">Redis为什么使用跳表而不是用B+树?</a></li>
+  </ul>
+</nav></nav>
+</aside>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toc = document.querySelector('nav#TableOfContents');
+    const links = toc ? toc.querySelectorAll('a') : [];
+    const sections = new Array(links.length);
+    
+    if (!toc || links.length === 0) return;
+
+    
+    links.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      
+      const id = decodeURIComponent(href.substring(1)); 
+      const section = document.getElementById(id);
+      sections[index] = section;
+
+      
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+          history.pushState(null, null, href);
+        }
+      });
+    });
+
+    
+    const observerOptions = {
+      root: null,
+      
+      
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          
+          
+          links.forEach(link => {
+             link.classList.remove('active');
+             if(link.parentElement.classList.contains('active')){
+                link.parentElement.classList.remove('active');
+             }
+          });
+
+          
+          
+          const activeLink = toc.querySelector(`a[href="#${encodeURIComponent(id)}"]`) || 
+                             toc.querySelector(`a[href="#${id}"]`); 
+          
+          if (activeLink) {
+            activeLink.classList.add('active');
+            
+            activeLink.parentElement.classList.add('active');
+          }
+        }
+      });
+    }, observerOptions);
+
+    
+    sections.forEach(section => {
+      if (section) observer.observe(section);
+    });
+
+    
+    const toggleBtn = document.querySelector('[data-toc-toggle]');
+    const sidebar = document.querySelector('[data-toc-sidebar]');
+    
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', () => {
+        
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      
+      if (window.innerWidth <= 1350 && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+
+  
 </main>
+
 
     <footer id="footer">
   <div>

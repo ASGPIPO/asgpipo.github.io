@@ -81,7 +81,7 @@
 
   
   
-    <link rel="stylesheet" href="/css/content.min.0eb2d1d2ea35e8a94b4208bf1bd8b30a84fc7bc8329a7b795c3db4ed9088ecfb.css" integrity="sha256-DrLR0uo16KlLQgi/G9izCoT8e8gymnt5XD207ZCI7Ps=" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/content.min.f51fb43fa8f51b0642996f60541954a19ce736770f5baa9e690f79c9d1fa6421.css" integrity="sha256-9R&#43;0P6j1GwZCmW9gVBlUoZznNncPW6qeaQ95ydH6ZCE=" crossorigin="anonymous">
   
 
   
@@ -99,7 +99,7 @@
   
 
 
-  <link rel="stylesheet" href="/css/single.min.be779f459ad7e3aaf8afd0f80c6a61ca6c50993f5f18512532100ac6d93f0fa9.css" integrity="sha256-vnefRZrX46r4r9D4DGphymxQmT9fGFElMhAKxtk/D6k=" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/single.min.3a3345f1d6f04a7a511a9c33d043ebb4ca4d7e5c3ae16c2b41f44a71138579db.css" integrity="sha256-OjNF8dbwSnpRGpwz0EPrtMpNflw64WwrQfRKcROFeds=" crossorigin="anonymous">
 
 
   <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
@@ -155,6 +155,14 @@
 </header>
 <hr class="head-rule"></hr>
     
+
+
+  
+    
+      
+    
+  
+
 <main id="main" class="post">
   
   <div class="post-heading">
@@ -203,22 +211,7 @@
   
   
   
-  <details>
-    <summary>
-      <b>Table of Contents</b>
-    </summary>
-    <div class="toc numbered-subtitles"><nav id="TableOfContents">
-  <ul>
-    <li><a href="#哈希表的实现">哈希表的实现</a>
-      <ul>
-        <li><a href="#stl中哈希表的使用">STL中哈希表的使用</a></li>
-        <li><a href="#基于数组的简单实现">基于数组的简单实现</a></li>
-      </ul>
-    </li>
-    <li><a href="#哈希冲突">哈希冲突</a></li>
-  </ul>
-</nav></div>
-  </details>
+    
   
   
   <article class="content numbered-subtitles">
@@ -256,10 +249,10 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
 </span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unordered_map&gt;</span><span class="cp">
 </span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
-</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl"><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//初始化
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">hashmap</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">hashmap</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">hashtable</span> <span class="o">=</span>
 </span></span><span class="line"><span class="cl">	<span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="p">{</span><span class="s">&#34;num1&#34;</span><span class="p">,</span> <span class="mi">1</span><span class="p">},</span>
@@ -269,25 +262,25 @@
 </span></span><span class="line"><span class="cl">	<span class="p">};</span>
 </span></span><span class="line"><span class="cl">		
 </span></span><span class="line"><span class="cl">	<span class="c1">//访问
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">hashtable</span><span class="p">[</span><span class="s">&#34;num3&#34;</span><span class="p">];</span>
+</span></span></span><span class="line"><span class="cl">	<span class="n">hashtable</span><span class="p">[</span><span class="s">&#34;num3&#34;</span><span class="p">];</span>
 </span></span><span class="line"><span class="cl">	<span class="n">hashtable</span><span class="p">[</span><span class="s">&#34;num3&#34;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="n">hashtable</span><span class="p">.</span><span class="n">at</span><span class="p">(</span><span class="s">&#34;num3&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="c1">//插入
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">hashmap</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span><span class="s">&#34;key&#34;</span><span class="p">,</span> <span class="mi">123</span><span class="p">});</span>
+</span></span></span><span class="line"><span class="cl">	<span class="n">hashmap</span><span class="p">.</span><span class="n">insert</span><span class="p">({</span><span class="s">&#34;key&#34;</span><span class="p">,</span> <span class="mi">123</span><span class="p">});</span>
 </span></span><span class="line"><span class="cl">	<span class="n">hashmap</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="s">&#34;key2&#34;</span><span class="p">,</span> <span class="mi">1234</span><span class="p">);</span><span class="c1">//无条件更新
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">hashmap</span><span class="p">.</span><span class="n">try_emplace</span><span class="p">(</span><span class="s">&#34;key2&#34;</span><span class="p">,</span> <span class="mi">1234</span><span class="p">);</span><span class="c1">//如果键存在则不会更新
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">	<span class="n">hashmap</span><span class="p">.</span><span class="n">try_emplace</span><span class="p">(</span><span class="s">&#34;key2&#34;</span><span class="p">,</span> <span class="mi">1234</span><span class="p">);</span><span class="c1">//如果键存在则不会更新
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="c1">//删除
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">hashmap</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="s">&#34;key2&#34;</span><span class="p">);</span>
+</span></span></span><span class="line"><span class="cl">	<span class="n">hashmap</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="s">&#34;key2&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">	<span class="n">hashmap</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">hashmap</span><span class="p">.</span><span class="n">begin</span><span class="p">());</span>
 </span></span><span class="line"><span class="cl">	<span class="n">hashmap</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span> <span class="c1">//清空容器
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="c1">//查找
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">hashtable</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#34;num1&#34;</span><span class="p">);</span>
+</span></span></span><span class="line"><span class="cl">	<span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">hashtable</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&#34;num1&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">!=</span> <span class="n">hashtable</span><span class="p">.</span><span class="n">end</span><span class="p">()){</span> <span class="c1">//存在则返回所在位置迭代器，否则返回尾后迭代器
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">first</span><span class="o">&lt;&lt;</span><span class="s">&#34; &#34;</span><span class="o">&lt;&lt;</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">		<span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">first</span><span class="o">&lt;&lt;</span><span class="s">&#34; &#34;</span><span class="o">&lt;&lt;</span><span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">hashtable</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="s">&#34;num2&#34;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">){</span>
@@ -297,7 +290,7 @@
 </span></span><span class="line"><span class="cl">	<span class="kt">bool</span> <span class="n">exists</span> <span class="o">=</span> <span class="n">hashmap</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="s">&#34;num3&#34;</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="c1">//其他操作
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">auto</span> <span class="n">isempty</span> <span class="o">=</span> <span class="n">hashmap</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>
+</span></span></span><span class="line"><span class="cl">	<span class="k">auto</span> <span class="n">isempty</span> <span class="o">=</span> <span class="n">hashmap</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">	<span class="n">hashmap</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
@@ -331,7 +324,7 @@
 </span></span><span class="line"><span class="cl">	<span class="k">public</span><span class="o">:</span>
 </span></span><span class="line"><span class="cl">		<span class="n">hashtable</span><span class="p">(){</span>
 </span></span><span class="line"><span class="cl">			<span class="n">buckets</span> <span class="o">=</span> <span class="n">vector</span><span class="o">&lt;</span><span class="n">Pair</span><span class="o">*&gt;</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span><span class="c1">//申请大小为100的空间
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="p">}</span>
+</span></span></span><span class="line"><span class="cl">		<span class="p">}</span>
 </span></span><span class="line"><span class="cl">		<span class="o">~</span><span class="n">hashtable</span><span class="p">(){</span>
 </span></span><span class="line"><span class="cl">			<span class="k">for</span><span class="p">(</span><span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="nl">bucket</span><span class="p">:</span><span class="n">buckets</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">				<span class="k">delete</span> <span class="n">bucket</span><span class="p">;</span>
@@ -342,8 +335,8 @@
 </span></span><span class="line"><span class="cl">    
 </span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="nf">hashFunction</span><span class="p">(</span><span class="kt">int</span> <span class="n">key</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">            <span class="c1">//哈希函数
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">key</span> <span class="o">%</span> <span class="n">buckets</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="c1">//对key取模后作为下标索引便于访问键值对
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="k">return</span> <span class="n">index</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">			<span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">key</span> <span class="o">%</span> <span class="n">buckets</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="c1">//对key取模后作为下标索引便于访问键值对
+</span></span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="n">index</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">		<span class="p">}</span>
 </span></span><span class="line"><span class="cl">		<span class="kt">void</span> <span class="nf">insert</span><span class="p">(</span><span class="kt">int</span> <span class="n">key</span><span class="p">,</span> <span class="n">string</span> <span class="n">val</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">			<span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">hashFunction</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
@@ -354,7 +347,7 @@
 </span></span><span class="line"><span class="cl">		<span class="n">string</span> <span class="nf">search</span><span class="p">(</span><span class="kt">int</span> <span class="n">key</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">			<span class="kt">int</span> <span class="n">index</span> <span class="o">=</span> <span class="n">hashFunction</span><span class="p">(</span><span class="n">key</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">            <span class="c1">//如果不为空，且key值相等返回value
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>			<span class="k">if</span> <span class="p">(</span><span class="n">buckets</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">!=</span> <span class="k">nullptr</span> <span class="o">&amp;&amp;</span> <span class="n">buckets</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">key</span> <span class="o">==</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
+</span></span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">buckets</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">!=</span> <span class="k">nullptr</span> <span class="o">&amp;&amp;</span> <span class="n">buckets</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">key</span> <span class="o">==</span> <span class="n">key</span><span class="p">)</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">				<span class="k">return</span> <span class="n">buckets</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">-&gt;</span><span class="n">value</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">			<span class="p">}</span>
 </span></span><span class="line"><span class="cl">			<span class="k">return</span> <span class="s">&#34;&#34;</span><span class="p">;</span>
@@ -451,7 +444,111 @@ $$
   </div>
   
   
+
+<aside class="toc-sidebar" data-toc-sidebar>
+  <h4 data-toc-toggle>Table of Contents</h4>
+  <nav><nav id="TableOfContents">
+  <ul>
+    <li><a href="#哈希表的实现">哈希表的实现</a>
+      <ul>
+        <li><a href="#stl中哈希表的使用">STL中哈希表的使用</a></li>
+        <li><a href="#基于数组的简单实现">基于数组的简单实现</a></li>
+      </ul>
+    </li>
+    <li><a href="#哈希冲突">哈希冲突</a></li>
+  </ul>
+</nav></nav>
+</aside>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toc = document.querySelector('nav#TableOfContents');
+    const links = toc ? toc.querySelectorAll('a') : [];
+    const sections = new Array(links.length);
+    
+    if (!toc || links.length === 0) return;
+
+    
+    links.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      
+      const id = decodeURIComponent(href.substring(1)); 
+      const section = document.getElementById(id);
+      sections[index] = section;
+
+      
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+          history.pushState(null, null, href);
+        }
+      });
+    });
+
+    
+    const observerOptions = {
+      root: null,
+      
+      
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          
+          
+          links.forEach(link => {
+             link.classList.remove('active');
+             if(link.parentElement.classList.contains('active')){
+                link.parentElement.classList.remove('active');
+             }
+          });
+
+          
+          
+          const activeLink = toc.querySelector(`a[href="#${encodeURIComponent(id)}"]`) || 
+                             toc.querySelector(`a[href="#${id}"]`); 
+          
+          if (activeLink) {
+            activeLink.classList.add('active');
+            
+            activeLink.parentElement.classList.add('active');
+          }
+        }
+      });
+    }, observerOptions);
+
+    
+    sections.forEach(section => {
+      if (section) observer.observe(section);
+    });
+
+    
+    const toggleBtn = document.querySelector('[data-toc-toggle]');
+    const sidebar = document.querySelector('[data-toc-sidebar]');
+    
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', () => {
+        
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      
+      if (window.innerWidth <= 1350 && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+
+  
 </main>
+
 
     <footer id="footer">
   <div>
