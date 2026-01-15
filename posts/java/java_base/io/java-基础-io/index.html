@@ -10,7 +10,8 @@
 
   
   
-  <meta name="description" content="字节流和字符流
+  <meta name="description" content="modified-time: 2026-01-06 21:07:23
+字节流和字符流
 
 字符流文件: .txt、.json、.csv、.xml 等
 二进制文件（字节流）：图片、视频、.pdf、.docx、.jar 等
@@ -56,7 +57,8 @@
   <meta property="og:url" content="https://asgpipo.github.io/posts/java/java_base/io/java-%E5%9F%BA%E7%A1%80-io/">
   <meta property="og:site_name" content="pipo&#39;s site">
   <meta property="og:title" content="Java基础IO">
-  <meta property="og:description" content="字节流和字符流 字符流文件: .txt、.json、.csv、.xml 等 二进制文件（字节流）：图片、视频、.pdf、.docx、.jar 等 本质上都是字节，只是字符流通过字符集编码，二进制文件不能直接当成文本去解码">
+  <meta property="og:description" content="modified-time: 2026-01-06 21:07:23
+字节流和字符流 字符流文件: .txt、.json、.csv、.xml 等 二进制文件（字节流）：图片、视频、.pdf、.docx、.jar 等 本质上都是字节，只是字符流通过字符集编码，二进制文件不能直接当成文本去解码">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
@@ -73,10 +75,11 @@
   
   
   <meta itemprop="name" content="Java基础IO">
-  <meta itemprop="description" content="字节流和字符流 字符流文件: .txt、.json、.csv、.xml 等 二进制文件（字节流）：图片、视频、.pdf、.docx、.jar 等 本质上都是字节，只是字符流通过字符集编码，二进制文件不能直接当成文本去解码">
+  <meta itemprop="description" content="modified-time: 2026-01-06 21:07:23
+字节流和字符流 字符流文件: .txt、.json、.csv、.xml 等 二进制文件（字节流）：图片、视频、.pdf、.docx、.jar 等 本质上都是字节，只是字符流通过字符集编码，二进制文件不能直接当成文本去解码">
   <meta itemprop="datePublished" content="2025-12-27T21:47:35+08:00">
   <meta itemprop="dateModified" content="2025-12-27T21:47:35+08:00">
-  <meta itemprop="wordCount" content="2014">
+  <meta itemprop="wordCount" content="2017">
   <meta itemprop="keywords" content="字节流,字符流">
 
   
@@ -99,7 +102,8 @@
   
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Java基础IO">
-  <meta name="twitter:description" content="字节流和字符流 字符流文件: .txt、.json、.csv、.xml 等 二进制文件（字节流）：图片、视频、.pdf、.docx、.jar 等 本质上都是字节，只是字符流通过字符集编码，二进制文件不能直接当成文本去解码">
+  <meta name="twitter:description" content="modified-time: 2026-01-06 21:07:23
+字节流和字符流 字符流文件: .txt、.json、.csv、.xml 等 二进制文件（字节流）：图片、视频、.pdf、.docx、.jar 等 本质上都是字节，只是字符流通过字符集编码，二进制文件不能直接当成文本去解码">
 
 
   
@@ -178,7 +182,7 @@
           <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          2014 words
+          2017 words
         </span>
       
       
@@ -231,7 +235,8 @@
   
   <article class="content numbered-subtitles">
     
-    <h2 id="字节流和字符流">字节流和字符流</h2>
+    <p>modified-time: 2026-01-06 21:07:23</p>
+<h2 id="字节流和字符流">字节流和字符流</h2>
 <ul>
 <li>字符流文件: .txt、.json、.csv、.xml 等</li>
 <li>二进制文件（字节流）：图片、视频、.pdf、.docx、.jar 等</li>
@@ -253,8 +258,8 @@
 <li>使用 <code>InputStreamReader</code> 和 <code>OutputStreamWriter</code> 将读取到的字节流转换为正确编码的 字符流 需要指定明确的编码 可以直接字符串也可以使用 <code>StandardCharsets.xxx</code></li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="k">new</span><span class="w"> </span><span class="n">InputStreamReader</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileInputStream</span><span class="p">(</span><span class="n">inputFile</span><span class="p">),</span><span class="w"> </span><span class="n">StandardCharsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="w"> </span><span class="p">);</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="err">​</span><span class="w">  
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">new</span><span class="w"> </span><span class="n">InputStreamReader</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileInputStream</span><span class="p">(</span><span class="n">inputFile</span><span class="p">),</span><span class="w"> </span><span class="s">&#34;UTF-8&#34;</span><span class="p">);</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="err">​</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="k">new</span><span class="w"> </span><span class="n">InputStreamReader</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileInputStream</span><span class="p">(</span><span class="n">inputFile</span><span class="p">),</span><span class="w"> </span><span class="s">&#34;UTF-8&#34;</span><span class="p">);</span><span class="w">  
 </span></span></span></code></pre></div></li>
 </ol>
 <blockquote>
@@ -267,7 +272,7 @@ new FileReader(filePath) // 内部实际是 new InputStreamReader(new FileInputS
 <li>节点流 <code>FileInputStream</code> 和 <code>FileOutputSteam</code> 直接读取</li>
 </ol>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//  示例</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">BufferedReader</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BufferedReader</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">BufferedReader</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BufferedReader</span><span class="p">(</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="k">new</span><span class="w"> </span><span class="n">InputStreamReader</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileInputStream</span><span class="p">(</span><span class="n">inputFile</span><span class="p">),</span><span class="w"> </span><span class="n">StandardCharsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">));</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">BufferedWriter</span><span class="w"> </span><span class="n">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BufferedWriter</span><span class="p">(</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="k">new</span><span class="w"> </span><span class="n">OutputStreamWriter</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileOutputStream</span><span class="p">(</span><span class="n">outputFile</span><span class="p">),</span><span class="n">StandardCharsets</span><span class="p">.</span><span class="na">UTF_8</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -294,7 +299,7 @@ new FileReader(filePath) // 内部实际是 new InputStreamReader(new FileInputS
 </li>
 </ol>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//  示例</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">BufferedInputStream</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BufferedInputStream</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileInputStream</span><span class="p">(</span><span class="n">inputPath</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">BufferedInputStream</span><span class="w"> </span><span class="n">reader</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BufferedInputStream</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileInputStream</span><span class="p">(</span><span class="n">inputPath</span><span class="p">));</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">BufferedOutputStream</span><span class="w"> </span><span class="n">writer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">BufferedOutputStream</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">FileOutputStream</span><span class="p">(</span><span class="n">outputPath</span><span class="p">)))</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// do sth...</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="n">IOException</span><span class="w"> </span><span class="n">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -313,16 +318,16 @@ new FileReader(filePath) // 内部实际是 new InputStreamReader(new FileInputS
 <li>
 <p>字节流：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kt">byte</span><span class="o">[]</span><span class="w"> </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">byte</span><span class="o">[</span><span class="n">81920</span><span class="o">]</span><span class="p">;</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="n">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="n">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> 
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">writer</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">0</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">);</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div></li>
 <li>
 <p>字符流</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kt">char</span><span class="o">[]</span><span class="w"> </span><span class="n">buffer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="kt">char</span><span class="o">[</span><span class="n">8192</span><span class="o">]</span><span class="p">;</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="n">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//如果是 readLine 的话用 != null</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">len</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">reader</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="o">-</span><span class="n">1</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="c1">//如果是 readLine 的话用 != null</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">writer</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">0</span><span class="p">,</span><span class="w"> </span><span class="n">len</span><span class="p">);</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div></li>
 </ul>
 <ol>
@@ -369,18 +374,18 @@ new FileReader(filePath) // 内部实际是 new InputStreamReader(new FileInputS
 </ul>
 <h4 id="如何使用"><strong class=chinese>如何使用</strong></h4>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 创建</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">RandomAccessFile</span><span class="w"> </span><span class="n">raf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RandomAccessFile</span><span class="p">(</span><span class="n">inputPath</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span><span class="w"> 
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//基础读写</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">RandomAccessFile</span><span class="w"> </span><span class="n">raf</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RandomAccessFile</span><span class="p">(</span><span class="n">inputPath</span><span class="p">,</span><span class="w"> </span><span class="n">mode</span><span class="p">);</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="c1">//基础读写</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">raf</span><span class="p">.</span><span class="na">read</span><span class="p">(</span><span class="n">buffer</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">raf</span><span class="p">.</span><span class="na">write</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span><span class="w"> </span><span class="n">start</span><span class="p">,</span><span class="w"> </span><span class="n">end</span><span class="p">);</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//获取文件长度与申请空间</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">length</span><span class="p">();</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">setLength</span><span class="p">();</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// 预分配是防止文件碎片化和频繁扩容的关键</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">//获取文件长度与申请空间</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">raf</span><span class="p">.</span><span class="na">length</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">raf</span><span class="p">.</span><span class="na">setLength</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 预分配是防止文件碎片化和频繁扩容的关键</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//刷盘</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">raf</span><span class="p">.</span><span class="na">getFD</span><span class="p">.</span><span class="na">sync</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">//刷盘</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">raf</span><span class="p">.</span><span class="na">getFD</span><span class="p">.</span><span class="na">sync</span><span class="p">();</span><span class="w">
 </span></span></span></code></pre></div><p><strong>❓ 提问</strong>：</p>
 <ol>
 <li>
@@ -492,8 +497,8 @@ new FileReader(filePath) // 内部实际是 new InputStreamReader(new FileInputS
 </span></span></span><span class="line"><span class="cl"><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">singleCopy</span><span class="p">(</span><span class="n">Task</span><span class="w"> </span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">singleCopy</span><span class="p">(</span><span class="n">Task</span><span class="w"> </span><span class="n">task</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">try</span><span class="w"> </span><span class="p">(</span><span class="n">RandomAccessFile</span><span class="w"> </span><span class="n">read</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RandomAccessFile</span><span class="p">(</span><span class="n">task</span><span class="p">.</span><span class="na">inputPath</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;r&#34;</span><span class="p">);</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">RandomAccessFile</span><span class="w"> </span><span class="n">target</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">RandomAccessFile</span><span class="p">(</span><span class="n">task</span><span class="p">.</span><span class="na">outputPath</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;rw&#34;</span><span class="p">))</span><span class="w"> </span><span class="p">{</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">//设置读取和写入的偏移量，也就是开始坐标</span><span class="w">

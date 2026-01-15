@@ -279,7 +279,7 @@
 </span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="n">val</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">		<span class="n">Node</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">		<span class="n">Node</span><span class="p">(</span><span class="kt">int</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span> <span class="n">val</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">next</span><span class="p">(</span><span class="k">nullptr</span><span class="p">)</span> <span class="p">{}</span> <span class="c1">//构造函数 赋值
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span></span><span class="line"><span class="cl"><span class="p">};</span>
 </span></span></code></pre></div><h3 id="链表的基础操作">链表的基础操作</h3>
 <h4 id="1-链表初始化">1. 链表初始化</h4>
 <p>链表初始化分为两步，先将节点赋值，再构建节点之间的关系，当链表正确初始化之后便可以从头节点开始遍历所有元素了。</p>
@@ -288,7 +288,7 @@
 </span></span><span class="line"><span class="cl"><span class="n">Node</span><span class="o">*</span> <span class="n">node3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Node</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="n">Node</span><span class="o">*</span> <span class="n">node4</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Node</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl"><span class="c1">//创建节点并赋值
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">node1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node2</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl"><span class="n">node1</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node2</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="n">node2</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node3</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="n">node3</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node4</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="c1">//连接节点
@@ -296,10 +296,10 @@
 <p>链表的插入本质上是在内存中开辟一个单位的<code>Node</code>空间，赋值后将插入位置的前一个节点<code>Node(n)</code>的next指针指向这块内存，将该节点next指针指向原链表之后的节点<code>Node(n+1)</code>,相比数组更快，因此时间复杂度仅为$O(1)$.</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">Node</span><span class="o">*</span> <span class="nf">insert</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">,</span> <span class="n">Node</span><span class="o">*</span> <span class="n">head</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">     <span class="c1">//直接在尾节点处插入
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">if</span><span class="p">(</span><span class="n">head</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="n">node</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">head</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="k">return</span> <span class="n">node</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="n">Node</span><span class="o">*</span> <span class="n">curr</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="k">while</span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">&amp;&amp;</span> <span class="n">curr</span><span class="p">){</span>   <span class="c1">//在尾节点插入复杂度为O(n)
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="n">curr</span> <span class="o">=</span> <span class="n">curr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">		<span class="n">curr</span> <span class="o">=</span> <span class="n">curr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">		<span class="p">}</span>
 </span></span><span class="line"><span class="cl">	<span class="n">curr</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">head</span><span class="p">;</span>
@@ -307,7 +307,7 @@
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="n">Node</span><span class="o">*</span> <span class="nf">insert2</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">node</span><span class="p">,</span> <span class="n">Node</span><span class="o">*</span> <span class="n">p</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//在p节点之后插入
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">Node</span><span class="o">*</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">    <span class="n">Node</span><span class="o">*</span> <span class="n">tmp</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="n">p</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">node</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="n">node</span><span class="o">-&gt;</span><span class="n">next</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">node</span><span class="p">;</span>
@@ -316,7 +316,7 @@
 <p>删除与插入的逻辑基本相同，找到待删除节点，与其前驱，将前驱的next节点指向待删除结点的next节点，然后删去该节点。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">deletenode</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">n</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//删去n之后的首个节点
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">Node</span><span class="o">*</span> <span class="n">tmp</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="n">Node</span><span class="o">*</span> <span class="n">tmp</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">n</span> <span class="o">==</span> <span class="k">nullptr</span> <span class="o">||</span> <span class="n">n</span> <span class="o">-&gt;</span><span class="n">next</span> <span class="o">==</span> <span class="k">nullptr</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="n">tmp</span> <span class="o">=</span> <span class="n">n</span><span class="o">-&gt;</span><span class="n">next</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="k">delete</span><span class="p">(</span><span class="n">n</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">);</span>
@@ -334,7 +334,7 @@
 </span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span><span class="line"><span class="cl"><span class="n">Node</span><span class="o">*</span> <span class="nf">find</span><span class="p">(</span><span class="n">Node</span><span class="o">*</span> <span class="n">head</span><span class="p">,</span> <span class="kt">int</span> <span class="n">val</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">    <span class="c1">//查找第一个值为val的节点
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">Node</span><span class="o">*</span> <span class="n">curr</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="n">Node</span><span class="o">*</span> <span class="n">curr</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">    <span class="k">while</span><span class="p">(</span><span class="n">curr</span> <span class="o">!=</span> <span class="k">nullptr</span><span class="p">){</span>
 </span></span><span class="line"><span class="cl">		<span class="k">if</span><span class="p">(</span><span class="n">curr</span><span class="o">-&gt;</span><span class="n">val</span> <span class="o">==</span> <span class="n">val</span><span class="p">)</span> <span class="k">return</span> <span class="n">curr</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">        <span class="n">curr</span> <span class="o">=</span> <span class="n">curr</span><span class="o">-&gt;</span><span class="n">next</span><span class="p">;</span>
@@ -389,11 +389,11 @@
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">ListNode</span><span class="p">{</span>
 </span></span><span class="line"><span class="cl"><span class="k">public</span><span class="o">:</span>
 </span></span><span class="line"><span class="cl"><span class="c1">//双向链表
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="kt">int</span> <span class="n">val</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">  <span class="kt">int</span> <span class="n">val</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">Node</span><span class="o">*</span> <span class="n">next</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">Node</span><span class="o">*</span> <span class="n">prev</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">  <span class="n">Node</span><span class="p">(</span><span class="kt">int</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span> <span class="n">val</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">next</span><span class="p">(</span><span class="k">nullptr</span><span class="p">),</span> <span class="n">prev</span><span class="p">(</span><span class="k">nullptr</span><span class="p">)</span> <span class="p">{}</span> <span class="c1">//构造函数 赋值
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">};</span>
+</span></span></span><span class="line"><span class="cl"><span class="p">};</span>
 </span></span></code></pre></div></li>
 <li>
 <p><strong class=chinese>环形链表</strong> : 即将单向链表的尾节点next指针指向头节点而不再指向`空`，在环型链表中任意节点都可以视作头节点。</p>

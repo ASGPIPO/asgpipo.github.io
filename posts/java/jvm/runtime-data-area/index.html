@@ -55,7 +55,7 @@
   <meta property="og:type" content="article">
     <meta property="article:section" content="posts">
     <meta property="article:published_time" content="2025-09-25T00:00:00+00:00">
-    <meta property="article:modified_time" content="2025-09-25T00:00:00+00:00">
+    <meta property="article:modified_time" content="2026-01-14T21:52:12+08:00">
     <meta property="article:tag" content="GC">
     <meta property="article:tag" content="JAVA">
     <meta property="article:tag" content="JVM">
@@ -73,7 +73,7 @@
   <meta itemprop="name" content="RuntimeDataArea">
   <meta itemprop="description" content="Runtime Data Area 是 JVM 在运行时操作系统分配的内存区域，用于存储类信息、对象实例、方法参数和局部变量等运行时数据">
   <meta itemprop="datePublished" content="2025-09-25T00:00:00+00:00">
-  <meta itemprop="dateModified" content="2025-09-25T00:00:00+00:00">
+  <meta itemprop="dateModified" content="2026-01-14T21:52:12+08:00">
   <meta itemprop="wordCount" content="1409">
   <meta itemprop="keywords" content="GC,JAVA,JVM,Heap,Stack,Runtime Data Area">
 
@@ -296,17 +296,17 @@
 <li>String 存放在 StringTable中,是不可变对象,能够被多个对象引用.</li>
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">String</span><span class="w"> </span><span class="n">s1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;a&#34;</span><span class="p">;</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">String</span><span class="w"> </span><span class="n">s2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;b&#34;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">String</span><span class="w"> </span><span class="n">s2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;b&#34;</span><span class="p">;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">String</span><span class="w"> </span><span class="n">s3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s2</span><span class="p">;</span><span class="w"> 
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//StirngBuilder().append(s1).append.(s2).toString(); new String(&#34;ab&#34;);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">String</span><span class="w"> </span><span class="n">s3</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">s1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">s2</span><span class="p">;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="c1">//StirngBuilder().append(s1).append.(s2).toString(); new String(&#34;ab&#34;);</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">String</span><span class="w"> </span><span class="n">s4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;ab&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">String</span><span class="w"> </span><span class="n">s4</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;ab&#34;</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">// s3 != s4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// s3 != s4</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="n">String</span><span class="w"> </span><span class="n">s5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;a&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&#34;b&#34;</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="c1">//s4 == s5</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">String</span><span class="w"> </span><span class="n">s5</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;a&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&#34;b&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">//s4 == s5</span><span class="w">
 </span></span></span></code></pre></div><blockquote>
 <p>因为s3 相当于new了一个新对象存储,所以存储在堆中.</p>
 <p>而s4则是存储在 StringPool 当中.</p>
@@ -334,7 +334,7 @@
 </span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">str</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">st2</span><span class="p">);</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">str</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">str3</span><span class="p">);</span><span class="w">
 </span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
-</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
 </span></span></span></code></pre></div><h2 id="native-method-stack">Native Method Stack</h2>
 <h2 id="pc-register">PC Register</h2>
 <h5 id="escape">Escape</h5>

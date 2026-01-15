@@ -304,9 +304,9 @@
 </ul>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">struct</span> <span class="n">sdshdr</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">len</span><span class="p">;</span> <span class="c1">// 已使用字节数（字符串长度）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">int</span> <span class="n">free</span><span class="p">;</span><span class="c1">// 未使用字节数
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">char</span> <span class="n">buf</span><span class="p">[];</span><span class="c1">// 实际字符存储区（以 \0 结尾，但内容可含 \0）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">free</span><span class="p">;</span><span class="c1">// 未使用字节数
+</span></span></span><span class="line"><span class="cl">	<span class="kt">char</span> <span class="n">buf</span><span class="p">[];</span><span class="c1">// 实际字符存储区（以 \0 结尾，但内容可含 \0）
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span>
 </span></span></code></pre></div><hr>
 <h1 id="链表">链表</h1>
 <h2 id="特点">特点</h2>
@@ -336,8 +336,8 @@
 <p>Redis 字典由 <strong class=chinese>两个哈希表</strong>（<code>ht[0]</code> 和 <code>ht[1]</code>）组成：</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">dict</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="n">dictht</span> <span class="n">ht</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>       <span class="c1">// ht[0]: 主表；ht[1]: rehash 时的新表
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">rehashidx</span><span class="p">;</span>      <span class="c1">// rehash 进度，-1 表示未进行
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">dict</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">rehashidx</span><span class="p">;</span>      <span class="c1">// rehash 进度，-1 表示未进行
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">dict</span><span class="p">;</span>
 </span></span></code></pre></div><ul>
 <li>每个哈希表（<code>dictht</code>）是一个 <strong>数组 + 单向链表</strong>：
 <ul>
@@ -426,24 +426,24 @@
 <p>节点:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl"><span class="c1">//Zset 对象的元素值
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="n">sds</span> <span class="n">ele</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="n">sds</span> <span class="n">ele</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//元素权重值,用于排序
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="kt">double</span> <span class="n">score</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="kt">double</span> <span class="n">score</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//后向指针
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">backward</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">backward</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="c1">//节点的level数组，保存每层上的前向指针和跨度
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>	<span class="k">struct</span> <span class="n">zskiplistLevel</span> <span class="p">{</span>
+</span></span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="n">zskiplistLevel</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">forward</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">		<span class="c1">//跨度
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">span</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">span</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">	<span class="p">}</span> <span class="n">level</span><span class="p">[];</span>
 </span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">zskiplistNode</span><span class="p">;</span>
 </span></span></code></pre></div><p>顶层结构:</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">struct</span> <span class="n">zskiplist</span> <span class="p">{</span>
 </span></span><span class="line"><span class="cl">    <span class="k">struct</span> <span class="n">zskiplistNode</span> <span class="o">*</span><span class="n">header</span><span class="p">,</span> <span class="o">*</span><span class="n">tail</span><span class="p">;</span>  <span class="c1">// 头尾指针（O(1) 访问）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>                 <span class="c1">// 节点总数（O(1) 获取长度）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kt">int</span> <span class="n">level</span><span class="p">;</span>                            <span class="c1">// 当前跳表最大层数（不含头节点）
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span> <span class="n">zskiplist</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl">    <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">length</span><span class="p">;</span>                 <span class="c1">// 节点总数（O(1) 获取长度）
+</span></span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">level</span><span class="p">;</span>                            <span class="c1">// 当前跳表最大层数（不含头节点）
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span> <span class="n">zskiplist</span><span class="p">;</span>
 </span></span></code></pre></div><ul>
 <li><code>header</code> 是一个 <strong class=chinese>特殊的头节点</strong>，不存实际数据（<code>ele = NULL</code>, <code>score = 0</code>），但有完整的 <code>level[]</code> 数组（如 32 层或 64 层）。</li>
 <li><code>tail</code> 指向最后一个<strong class=chinese>真实数据节点</strong>（用于 <code>ZREVRANGE</code> 等反向操作）。</li>

@@ -233,25 +233,25 @@
 <h3 id="stl中队列的使用">STL中队列的使用</h3>
 <p>使用标准库中队列前首先应引入头文件**&lt;queue&gt;**,下面将简单介绍队列简单的使用。</p>
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;queue&gt;</span><span class="cp">
-</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="c1">//队列的声明
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">data_type</span><span class="o">&gt;</span> <span class="n">q1</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl"><span class="c1">//队列的声明
+</span></span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">data_type</span><span class="o">&gt;</span> <span class="n">q1</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl"><span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">data_type</span><span class="o">&gt;</span> <span class="n">q2</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="c1">//向队列中添加元素
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">q1</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
+</span></span></span><span class="line"><span class="cl"><span class="n">q1</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">val</span><span class="p">);</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="c1">//删除队首元素
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">q1</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+</span></span></span><span class="line"><span class="cl"><span class="n">q1</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="c1">//复制队列
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">q1</span> <span class="o">=</span> <span class="n">q2</span><span class="p">;</span>
+</span></span></span><span class="line"><span class="cl"><span class="n">q1</span> <span class="o">=</span> <span class="n">q2</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="c1">//访问队首和队尾元素
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">q1</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+</span></span></span><span class="line"><span class="cl"><span class="n">q1</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl"><span class="n">q1</span><span class="p">.</span><span class="n">back</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl">
 </span></span><span class="line"><span class="cl"><span class="c1">//检查队列是否为空与获取元素
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">q1</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>
+</span></span></span><span class="line"><span class="cl"><span class="n">q1</span><span class="p">.</span><span class="n">empty</span><span class="p">();</span>
 </span></span><span class="line"><span class="cl"><span class="n">q1</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
 </span></span></code></pre></div><p><strong>应注意的一点是，pop()没有返回值，需要先使用front()再次使用pop().</strong></p>
 <h3 id="基于链表的实现">基于链表的实现</h3>
@@ -313,7 +313,7 @@
 <p>在数组中删除元素的操作时间复杂度为$O(n)$,如果我们直接删除的话就不等于队列删除元素的操作时间复杂度$O(1)$了，所以我们这里使用<code>front</code>和<code>back</code>作为队列的首尾，每次删除只将front后移一位，而不删除元素。</p>
 <!-- raw HTML omitted -->
 <div class="highlight"><pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp">
-</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">class</span> <span class="nc">Queue</span><span class="p">{</span>
+</span></span></span><span class="line"><span class="cl"><span class="k">class</span> <span class="nc">Queue</span><span class="p">{</span>
 </span></span><span class="line"><span class="cl">	<span class="k">private</span><span class="o">:</span>
 </span></span><span class="line"><span class="cl">		<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">queue</span><span class="p">;</span>
 </span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="n">front</span><span class="p">;</span>
@@ -327,7 +327,7 @@
 </span></span><span class="line"><span class="cl">		<span class="p">}</span>
 </span></span><span class="line"><span class="cl">		<span class="o">~</span><span class="n">Queue</span><span class="p">(){</span>
 </span></span><span class="line"><span class="cl">			<span class="c1">//vector自动管理内存
-</span></span></span><span class="line"><span class="cl"><span class="c1"></span>		<span class="p">}</span>
+</span></span></span><span class="line"><span class="cl">		<span class="p">}</span>
 </span></span><span class="line"><span class="cl">		
 </span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="nf">getSize</span><span class="p">(){</span>
 </span></span><span class="line"><span class="cl">            <span class="k">return</span> <span class="n">quesize</span><span class="p">;</span>
