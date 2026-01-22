@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>IoC on pipo&#39;s site</title>
+    <link>https://asgpipo.github.io/tags/ioc/</link>
+    <description>Recent content in IoC on pipo&#39;s site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Tue, 25 Nov 2025 11:25:35 +0800</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/ioc/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>IoC控制反转与DI依赖注入</title>
+      <link>https://asgpipo.github.io/posts/spring/ioc%E4%B8%8Edi/</link>
+      <pubDate>Tue, 25 Nov 2025 11:25:35 +0800</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/spring/ioc%E4%B8%8Edi/</guid>
+      <description>&lt;h2 id=&#34;什么是-ioc-inversion-of-control-和-di-dependency-injection&#34;&gt;什么是 IoC (Inversion of Control) 和 DI (Dependency Injection)？&lt;/h2&gt;
+&lt;h3 id=&#34;ioc-控制反转&#34;&gt;IoC 控制反转&lt;/h3&gt;
+&lt;p&gt;IoC 控制反转，指的是创建和控制注入 Spring Bean 的操作权 &lt;strong&gt;反转&lt;/strong&gt; 交给框架去自动完成。&lt;/p&gt;
+&lt;h3 id=&#34;di-依赖注入&#34;&gt;DI 依赖注入&lt;/h3&gt;
+&lt;p&gt;DI 依赖注入，是 IoC 思想在 Spring 的实现，框架自动地将程序所需的依赖注入到 Bean 中。&lt;/p&gt;
+&lt;h3 id=&#34;在-spring-boot-中的关系&#34;&gt;在 Spring Boot 中的关系&lt;/h3&gt;
+&lt;p&gt;IoC 是设计思想，DI 是实现方式。Spring 容器通过 IoC 容器管理 Bean，并通过 DI 完成依赖注入。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;spring-boot-中如何实现依赖注入&#34;&gt;Spring Boot 中如何实现依赖注入？&lt;/h2&gt;
+&lt;p&gt;依赖注入方式有：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;注解 &lt;a href=&#34;https://asgpipo.github.io/posts/spring/%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D&#34;&gt;@Autowired&lt;/a&gt; 直接字段进行注入&lt;/li&gt;
+&lt;li&gt;Setter() 方法注入&lt;/li&gt;
+&lt;li&gt;构造函数注入&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;我们通常会使用 &lt;strong&gt;构造函数&lt;/strong&gt; 和 &lt;strong&gt;字段注入&lt;/strong&gt;。&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;&lt;/th&gt;
+          &lt;th&gt;字段注入&lt;/th&gt;
+          &lt;th&gt;Setter()注入&lt;/th&gt;
+          &lt;th&gt;构造函数注入&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;final 不可变对象&lt;/td&gt;
+          &lt;td&gt;❌ 不可注入&lt;/td&gt;
+          &lt;td&gt;❌ 不可注入&lt;/td&gt;
+          &lt;td&gt;✅ 可以&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;通用性&lt;/td&gt;
+          &lt;td&gt;只适用于 IoC 容器&lt;/td&gt;
+          &lt;td&gt;只适用于 IoC 容器&lt;/td&gt;
+          &lt;td&gt;非 IoC 也适用&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;解释autowired-注解的作用以及它在-spring-boot-中的自动装配模式有哪些&#34;&gt;解释@Autowired 注解的作用，以及它在 Spring Boot 中的自动装配模式有哪些？&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://asgpipo.github.io/posts/spring/%E8%87%AA%E5%8A%A8%E8%A3%85%E9%85%8D&#34;&gt;@Autowired 自动装配&lt;/a&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;什么是-bean-的作用域-scope&#34;&gt;什么是 Bean 的作用域 (Scope)？&lt;/h2&gt;
+&lt;p&gt;Spring Boot 支持多种 Bean 作用域：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;作用域&lt;/th&gt;
+          &lt;th&gt;描述&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;singleton&lt;/td&gt;
+          &lt;td&gt;单例模式（默认）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;prototype&lt;/td&gt;
+          &lt;td&gt;原型模式，每次请求创建新实例&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;request&lt;/td&gt;
+          &lt;td&gt;每次 HTTP 请求创建一个实例（Web）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;session&lt;/td&gt;
+          &lt;td&gt;同一个 HTTP Session 共享实例&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;application&lt;/td&gt;
+          &lt;td&gt;ServletContext 生命周期&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;qualifier-和-primary-注解&#34;&gt;@Qualifier 和 @Primary 注解&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;@Qualifier&lt;/strong&gt;：显式指定 Bean 名称，用于解决多个同类型 Bean 的冲突&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;@Primary&lt;/strong&gt;：标记优先使用的 Bean&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;applicationcontext-与-beanfactory&#34;&gt;ApplicationContext 与 BeanFactory&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;特性&lt;/th&gt;
+          &lt;th&gt;BeanFactory&lt;/th&gt;
+          &lt;th&gt;ApplicationContext&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;类型&lt;/td&gt;
+          &lt;td&gt;基础接口&lt;/td&gt;
+          &lt;td&gt;BeanFactory 的子接口，更高级&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;功能&lt;/td&gt;
+          &lt;td&gt;基础的 IoC 容器功能&lt;/td&gt;
+          &lt;td&gt;提供更多企业级特性（事件发布、国际化、资源加载等）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;初始化时机&lt;/td&gt;
+          &lt;td&gt;懒加载（getBean 时才初始化）&lt;/td&gt;
+          &lt;td&gt;饿加载（容器启动时预加载所有单例 Bean）&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;适用场景&lt;/td&gt;
+          &lt;td&gt;资源受限的环境或需要延迟加载&lt;/td&gt;
+          &lt;td&gt;大多数企业应用（推荐使用）&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;配置文件依赖注入&#34;&gt;配置文件依赖注入&lt;/h2&gt;
+&lt;p&gt;可以在 &lt;code&gt;application.properties&lt;/code&gt; 或 &lt;code&gt;application.yml&lt;/code&gt; 中配置属性，然后通过：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://asgpipo.github.io/posts/spring/bind/#value&#34;&gt;@Value(&amp;quot;${property.name}&amp;quot;)&lt;/a&gt; 注入单个属性&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://asgpipo.github.io/posts/spring/bind/#configurationproperties&#34;&gt;@ConfigurationProperties&lt;/a&gt; 批量注入属性&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;依赖反转原则-dip&#34;&gt;依赖反转原则 (DIP)&lt;/h2&gt;
+&lt;p&gt;依赖反转原则（DIP）是 SOLID 原则之一，主张：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;高层模块不应依赖低层模块，两者都应依赖抽象&lt;/li&gt;
+&lt;li&gt;抽象不应依赖细节，细节应依赖抽象&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;DI 是 DIP 在 Spring 中的具体实现。&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

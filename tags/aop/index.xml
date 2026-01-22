@@ -9,10 +9,10 @@
     <lastBuildDate>Sun, 03 Aug 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://asgpipo.github.io/tags/aop/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Spring Aop</title>
-      <link>https://asgpipo.github.io/posts/spring-aop-202508030950/</link>
+      <link>https://asgpipo.github.io/posts/spring/spring-aop-202508030950/</link>
       <pubDate>Sun, 03 Aug 2025 00:00:00 +0000</pubDate>
       
-      <guid>https://asgpipo.github.io/posts/spring-aop-202508030950/</guid>
+      <guid>https://asgpipo.github.io/posts/spring/spring-aop-202508030950/</guid>
       <description>&lt;h2 id=&#34;1aopaspect-oriented-programming-面向切面编程&#34;&gt;1.AOP(&lt;strong&gt;Aspect-Oriented Programming&lt;/strong&gt;) 面向切面编程&lt;/h2&gt;
 &lt;p&gt;![](/pics/redis/Pasted image 20251020085030.png)&lt;/p&gt;
 &lt;p&gt;解耦代码

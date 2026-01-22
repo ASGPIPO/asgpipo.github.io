@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>原理 on pipo&#39;s site</title>
+    <link>http://localhost:1313/tags/%E5%8E%9F%E7%90%86/</link>
+    <description>Recent content in 原理 on pipo&#39;s site</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language><atom:link href="http://localhost:1313/tags/%E5%8E%9F%E7%90%86/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Spring循环依赖解决</title>
+      <link>http://localhost:1313/posts/spring/%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>http://localhost:1313/posts/spring/%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96/</guid>
+      <description>&lt;h2 id=&#34;什么是依赖循环&#34;&gt;什么是依赖循环？&lt;/h2&gt;
+&lt;p&gt;我们知道在 Spring 中依赖注入时的行为是：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;如果当前 Bean 依赖其他 Bean，那么递归注入子 Bean&lt;/li&gt;
+&lt;li&gt;如果来源于配置文件，则从 &lt;code&gt;Environment&lt;/code&gt; 中读取&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这就导致了如果 &lt;code&gt;A→B→C→A&lt;/code&gt; 成环互相依赖，就会不断递归陷入死循环。就像是死锁一样，互相等待彼此。&lt;/p&gt;
+&lt;h3 id=&#34;类比死锁的解决方案&#34;&gt;类比死锁的解决方案&lt;/h3&gt;
+&lt;p&gt;我们可以借鉴解决死锁的方法来解决依赖循环：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;破坏互斥条件&lt;/strong&gt;：允许所有资源被共享，但这不适用于某些不能共享的资源（如打印机）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;破坏不剥夺条件&lt;/strong&gt;：当进程请求新资源未得到满足时，必须释放所有已占有的资源&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;破坏请求与保持条件&lt;/strong&gt;：采用&lt;strong&gt;预先静态分配&lt;/strong&gt;，即进程在运行前一次性申请所有所需资源&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;破坏循环等待条件&lt;/strong&gt;：采用&lt;strong&gt;顺序资源分配&lt;/strong&gt;，规定进程必须按照资源的编号顺序来申请&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Spring 的选择：&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Spring 选择的是&lt;strong&gt;破坏循环等待条件&lt;/strong&gt;（或者说打破了&amp;quot;资源必须完全就绪才能被使用&amp;quot;的互斥条件），允许循环中的 Bean 在未完全初始化结束前，先拿到一个&amp;quot;半成品&amp;quot;引用，从而结束递归等待。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;spring-在哪里通过什么方法解决了它&#34;&gt;Spring 在哪里、通过什么方法解决了它？&lt;/h2&gt;
+&lt;p&gt;Spring 通过在 &lt;strong&gt;Instantiation 之后提前暴露工厂对象&lt;/strong&gt;，在 Populate 之前，加入到&lt;strong&gt;三级缓存&lt;/strong&gt;，允许其他对象通过 ObjectFactory 获取到 bean。&lt;/p&gt;
+&lt;h3 id=&#34;三级缓存机制&#34;&gt;三级缓存机制&lt;/h3&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;级别&lt;/th&gt;
+          &lt;th&gt;缓存名称&lt;/th&gt;
+          &lt;th&gt;存放内容&lt;/th&gt;
+          &lt;th&gt;作用&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;一级缓存&lt;/td&gt;
+          &lt;td&gt;singletonObjects&lt;/td&gt;
+          &lt;td&gt;完全初始化好的 Bean&lt;/td&gt;
+          &lt;td&gt;存放成熟的单例 Bean&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;二级缓存&lt;/td&gt;
+          &lt;td&gt;earlySingletonObjects&lt;/td&gt;
+          &lt;td&gt;半成品的 Bean（提前代理）&lt;/td&gt;
+          &lt;td&gt;解决循环依赖中的 AOP 代理单例问题&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;三级缓存&lt;/td&gt;
+          &lt;td&gt;singletonFactories&lt;/td&gt;
+          &lt;td&gt;ObjectFactory&lt;/td&gt;
+          &lt;td&gt;延迟决策是否需要代理&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&#34;具体流程&#34;&gt;具体流程&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;A 实例化 → 暴露工厂到三级缓存
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;A 填充属性，需要 B
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;B 实例化 → 暴露工厂到三级缓存
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;B 填充属性，需要 A → 从三级缓存获取 A 的工厂 → 创建代理/获取原始对象 → 放入二级缓存
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;B 完成 → 放入一级缓存
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    ↓
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;A 继续填充 B（从一级缓存获取）→ A 完成 → 放入一级缓存
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;![[../pics/BeanDependencyLoop.png]]&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;为什么要三级缓存而不是二级&#34;&gt;为什么要三级缓存而不是二级？&lt;/h2&gt;
+&lt;p&gt;如果去掉二级缓存会发生什么：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;当非 AOP代理的对象注入属性时 B从三级缓存中 getbean获取到A,打破循环，此时B已经已经成熟，放入一级缓存，回到A的属性注入流程，查找一级缓存，发现B存在，完成注入。 整体流程没有问题，也就是说在没有AOP代理时是可以的。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;当有AOP代理时 B从三级缓存中 getbean获取到proxy012_A，把自身放入一级缓存，A又依赖C，C从三级缓存中获取proxy013_A，回到A，此时B和C拿到的是不同的A的代理对象，违反了单例原则。 当加入了二级缓存，获取到proxy_A后会把代理对象放到二级缓存，其他依赖需要时拿到的是同一个代理对象。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;为什么不直接在三级缓存中存放代理对象&#34;&gt;为什么不直接在三级缓存中存放代理对象？&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Spring 的设计初衷是 &lt;strong&gt;AOP 代理应当在 Bean 生命周期最后一步（初始化后）完成&lt;/strong&gt;。但在 &lt;strong&gt;循环依赖&lt;/strong&gt; 这种极端情况下，为了打破死锁，Spring 此时不得不&lt;strong&gt;妥协&lt;/strong&gt;，允许在 &lt;strong&gt;实例化后、填充属性前&lt;/strong&gt; 提前进行 AOP。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;为什么提前暴露空壳代理没问题&#34;&gt;为什么提前暴露“空壳代理”没问题？&lt;/h3&gt;
+&lt;p&gt;因为 Java 是 &lt;strong&gt;值传递（传递的是对象引用的地址）&lt;/strong&gt;。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;代理对象（Proxy）内部持有原始对象（Target）的引用。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;虽然注入给别人时，原始对象还是“空的”，但随着生命周期继续，原始对象会被填充完好。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;当真正调用代理对象方法时，内部委托的原始对象已经是成熟的了。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;为什么要三级缓存总结：&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;三级缓存（ObjectFactory）&lt;/strong&gt;：它的作用是 &lt;strong&gt;“延迟决策”&lt;/strong&gt;。它存的是一个&lt;strong&gt;生成代理的工厂逻辑&lt;/strong&gt;，而不是具体的对象。只有当循环依赖发生时，才去运行这个逻辑（打破原则）；否则，永远不运行（坚持原则）。Spring选的的是破坏不剥夺条件，允许循环中的Bean先拿到不成熟的Bean，结束递归。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;二级缓存（EarlySingletonObjects）&lt;/strong&gt;：它的作用是 &lt;strong&gt;“保持单例”&lt;/strong&gt;。一旦三级缓存的工厂被执行，生成的代理对象（Proxy）必须放入二级缓存。因为 &lt;code&gt;createProxy&lt;/code&gt; 每次都会产生新对象，如果有多个 Bean 依赖它，必须从二级缓存拿同一个 Proxy，保证全局唯一。&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;为什么构造器注入无法解决依赖循环&#34;&gt;为什么构造器注入无法解决依赖循环？&lt;/h2&gt;
+&lt;p&gt;在 Bean 的生命周期中 Instantiation 中如果使用的是构造器注入，会在此步骤直接注入依赖，但暴露工厂对象是在 Instantiation 结束后进行的，此时缓存中没有对象，无法获取到未成熟的Bean 。 解决方法： 使用懒加载 &lt;code&gt;@Lazy&lt;/code&gt;，返回一个空壳，当真正需要该对象时才加载注入属性。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;总结&#34;&gt;总结&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;问题&lt;/th&gt;
+          &lt;th&gt;答案&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Spring 如何解决循环依赖&lt;/td&gt;
+          &lt;td&gt;三级缓存 + 提前暴露半成品对象&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;为什么需要三级缓存&lt;/td&gt;
+          &lt;td&gt;三级缓存用于&amp;quot;延迟决策&amp;quot;是否需要代理，二级缓存用于保持代理单例&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;构造器注入为什么不支持&lt;/td&gt;
+          &lt;td&gt;构造器注入发生在暴露工厂之前&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;推荐的注入方式&lt;/td&gt;
+          &lt;td&gt;构造器注入（避免循环依赖）+ 必要时使用 @Lazy&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;reference&#34;&gt;Reference&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://juejin.cn/post/7146458376505917447&#34;&gt;聊透Spring循环依赖 - 掘金&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

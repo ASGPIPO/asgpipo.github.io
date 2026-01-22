@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 105%">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="">
+
+  
+  
+  <meta name="description" content="Bind 是什么？
+Spring Boot 的 Bind 机制主要负责将 外部配置（如 application.yml、application.properties、环境变量等）绑定到 Java 对象 中。">
+  
+
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="https://asgpipo.github.io//images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://asgpipo.github.io//images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://asgpipo.github.io//images/favicon-16x16.png">
+
+  
+  
+  <meta name="keywords" content='hugo latex theme blog texify texify2 texify3 michael neuper'>
+  
+
+  
+  
+  <link rel="stylesheet" href='/katex/katex.min.css'>
+<script defer defer src='/katex/katex.min.js'></script>
+<script defer src='/katex/contrib/auto-render.min.js'></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError : false
+        });
+    });
+</script>
+  
+
+  
+  
+
+  
+  <meta property="og:url" content="https://asgpipo.github.io/posts/spring/bind/">
+  <meta property="og:site_name" content="pipo&#39;s site">
+  <meta property="og:title" content="Spring 中的 Bind">
+  <meta property="og:description" content="Bind 是什么？ Spring Boot 的 Bind 机制主要负责将 外部配置（如 application.yml、application.properties、环境变量等）绑定到 Java 对象 中。">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-01-22T14:44:35+08:00">
+    <meta property="article:modified_time" content="2026-01-22T14:44:35+08:00">
+    <meta property="article:tag" content="Bind">
+    <meta property="article:tag" content="Spring">
+    <meta property="article:tag" content="配置管理">
+
+
+  
+  <link rel="canonical" href="https://asgpipo.github.io/posts/spring/bind/">
+
+  
+  
+  
+  <meta itemprop="name" content="Spring 中的 Bind">
+  <meta itemprop="description" content="Bind 是什么？ Spring Boot 的 Bind 机制主要负责将 外部配置（如 application.yml、application.properties、环境变量等）绑定到 Java 对象 中。">
+  <meta itemprop="datePublished" content="2026-01-22T14:44:35+08:00">
+  <meta itemprop="dateModified" content="2026-01-22T14:44:35+08:00">
+  <meta itemprop="wordCount" content="1422">
+  <meta itemprop="keywords" content="Bind,Spring,配置管理">
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/common.min.e562d763c6d0825495eb17de8b2c1d9800cf7c08db1c36accedf77a5fccfc4b9.css" integrity="sha256-5WLXY8bQglSV6xfeiywdmADPfAjbHDaszt93pfzPxLk=" crossorigin="anonymous">
+  
+
+  
+  
+    <link rel="stylesheet" href="/css/content.min.f51fb43fa8f51b0642996f60541954a19ce736770f5baa9e690f79c9d1fa6421.css" integrity="sha256-9R&#43;0P6j1GwZCmW9gVBlUoZznNncPW6qeaQ95ydH6ZCE=" crossorigin="anonymous">
+  
+
+  
+  
+  <title>Spring 中的 Bind - pipo&#39;s site</title>
+  
+
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Spring 中的 Bind">
+  <meta name="twitter:description" content="Bind 是什么？ Spring Boot 的 Bind 机制主要负责将 外部配置（如 application.yml、application.properties、环境变量等）绑定到 Java 对象 中。">
+
+
+  
+
+
+  <link rel="stylesheet" href="/css/single.min.3a3345f1d6f04a7a511a9c33d043ebb4ca4d7e5c3ae16c2b41f44a71138579db.css" integrity="sha256-OjNF8dbwSnpRGpwz0EPrtMpNflw64WwrQfRKcROFeds=" crossorigin="anonymous">
+
+
+  <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
+
+
+</head>
+
+<body>
+  <div id="wrapper">
+    
+
+
+<header id="header">
+  <h1>
+    <a href="https://asgpipo.github.io/">blog collcetions</a>
+    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle theme">
+        <svg width="2rem" height="2rem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 496">
+        <path fill="currentColor" d="M8,256C8,393,119,504,256,504S504,393,504,256,393,8,256,8,8,119,8,256ZM256,440V72a184,184,0,0,1,0,368Z" transform="translate(-8 -8)"/>
+        </svg>
+    </button>
+  </h1>
+
+  <nav>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17,11H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm0,4H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2ZM11,9h6a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2ZM21,3H7A1,1,0,0,0,6,4V7H3A1,1,0,0,0,2,8V18a3,3,0,0,0,3,3H18a4,4,0,0,0,4-4V4A1,1,0,0,0,21,3ZM6,18a1,1,0,0,1-2,0V9H6Zm14-1a2,2,0,0,1-2,2H7.82A3,3,0,0,0,8,18V5H20Zm-9-4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Zm0,4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Z"/></svg>
+</span>
+      
+      <a class="link" href="/posts/">Blog</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.88,16.88a3,3,0,0,0,0,4.24,3,3,0,0,0,4.24,0,3,3,0,0,0-4.24-4.24Zm2.83,2.83a1,1,0,0,1-1.42-1.42,1,1,0,0,1,1.42,0A1,1,0,0,1,5.71,19.71ZM5,12a1,1,0,0,0,0,2,5,5,0,0,1,5,5,1,1,0,0,0,2,0,7,7,0,0,0-7-7ZM5,8a1,1,0,0,0,0,2,9,9,0,0,1,9,9,1,1,0,0,0,2,0,11.08,11.08,0,0,0-3.22-7.78A11.08,11.08,0,0,0,5,8Zm10.61.39A15.11,15.11,0,0,0,5,4,1,1,0,0,0,5,6,13,13,0,0,1,18,19a1,1,0,0,0,2,0A15.11,15.11,0,0,0,15.61,8.39Z"/></svg>
+</span>
+      
+      <a class="link" href="/index.xml">RSS</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1">
+<path d="M10.07031,20.50291a1.00008,1.00008,0,0,0-1.18115-.9834c-1.30908.24024-2.96191.27637-3.40137-.958a5.70754,5.70754,0,0,0-1.83691-2.415,1.20073,1.20073,0,0,1-.1665-.10938,1,1,0,0,0-.93067-.64551H2.54883a.99965.99965,0,0,0-1,.99512c-.00391.81543.811,1.33789,1.1416,1.51465a4.4408,4.4408,0,0,1,.92383,1.35937c.36426,1.02344,1.42285,2.57617,4.46582,2.376.001.03516.00195.06836.00244.09863l.00439.26758a1,1,0,0,0,2,0l-.00488-.31836C10.07715,21.4951,10.07031,21.22068,10.07031,20.50291Zm10.667-15.126c.03174-.125.063-.26367.09034-.41992a6.27792,6.27792,0,0,0-.40821-3.293,1.002,1.002,0,0,0-.61572-.58007c-.356-.12012-1.67041-.35645-4.18408,1.25a13.86918,13.86918,0,0,0-6.354,0C6.76221.751,5.45459.9658,5.10205,1.07908a.99744.99744,0,0,0-.63135.584,6.3003,6.3003,0,0,0-.40332,3.35644c.02442.12793.05078.2461.07813.35449A6.26928,6.26928,0,0,0,2.89014,9.20311a8.42168,8.42168,0,0,0,.04248.92187c.334,4.60254,3.334,5.98438,5.42431,6.459-.04345.125-.083.25878-.11816.40039a1.00023,1.00023,0,0,0,1.94238.47851,1.6784,1.6784,0,0,1,.46778-.87793.99947.99947,0,0,0-.5459-1.74512c-3.4541-.39453-4.95362-1.80175-5.1792-4.89843a6.61076,6.61076,0,0,1-.03369-.73828,4.25769,4.25769,0,0,1,.91943-2.71289,3.022,3.022,0,0,1,.1958-.23145.99988.99988,0,0,0,.188-1.02441,3.3876,3.3876,0,0,1-.15527-.55567A4.09356,4.09356,0,0,1,6.1167,3.06346a7.54263,7.54263,0,0,1,2.415,1.17968,1.00877,1.00877,0,0,0,.82764.13282,11.77716,11.77716,0,0,1,6.17285.001,1.00549,1.00549,0,0,0,.83056-.13769,7.572,7.572,0,0,1,2.40528-1.19043,4.03977,4.03977,0,0,1,.0874,1.57812,3.205,3.205,0,0,1-.16895.60743.9999.9999,0,0,0,.188,1.02441c.07715.08691.1543.18066.22363.26855A4.12186,4.12186,0,0,1,20,9.20311a7.03888,7.03888,0,0,1-.0376.77734c-.22021,3.05566-1.72558,4.46387-5.1958,4.85937a1,1,0,0,0-.54541,1.7461,1.63079,1.63079,0,0,1,.46631.9082,3.06079,3.06079,0,0,1,.09229.81934v2.334C14.77,21.2949,14.77,21.78025,14.77,22.00291a1,1,0,1,0,2,0c0-.2168,0-.69238.00977-1.33984V18.31346a4.8815,4.8815,0,0,0-.15479-1.31153,4.25638,4.25638,0,0,0-.11621-.416,6.51258,6.51258,0,0,0,5.44531-6.42383A8.69677,8.69677,0,0,0,22,9.20311,6.13062,6.13062,0,0,0,20.7373,5.37693Z"/></svg>
+</span>
+      
+      <a class="link" href="https://github.com/ASGPIPO">GitHub</a>
+    </span>
+    
+  </nav>
+</header>
+<hr class="head-rule"></hr>
+    
+
+
+  
+    
+      
+    
+  
+
+<main id="main" class="post">
+  
+  <div class="post-heading">
+    <h1 class="post-title">Spring 中的 Bind</h1>
+    <div class="publish-metadata">
+      
+      <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      22 January 2026
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          1422 words
+        </span>
+      
+      
+      
+        
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ~3 mins
+        </span>
+      
+    </div>
+  </div>
+
+  
+  <div>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/bind'>#Bind</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/spring'>#Spring</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E9%85%8D%E7%BD%AE%E7%AE%A1%E7%90%86'>#配置管理</a>
+    
+    <br></br>
+  </div>
+  
+  
+  
+    
+  
+  
+  <article class="content numbered-subtitles">
+    
+    <h2 id="bind-是什么">Bind 是什么？</h2>
+<p>Spring Boot 的 Bind 机制主要负责将 <strong class=chinese>外部配置</strong>（如 <code>application.yml</code>、<code>application.properties</code>、环境变量等）绑定到 <strong>Java 对象</strong> 中。</p>
+<p>外部配置绑定优先级：</p>
+<ol>
+<li>命令行参数（<code>java -jar app.jar --db.port=9000</code>)</li>
+<li>操作系统环境变量（<code>export DB_PORT=9000</code>)</li>
+<li>jar 包外部的配置文件（<code>/config/application.yaml</code>)</li>
+<li>jar 包内部的配置文件（<code>resources/application.yml</code>)</li>
+</ol>
+<h2 id="三种绑定方式">三种绑定方式</h2>
+<h3 id="value">@Value</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Component</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MyService</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&#34;${app.name:default-app}&#34;</span><span class="p">)</span><span class="w">  </span><span class="c1">// 支持默认值</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">appName</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&#34;${app.feature.enabled:false}&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kt">boolean</span><span class="w"> </span><span class="n">featureEnabled</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nd">@Value</span><span class="p">(</span><span class="s">&#34;#{systemProperties[&#39;user.home&#39;]}&#34;</span><span class="p">)</span><span class="w">  </span><span class="c1">// SpEL 表达式</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">userHome</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p><strong>限制：</strong></p>
+<ul>
+<li>不支持 JSR-303 校验</li>
+<li>不支持复杂对象绑定</li>
+<li>不支持松散绑定</li>
+<li>无法在配置文件中提示 IDE 支持</li>
+</ul>
+<hr>
+<h3 id="configurationproperties">@ConfigurationProperties</h3>
+<p><code>@ConfigurationProperties( prefix = &quot;&quot;)</code>
+外部配置文件：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">myapp</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;myapp&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">server</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">host</span><span class="p">:</span><span class="w"> </span><span class="m">1.1.1.1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">port</span><span class="p">:</span><span class="w"> </span><span class="m">80</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">security</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">username</span><span class="p">:</span><span class="w"> </span><span class="l">admin</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">password</span><span class="p">:</span><span class="w"> </span><span class="m">123</span><span class="w">
+</span></span></span></code></pre></div><p>配置方式</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Component</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;myapp&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MyAppProperties</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">// 必须要提供 getter setter，可以使用 Lombook 简化</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">name</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">private</span><span class="w"> </span><span class="n">ServerConfig</span><span class="w"> </span><span class="n">server</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">private</span><span class="w"> </span><span class="n">ServerSecurity</span><span class="w"> </span><span class="n">security</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="c1">//嵌套配置 创建类， 必须是 public static</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nd">@Data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ServerConfig</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">host</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="kd">private</span><span class="w"> </span><span class="n">Long</span><span class="w"> </span><span class="n">port</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nd">@Data</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ServerSecurity</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">username</span><span class="p">;</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">		</span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">password</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><p>使用方式</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Configuration</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">AppConfig</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="nd">@Autowired</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="kd">private</span><span class="w"> </span><span class="n">MyAppProperties</span><span class="w"> </span><span class="n">properties</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><ul>
+<li>
+<p>prefix 的使用：
+prefix 填入 要被装载的属性的前缀，如果有多个嵌套则可以 <code>myapp.server.XXX.XXX</code> 来装载对应层级下的属性</p>
+</li>
+<li>
+<p>松散绑定：
+Spring 可以自动将 配置属性的名词与定义的类中的名称进行自动映射
+支持的类型名称：</p>
+<ul>
+<li>kebab-case (烤肉串式): 全小写，单词间用连字符分隔，如 my-variable-name</li>
+<li>snake_case (蛇形): 全小写，单词间用下划线分隔，如 my_variable_name</li>
+<li>UPPERCASE (全大写): 全部大写，通常用于常量，如 MY_CONSTANT</li>
+</ul>
+</li>
+<li>
+<p>JSR-303 校验：
+在类上添加 @Validated 开启校验</p>
+<ul>
+<li>@NotNull</li>
+<li>@Min()</li>
+<li>@Max()</li>
+<li>@NotBlank</li>
+<li>@Email</li>
+<li>@Size(min = )</li>
+</ul>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="nd">@Data</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Component</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@ConfigurationProperties</span><span class="p">(</span><span class="n">prefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;myapp&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Validated</span><span class="w"> </span><span class="c1">// &lt;--- 开启第一层校验</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">MyAppProperties</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nd">@Valid</span><span class="w"> </span><span class="c1">// &lt;--- 关键！告诉 Spring 钻进去校验内部属性</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">ServerConfig</span><span class="w"> </span><span class="n">server</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// ...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div></li>
+</ul>
+<hr>
+<h3 id="binder-api">Binder API</h3>
+<p>使用 Binder API 读取 Environment 中的配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Bind</span><span class="w"> </span><span class="n">bind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Binder</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">environment</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><h4 id="读取单个值">读取单个值</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 读取单个值</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">String</span><span class="w"> </span><span class="n">host</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bind</span><span class="p">.</span><span class="na">bind</span><span class="p">(</span><span class="s">&#34;myapp.server.host&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">String</span><span class="p">.</span><span class="na">class</span><span class="p">).</span><span class="na">orElse</span><span class="p">(</span><span class="s">&#34;1.1.1.1&#34;</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><blockquote>
+<p>读取单个值要写入完整的路径，并且使用点号分割</p>
+</blockquote>
+<hr>
+<h4 id="读取复杂类型-listmap"><strong>读取复杂类型 (List/Map)</strong></h4>
+<p>如果在 application.yaml 里写了一个 List：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">my-app</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">whitelist</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="m">192.168.1.1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span>- <span class="m">10.0.0.1</span><span class="w">
+</span></span></span></code></pre></div><p>需要使用 Bindable 包装器处理范型</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">ips</span><span class="w"> </span><span class="o">=</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="n">binder</span><span class="p">.</span><span class="na">bind</span><span class="p">(</span><span class="w"> </span><span class="s">&#34;my-app.whitelist&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">Bindable</span><span class="p">.</span><span class="na">listOf</span><span class="p">(</span><span class="n">String</span><span class="p">.</span><span class="na">class</span><span class="p">)</span><span class="w"> </span><span class="c1">// &lt;--- 关键！告诉 Binder 这是一个 List&lt;String&gt; ).orElse(Collections.emptyList());</span><span class="w">
+</span></span></span></code></pre></div><p>如果是更复杂的 比如</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">routes</span><span class="p">:</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;order-service&#34;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/api/order&#34;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;http://localhost:8081&#34;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span>- <span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;user-service&#34;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;/api/user&#34;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s2">&#34;http://localhost:8082&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="l">private List&lt;Map&lt;Object, Object&gt;&gt; routes = new ArrayList&lt;&gt;();</span><span class="w">
+</span></span></span></code></pre></div><div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">1</span><span class="p">.</span><span class="na">方法一</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@SuppressWarnings</span><span class="p">(</span><span class="s">&#34;unchecked&#34;</span><span class="p">)</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;&gt;</span><span class="w"> </span><span class="n">routes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">Object</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;&gt;</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">List</span><span class="o">&lt;?&gt;</span><span class="p">)</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">binder</span><span class="p">.</span><span class="na">bind</span><span class="p">(</span><span class="s">&#34;gateway.routes&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">Bindable</span><span class="p">.</span><span class="na">listOf</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">class</span><span class="p">))</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">.</span><span class="na">orElse</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">2</span><span class="p">.</span><span class="na">方法二</span><span class="w">                  
+</span></span></span><span class="line"><span class="cl"><span class="n">List</span><span class="o">&lt;?&gt;</span><span class="w"> </span><span class="n">routes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">binder</span><span class="p">.</span><span class="na">bind</span><span class="p">(</span><span class="s">&#34;gateway.routes&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">Bindable</span><span class="p">.</span><span class="na">listOf</span><span class="p">(</span><span class="n">Map</span><span class="p">.</span><span class="na">class</span><span class="p">))</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">.</span><span class="na">orElse</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">3</span><span class="p">.</span><span class="na">方法三</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">RouteConfig</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">path</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">url</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">List</span><span class="o">&lt;</span><span class="n">RouteConfig</span><span class="o">&gt;</span><span class="w"> </span><span class="n">routes</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">binder</span><span class="p">.</span><span class="na">bind</span><span class="p">(</span><span class="s">&#34;gateway.routes&#34;</span><span class="p">,</span><span class="w"> 
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">Bindable</span><span class="p">.</span><span class="na">listOf</span><span class="p">(</span><span class="n">RouteConfig</span><span class="p">.</span><span class="na">class</span><span class="p">))</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">.</span><span class="na">orElse</span><span class="p">(</span><span class="n">List</span><span class="p">.</span><span class="na">of</span><span class="p">());</span><span class="w">
+</span></span></span></code></pre></div><hr>
+<h4 id="读取整个配置类">读取整个配置类</h4>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//后面的 XXX.class 是在告诉 “我要读取的是什么类型的配置请转换成这种类型 &#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">MyAppProperties</span><span class="w"> </span><span class="n">properties</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bind</span><span class="p">.</span><span class="na">bind</span><span class="p">(</span><span class="s">&#34;myapp&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">MyAppProperties</span><span class="p">.</span><span class="na">class</span><span class="p">).</span><span class="na">get</span><span class="p">();</span><span class="w">
+</span></span></span></code></pre></div><hr>
+<h4 id="创建本地-bind-并绑定">创建本地 bind 并绑定</h4>
+<p>创建本地 bind 并添加配置</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Binder</span><span class="w"> </span><span class="n">binder</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Binder</span><span class="p">.</span><span class="na">get</span><span class="p">(</span><span class="n">environment</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">//添加 配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">1</span><span class="p">.</span><span class="w"> </span><span class="n">方法一</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">MapConfigurationPropertySource</span><span class="w"> </span><span class="n">source1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MapConfigurationPropertySource</span><span class="p">(</span><span class="n">map1</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">MapConfigurationPropertySource</span><span class="w"> </span><span class="n">source2</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MapConfigurationPropertySource</span><span class="p">(</span><span class="n">map2</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">Binder</span><span class="w"> </span><span class="n">localBind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Binder</span><span class="p">(</span><span class="n">source1</span><span class="p">,</span><span class="w"> </span><span class="n">source2</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">2</span><span class="p">.</span><span class="w"> </span><span class="n">方法二</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">List</span><span class="o">&lt;</span><span class="n">ConfigurationPropertySource</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">sources</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">MapConfigurationPropertySource</span><span class="p">(</span><span class="n">map1</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">sources</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">MapConfigurationPropertySource</span><span class="p">(</span><span class="n">map2</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">sources</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">MapConfigurationPropertySource</span><span class="p">(</span><span class="n">map3</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	</span><span class="n">Binder</span><span class="w"> </span><span class="n">localBind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Binder</span><span class="p">(</span><span class="n">sources</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">	
+</span></span></span></code></pre></div><p>生产中建议</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">private</span><span class="w"> </span><span class="n">Binder</span><span class="w"> </span><span class="nf">createLocalBinder</span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="p">...</span><span class="w"> </span><span class="n">configMaps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">List</span><span class="o">&lt;</span><span class="n">ConfigurationPropertySource</span><span class="o">&gt;</span><span class="w"> </span><span class="n">sources</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ArrayList</span><span class="o">&lt;&gt;</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">map</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="n">configMaps</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">map</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">!</span><span class="n">map</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">sources</span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">MapConfigurationPropertySource</span><span class="p">(</span><span class="n">map</span><span class="p">));</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Binder</span><span class="p">(</span><span class="n">sources</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 使用</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">Binder</span><span class="w"> </span><span class="n">localBind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">createLocalBinder</span><span class="p">(</span><span class="n">legacyMap</span><span class="p">,</span><span class="w"> </span><span class="n">otherMap</span><span class="p">,</span><span class="w"> </span><span class="n">thirdMap</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><p><strong>将 bind 中的值绑定类</strong></p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">//RouteDefinition.java</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Data</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">RouteDefinition</span><span class="w"> </span><span class="p">{</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">id</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">path</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">url</span><span class="p">;</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="p">,</span><span class="w"> </span><span class="n">Object</span><span class="o">&gt;</span><span class="w"> </span><span class="n">legacyMap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">HashMap</span><span class="o">&lt;&gt;</span><span class="p">();</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="n">legacyMap</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&#34;id&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;legacy-service-999&#34;</span><span class="p">);</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="n">legacyMap</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&#34;path&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;/api/old&#34;</span><span class="p">);</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="n">legacyMap</span><span class="p">.</span><span class="na">put</span><span class="p">(</span><span class="s">&#34;url&#34;</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;http://192.168.1.100&#34;</span><span class="p">);</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">//Bind 无法直接绑定 Map 需要转换</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">MapConfigurationPropertySource</span><span class="w"> </span><span class="n">legacyConfigurationMap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">MapConfigurationPropertySource</span><span class="p">(</span><span class="n">legacyMap</span><span class="p">);</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="n">Binder</span><span class="w"> </span><span class="n">localBind</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Binder</span><span class="p">(</span><span class="n">legacyConfigurationMap</span><span class="p">);</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">									</span><span class="c1">//为什么这里是 &#34;&#34; 空字符串？</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">RouteDefinition</span><span class="w"> </span><span class="n">legacyRoute</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">localBind</span><span class="p">.</span><span class="na">bind</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">RouteDefinition</span><span class="p">.</span><span class="na">class</span><span class="p">).</span><span class="na">orElse</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">RouteDefinition</span><span class="p">());</span><span class="w">  
+</span></span></span><span class="line"><span class="cl"><span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">legacyRoute</span><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><blockquote>
+<p>prefix + 要注入的字段名 = key
+此时 key 与 字段名完全相同，所以使用空字符串
+如果 legacyMap 中 put 时 key 是 legacy.route.id
+那么在将 source 中的属性绑定到 RouteDefinition 时 prefix = &ldquo;legacy.route&rdquo;</p>
+</blockquote>
+<hr>
+<h2 id="三种绑定方式对比">三种绑定方式对比</h2>
+<table>
+  <thead>
+      <tr>
+          <th>特性</th>
+          <th>@Value</th>
+          <th>@ConfigurationProperties</th>
+          <th>Binder API</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong class=chinese>使用场景</strong></td>
+          <td>1-2 个简单配置</td>
+          <td>结构化配置、多个相关配置</td>
+          <td>动态绑定、运行时绑定</td>
+      </tr>
+      <tr>
+          <td><strong>JSR-303 校验</strong></td>
+          <td>❌ 不支持</td>
+          <td>✅ 支持（@Validated）</td>
+          <td>✅ 支持</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>松散绑定</strong></td>
+          <td>❌ 不支持</td>
+          <td>✅ 支持</td>
+          <td>✅ 支持</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>复杂对象</strong></td>
+          <td>❌ 不支持</td>
+          <td>✅ 支持（嵌套对象）</td>
+          <td>✅ 支持</td>
+      </tr>
+      <tr>
+          <td><strong>IDE 元数据支持</strong></td>
+          <td>❌ 无提示</td>
+          <td>✅ 有提示（spring-configuration-metadata.json）</td>
+          <td>❌ 无提示</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>类型安全</strong></td>
+          <td>⚠️ 编译时不检查</td>
+          <td>✅ 强类型检查</td>
+          <td>✅ 强类型检查</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>集合类型</strong></td>
+          <td>⚠️ 需要手动解析</td>
+          <td>✅ 自动绑定 List/Set/Map</td>
+          <td>✅ 自动绑定（需要 Bindable）</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>默认值</strong></td>
+          <td>✅ <code>${prop:default}</code></td>
+          <td>✅ 字段初始化或 @DefaultValue</td>
+          <td>✅ <code>.withDefaultValue()</code></td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>灵活性</strong></td>
+          <td>低</td>
+          <td>中</td>
+          <td>高</td>
+      </tr>
+  </tbody>
+</table>
+<ol>
+<li><strong>优先使用 @ConfigurationProperties</strong> - 类型安全、IDE 支持、可校验</li>
+<li><strong>简单配置用 @Value</strong> - 如端口、开关等单个属性</li>
+<li><strong>动态配置用 Binder API</strong> - 如从数据库、Nacos 读取配置后绑定</li>
+</ol>
+<h2 id="reference">Reference</h2>
+<ul>
+<li><a href="https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.external-config">Spring Boot Configuration Properties</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/context/properties/ConfigurationProperties.html">Spring Boot @ConfigurationProperties</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/context/properties/bind/Bindable.html">Spring Boot Bindable API</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/current/api/org/springframework/boot/context/properties/bind/Binder.html">Spring Boot Binder API</a></li>
+<li><a href="https://docs.spring.io/spring-boot/docs/current/reference/html/configuration-metadata.html">Configuration Metadata - Spring Boot</a></li>
+<li><a href="https://www.baeldung.com/configuration-properties-in-spring-boot">Guide to @ConfigurationProperties in Spring Boot | Baeldung</a></li>
+</ul>
+
+    
+  </article>
+
+  <button onclick="topFunction()" id="back-to-top" title="Go to top">Back to Top</button>
+
+  
+
+<div id="sharingbuttons">
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+</div>
+  <div class="paginator">
+    
+    <a class="link" href="https://asgpipo.github.io/posts/java/concurrency/%E4%BB%8E-future-%E5%88%B0-completablefuture/" title="从 Future 到 CompletableFuture">← prev</a>
+    
+    
+    <a></a>
+    
+  </div>
+  <div class="comment">
+    
+    
+    
+      <script src="https://giscus.app/client.js"
+        data-repo="michaelneuper/website"
+        data-repo-id="R_kgDOIjPNaQ"
+        data-category="General"
+        data-category-id="DIC_kwDOIjPNac4CaklA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="gruvbox"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+  </script>
+  
+  </div>
+  
+  
+
+<aside class="toc-sidebar" data-toc-sidebar>
+  <h4 data-toc-toggle>Table of Contents</h4>
+  <nav><nav id="TableOfContents">
+  <ul>
+    <li><a href="#bind-是什么">Bind 是什么？</a></li>
+    <li><a href="#三种绑定方式">三种绑定方式</a>
+      <ul>
+        <li><a href="#value">@Value</a></li>
+        <li><a href="#configurationproperties">@ConfigurationProperties</a></li>
+        <li><a href="#binder-api">Binder API</a></li>
+      </ul>
+    </li>
+    <li><a href="#三种绑定方式对比">三种绑定方式对比</a></li>
+    <li><a href="#reference">Reference</a></li>
+  </ul>
+</nav></nav>
+</aside>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toc = document.querySelector('nav#TableOfContents');
+    const links = toc ? toc.querySelectorAll('a') : [];
+    const sections = new Array(links.length);
+    
+    if (!toc || links.length === 0) return;
+
+    
+    links.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      
+      const id = decodeURIComponent(href.substring(1)); 
+      const section = document.getElementById(id);
+      sections[index] = section;
+
+      
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+          history.pushState(null, null, href);
+        }
+      });
+    });
+
+    
+    const observerOptions = {
+      root: null,
+      
+      
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          
+          
+          links.forEach(link => {
+             link.classList.remove('active');
+             if(link.parentElement.classList.contains('active')){
+                link.parentElement.classList.remove('active');
+             }
+          });
+
+          
+          
+          const activeLink = toc.querySelector(`a[href="#${encodeURIComponent(id)}"]`) || 
+                             toc.querySelector(`a[href="#${id}"]`); 
+          
+          if (activeLink) {
+            activeLink.classList.add('active');
+            
+            activeLink.parentElement.classList.add('active');
+          }
+        }
+      });
+    }, observerOptions);
+
+    
+    sections.forEach(section => {
+      if (section) observer.observe(section);
+    });
+
+    
+    const toggleBtn = document.querySelector('[data-toc-toggle]');
+    const sidebar = document.querySelector('[data-toc-sidebar]');
+    
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', () => {
+        
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      
+      if (window.innerWidth <= 1350 && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+
+  
+</main>
+
+
+    <footer id="footer">
+  <div>
+    <span>Powered by  <a class=link href=https://gohugo.io target=_blank rel=noopener>Hugo</a> | 
+Theme <a class=link href=https://github.com/michaelneuper/hugo-texify3 target=_blank rel=noopener>TeXify3</a>
+</span>
+  </div>
+  <div>
+    <span>Copyright © 2026 </span>
+  </div>
+</footer>
+
+  </div>
+
+  
+  <script src='https://asgpipo.github.io/js/script.js' defer></script>
+
+  
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/syntax.css" />
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/scale.css" />
+  
+
+  
+  
+
+  
+  
+
+</body>
+
+</html>
