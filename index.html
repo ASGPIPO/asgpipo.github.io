@@ -52,7 +52,7 @@
   <meta property="og:site_name" content="pipo&#39;s site">
   <meta property="og:title" content="pipo&#39;s site">
   <meta property="og:description" content="存档可能会做的一些学习笔记或者其他东西
-Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes Spring 中的 Bind — 2026-01-22 从 Future 到 CompletableFuture — 2025-12-29 Java基础IO — 2025-12-27 跨域 — 2025-12-16 Location匹配 — 2025-12-15 Acknowledgement This is a fork of the TeXify2 theme.">
+Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes Builder 模式：两种实现方式对比 — 2026-01-23 Spring 中的 Bind — 2026-01-22 延迟加载（Lazy Loading） — 2026-01-18 @ConditionalOnMissingBean 注解 — 2026-01-17 @ConditionalOnProperty 注解 — 2026-01-17 Acknowledgement This is a fork of the TeXify2 theme.">
   <meta property="og:locale" content="en">
   <meta property="og:type" content="website">
 
@@ -67,9 +67,9 @@ Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes
   
   <meta itemprop="name" content="pipo&#39;s site">
   <meta itemprop="description" content="存档可能会做的一些学习笔记或者其他东西
-Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes Spring 中的 Bind — 2026-01-22 从 Future 到 CompletableFuture — 2025-12-29 Java基础IO — 2025-12-27 跨域 — 2025-12-16 Location匹配 — 2025-12-15 Acknowledgement This is a fork of the TeXify2 theme.">
+Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes Builder 模式：两种实现方式对比 — 2026-01-23 Spring 中的 Bind — 2026-01-22 延迟加载（Lazy Loading） — 2026-01-18 @ConditionalOnMissingBean 注解 — 2026-01-17 @ConditionalOnProperty 注解 — 2026-01-17 Acknowledgement This is a fork of the TeXify2 theme.">
   <meta itemprop="dateModified" content="2026-01-14T21:52:12+08:00">
-  <meta itemprop="wordCount" content="86">
+  <meta itemprop="wordCount" content="97">
 
   
   
@@ -92,7 +92,7 @@ Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="pipo&#39;s site">
   <meta name="twitter:description" content="存档可能会做的一些学习笔记或者其他东西
-Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes Spring 中的 Bind — 2026-01-22 从 Future 到 CompletableFuture — 2025-12-29 Java基础IO — 2025-12-27 跨域 — 2025-12-16 Location匹配 — 2025-12-15 Acknowledgement This is a fork of the TeXify2 theme.">
+Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes Builder 模式：两种实现方式对比 — 2026-01-23 Spring 中的 Bind — 2026-01-22 延迟加载（Lazy Loading） — 2026-01-18 @ConditionalOnMissingBean 注解 — 2026-01-17 @ConditionalOnProperty 注解 — 2026-01-17 Acknowledgement This is a fork of the TeXify2 theme.">
 
 
   
@@ -170,28 +170,28 @@ Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes
 
 
   <li>
+    <a href="/posts/spring/%E7%BB%8F%E5%85%B8-builder-%E4%B8%8E%E7%AE%80%E5%8C%96-builder/">Builder 模式：两种实现方式对比</a>
+    <span style="color:#888;">— 2026-01-23</span>
+  </li>
+
+  <li>
     <a href="/posts/spring/bind/">Spring 中的 Bind</a>
     <span style="color:#888;">— 2026-01-22</span>
   </li>
 
   <li>
-    <a href="/posts/java/concurrency/%E4%BB%8E-future-%E5%88%B0-completablefuture/">从 Future 到 CompletableFuture</a>
-    <span style="color:#888;">— 2025-12-29</span>
+    <a href="/posts/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD/">延迟加载（Lazy Loading）</a>
+    <span style="color:#888;">— 2026-01-18</span>
   </li>
 
   <li>
-    <a href="/posts/java/java_base/io/java-%E5%9F%BA%E7%A1%80-io/">Java基础IO</a>
-    <span style="color:#888;">— 2025-12-27</span>
+    <a href="/posts/spring/conditionalonmissingbean%E6%B3%A8%E8%A7%A3/">@ConditionalOnMissingBean 注解</a>
+    <span style="color:#888;">— 2026-01-17</span>
   </li>
 
   <li>
-    <a href="/posts/nginx/%E8%B7%A8%E5%9F%9F/">跨域</a>
-    <span style="color:#888;">— 2025-12-16</span>
-  </li>
-
-  <li>
-    <a href="/posts/nginx/location%E5%8C%B9%E9%85%8D/">Location匹配</a>
-    <span style="color:#888;">— 2025-12-15</span>
+    <a href="/posts/spring/conditionalonproperty%E6%B3%A8%E8%A7%A3/">@ConditionalOnProperty 注解</a>
+    <span style="color:#888;">— 2026-01-17</span>
   </li>
 
 </ul>
@@ -216,7 +216,15 @@ Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes
         <ul class="nav-list sidenav">
             
             <li>
+                <a href="https://asgpipo.github.io/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+            </li>
+            
+            <li>
                 <a href="https://asgpipo.github.io/categories/spring/">Spring</a>
+            </li>
+            
+            <li>
+                <a href="https://asgpipo.github.io/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a>
             </li>
             
             <li>
@@ -232,6 +240,10 @@ Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes
             </li>
             
             <li>
+                <a href="https://asgpipo.github.io/categories/java%E5%9F%BA%E7%A1%80/">Java基础</a>
+            </li>
+            
+            <li>
                 <a href="https://asgpipo.github.io/categories/w-tinylru/">W-TinyLRU</a>
             </li>
             
@@ -241,18 +253,6 @@ Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes
             
             <li>
                 <a href="https://asgpipo.github.io/categories/collections/">Collections</a>
-            </li>
-            
-            <li>
-                <a href="https://asgpipo.github.io/categories/mysql/">MySQL</a>
-            </li>
-            
-            <li>
-                <a href="https://asgpipo.github.io/categories/redis/">Redis</a>
-            </li>
-            
-            <li>
-                <a href="https://asgpipo.github.io/categories/jmm/">JMM</a>
             </li>
             
         </ul>
@@ -269,6 +269,18 @@ Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes
         <ul class="nav-list sidenav">
             
             <li>
+                <a href="https://asgpipo.github.io/tags/builder%E6%A8%A1%E5%BC%8F/">Builder模式</a>
+            </li>
+            
+            <li>
+                <a href="https://asgpipo.github.io/tags/%E5%8A%A8%E6%80%81%E7%BA%BF%E7%A8%8B%E6%B1%A0/">动态线程池</a>
+            </li>
+            
+            <li>
+                <a href="https://asgpipo.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/">设计模式</a>
+            </li>
+            
+            <li>
                 <a href="https://asgpipo.github.io/tags/bind/">Bind</a>
             </li>
             
@@ -281,31 +293,19 @@ Introduce Just For Fun CS 本科在读 随缘写 我的运动记录 Recent Notes
             </li>
             
             <li>
-                <a href="https://asgpipo.github.io/tags/completablefuture/">CompletableFuture</a>
+                <a href="https://asgpipo.github.io/tags/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8F/">单例模式</a>
             </li>
             
             <li>
-                <a href="https://asgpipo.github.io/tags/concurrency/">Concurrency</a>
+                <a href="https://asgpipo.github.io/tags/%E5%BB%B6%E8%BF%9F%E5%8A%A0%E8%BD%BD/">延迟加载</a>
             </li>
             
             <li>
-                <a href="https://asgpipo.github.io/tags/future/">Future</a>
+                <a href="https://asgpipo.github.io/tags/bean/">Bean</a>
             </li>
             
             <li>
-                <a href="https://asgpipo.github.io/tags/java/">JAVA</a>
-            </li>
-            
-            <li>
-                <a href="https://asgpipo.github.io/tags/threadpool/">ThreadPool</a>
-            </li>
-            
-            <li>
-                <a href="https://asgpipo.github.io/tags/%E5%AD%97%E7%AC%A6%E6%B5%81/">字符流</a>
-            </li>
-            
-            <li>
-                <a href="https://asgpipo.github.io/tags/%E5%AD%97%E8%8A%82%E6%B5%81/">字节流</a>
+                <a href="https://asgpipo.github.io/tags/%E6%9D%A1%E4%BB%B6%E8%A3%85%E9%85%8D/">条件装配</a>
             </li>
             
         </ul>

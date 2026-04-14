@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en" style="font-size: 105%">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+  <meta name="author" content="">
+
+  
+  
+  <meta name="description" content="深入对比简化 Builder（单一类）和经典 Builder（嵌套类）两种实现方式，帮助你选择合适的模式">
+  
+
+  
+  <link rel="apple-touch-icon" sizes="180x180" href="https://asgpipo.github.io//images/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://asgpipo.github.io//images/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://asgpipo.github.io//images/favicon-16x16.png">
+
+  
+  
+  <meta name="keywords" content='hugo latex theme blog texify texify2 texify3 michael neuper'>
+  
+
+  
+  
+  <link rel="stylesheet" href='/katex/katex.min.css'>
+<script defer defer src='/katex/katex.min.js'></script>
+<script defer src='/katex/contrib/auto-render.min.js'></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+          delimiters: [
+              {left: '$$', right: '$$', display: true},
+              {left: '$', right: '$', display: false},
+              {left: '\\(', right: '\\)', display: false},
+              {left: '\\[', right: '\\]', display: true}
+          ],
+          throwOnError : false
+        });
+    });
+</script>
+  
+
+  
+  
+
+  
+  <meta property="og:url" content="https://asgpipo.github.io/posts/spring/%E7%BB%8F%E5%85%B8-builder-%E4%B8%8E%E7%AE%80%E5%8C%96-builder/">
+  <meta property="og:site_name" content="pipo&#39;s site">
+  <meta property="og:title" content="Builder 模式：两种实现方式对比">
+  <meta property="og:description" content="深入对比简化 Builder（单一类）和经典 Builder（嵌套类）两种实现方式，帮助你选择合适的模式">
+  <meta property="og:locale" content="en">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2026-01-23T14:28:00+08:00">
+    <meta property="article:modified_time" content="2026-01-23T14:28:00+08:00">
+    <meta property="article:tag" content="设计模式">
+    <meta property="article:tag" content="Builder模式">
+    <meta property="article:tag" content="动态线程池">
+
+
+  
+  <link rel="canonical" href="https://asgpipo.github.io/posts/spring/%E7%BB%8F%E5%85%B8-builder-%E4%B8%8E%E7%AE%80%E5%8C%96-builder/">
+
+  
+  
+  
+  <meta itemprop="name" content="Builder 模式：两种实现方式对比">
+  <meta itemprop="description" content="深入对比简化 Builder（单一类）和经典 Builder（嵌套类）两种实现方式，帮助你选择合适的模式">
+  <meta itemprop="datePublished" content="2026-01-23T14:28:00+08:00">
+  <meta itemprop="dateModified" content="2026-01-23T14:28:00+08:00">
+  <meta itemprop="wordCount" content="3459">
+  <meta itemprop="keywords" content="设计模式,Builder模式,动态线程池">
+
+  
+  
+  
+    <link rel="stylesheet" href="/css/common.min.e562d763c6d0825495eb17de8b2c1d9800cf7c08db1c36accedf77a5fccfc4b9.css" integrity="sha256-5WLXY8bQglSV6xfeiywdmADPfAjbHDaszt93pfzPxLk=" crossorigin="anonymous">
+  
+
+  
+  
+    <link rel="stylesheet" href="/css/content.min.f51fb43fa8f51b0642996f60541954a19ce736770f5baa9e690f79c9d1fa6421.css" integrity="sha256-9R&#43;0P6j1GwZCmW9gVBlUoZznNncPW6qeaQ95ydH6ZCE=" crossorigin="anonymous">
+  
+
+  
+  
+  <title>Builder 模式：两种实现方式对比 - pipo&#39;s site</title>
+  
+
+  
+  
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Builder 模式：两种实现方式对比">
+  <meta name="twitter:description" content="深入对比简化 Builder（单一类）和经典 Builder（嵌套类）两种实现方式，帮助你选择合适的模式">
+
+
+  
+
+
+  <link rel="stylesheet" href="/css/single.min.3a3345f1d6f04a7a511a9c33d043ebb4ca4d7e5c3ae16c2b41f44a71138579db.css" integrity="sha256-OjNF8dbwSnpRGpwz0EPrtMpNflw64WwrQfRKcROFeds=" crossorigin="anonymous">
+
+
+  <link rel="stylesheet" href="/css/single.min.78a121b7d7a160420f9daab0ea13add66c37b9c44f27bba07b27207e2b0975d2.css" integrity="sha256-eKEht9ehYEIPnaqw6hOt1mw3ucRPJ7ugeycgfisJddI=" crossorigin="anonymous">
+
+
+</head>
+
+<body>
+  <div id="wrapper">
+    
+
+
+<header id="header">
+  <h1>
+    <a href="https://asgpipo.github.io/">blog collcetions</a>
+    <button id="dark-mode-toggle" class="dark-mode-toggle" aria-label="Toggle theme">
+        <svg width="2rem" height="2rem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 496">
+        <path fill="currentColor" d="M8,256C8,393,119,504,256,504S504,393,504,256,393,8,256,8,8,119,8,256ZM256,440V72a184,184,0,0,1,0,368Z" transform="translate(-8 -8)"/>
+        </svg>
+    </button>
+  </h1>
+
+  <nav>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M17,11H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2Zm0,4H16a1,1,0,0,0,0,2h1a1,1,0,0,0,0-2ZM11,9h6a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2ZM21,3H7A1,1,0,0,0,6,4V7H3A1,1,0,0,0,2,8V18a3,3,0,0,0,3,3H18a4,4,0,0,0,4-4V4A1,1,0,0,0,21,3ZM6,18a1,1,0,0,1-2,0V9H6Zm14-1a2,2,0,0,1-2,2H7.82A3,3,0,0,0,8,18V5H20Zm-9-4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Zm0,4h1a1,1,0,0,0,0-2H11a1,1,0,0,0,0,2Z"/></svg>
+</span>
+      
+      <a class="link" href="/posts/">Blog</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M2.88,16.88a3,3,0,0,0,0,4.24,3,3,0,0,0,4.24,0,3,3,0,0,0-4.24-4.24Zm2.83,2.83a1,1,0,0,1-1.42-1.42,1,1,0,0,1,1.42,0A1,1,0,0,1,5.71,19.71ZM5,12a1,1,0,0,0,0,2,5,5,0,0,1,5,5,1,1,0,0,0,2,0,7,7,0,0,0-7-7ZM5,8a1,1,0,0,0,0,2,9,9,0,0,1,9,9,1,1,0,0,0,2,0,11.08,11.08,0,0,0-3.22-7.78A11.08,11.08,0,0,0,5,8Zm10.61.39A15.11,15.11,0,0,0,5,4,1,1,0,0,0,5,6,13,13,0,0,1,18,19a1,1,0,0,0,2,0A15.11,15.11,0,0,0,15.61,8.39Z"/></svg>
+</span>
+      
+      <a class="link" href="/index.xml">RSS</a>
+    </span>
+    
+    <span class="nav-bar-item">
+      
+        <span class="icon"><svg width="1em" height="1em" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" data-name="Layer 1">
+<path d="M10.07031,20.50291a1.00008,1.00008,0,0,0-1.18115-.9834c-1.30908.24024-2.96191.27637-3.40137-.958a5.70754,5.70754,0,0,0-1.83691-2.415,1.20073,1.20073,0,0,1-.1665-.10938,1,1,0,0,0-.93067-.64551H2.54883a.99965.99965,0,0,0-1,.99512c-.00391.81543.811,1.33789,1.1416,1.51465a4.4408,4.4408,0,0,1,.92383,1.35937c.36426,1.02344,1.42285,2.57617,4.46582,2.376.001.03516.00195.06836.00244.09863l.00439.26758a1,1,0,0,0,2,0l-.00488-.31836C10.07715,21.4951,10.07031,21.22068,10.07031,20.50291Zm10.667-15.126c.03174-.125.063-.26367.09034-.41992a6.27792,6.27792,0,0,0-.40821-3.293,1.002,1.002,0,0,0-.61572-.58007c-.356-.12012-1.67041-.35645-4.18408,1.25a13.86918,13.86918,0,0,0-6.354,0C6.76221.751,5.45459.9658,5.10205,1.07908a.99744.99744,0,0,0-.63135.584,6.3003,6.3003,0,0,0-.40332,3.35644c.02442.12793.05078.2461.07813.35449A6.26928,6.26928,0,0,0,2.89014,9.20311a8.42168,8.42168,0,0,0,.04248.92187c.334,4.60254,3.334,5.98438,5.42431,6.459-.04345.125-.083.25878-.11816.40039a1.00023,1.00023,0,0,0,1.94238.47851,1.6784,1.6784,0,0,1,.46778-.87793.99947.99947,0,0,0-.5459-1.74512c-3.4541-.39453-4.95362-1.80175-5.1792-4.89843a6.61076,6.61076,0,0,1-.03369-.73828,4.25769,4.25769,0,0,1,.91943-2.71289,3.022,3.022,0,0,1,.1958-.23145.99988.99988,0,0,0,.188-1.02441,3.3876,3.3876,0,0,1-.15527-.55567A4.09356,4.09356,0,0,1,6.1167,3.06346a7.54263,7.54263,0,0,1,2.415,1.17968,1.00877,1.00877,0,0,0,.82764.13282,11.77716,11.77716,0,0,1,6.17285.001,1.00549,1.00549,0,0,0,.83056-.13769,7.572,7.572,0,0,1,2.40528-1.19043,4.03977,4.03977,0,0,1,.0874,1.57812,3.205,3.205,0,0,1-.16895.60743.9999.9999,0,0,0,.188,1.02441c.07715.08691.1543.18066.22363.26855A4.12186,4.12186,0,0,1,20,9.20311a7.03888,7.03888,0,0,1-.0376.77734c-.22021,3.05566-1.72558,4.46387-5.1958,4.85937a1,1,0,0,0-.54541,1.7461,1.63079,1.63079,0,0,1,.46631.9082,3.06079,3.06079,0,0,1,.09229.81934v2.334C14.77,21.2949,14.77,21.78025,14.77,22.00291a1,1,0,1,0,2,0c0-.2168,0-.69238.00977-1.33984V18.31346a4.8815,4.8815,0,0,0-.15479-1.31153,4.25638,4.25638,0,0,0-.11621-.416,6.51258,6.51258,0,0,0,5.44531-6.42383A8.69677,8.69677,0,0,0,22,9.20311,6.13062,6.13062,0,0,0,20.7373,5.37693Z"/></svg>
+</span>
+      
+      <a class="link" href="https://github.com/ASGPIPO">GitHub</a>
+    </span>
+    
+  </nav>
+</header>
+<hr class="head-rule"></hr>
+    
+
+
+  
+    
+      
+    
+  
+
+<main id="main" class="post">
+  
+  <div class="post-heading">
+    <h1 class="post-title">Builder 模式：两种实现方式对比</h1>
+    <div class="publish-metadata">
+      
+      <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 9H21M7 3V5M17 3V5M6 13H8M6 17H8M11 13H13M11 17H13M16 13H18M16 17H18M6.2 21H17.8C18.9201 21 19.4802 21 19.908 20.782C20.2843 20.5903 20.5903 20.2843 20.782 19.908C21 19.4802 21 18.9201 21 17.8V8.2C21 7.07989 21 6.51984 20.782 6.09202C20.5903 5.71569 20.2843 5.40973 19.908 5.21799C19.4802 5 18.9201 5 17.8 5H6.2C5.0799 5 4.51984 5 4.09202 5.21799C3.71569 5.40973 3.40973 5.71569 3.21799 6.09202C3 6.51984 3 7.07989 3 8.2V17.8C3 18.9201 3 19.4802 3.21799 19.908C3.40973 20.2843 3.71569 20.5903 4.09202 20.782C4.51984 21 5.07989 21 6.2 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      23 January 2026
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M15.4998 5.49994L18.3282 8.32837M3 20.9997L3.04745 20.6675C3.21536 19.4922 3.29932 18.9045 3.49029 18.3558C3.65975 17.8689 3.89124 17.4059 4.17906 16.9783C4.50341 16.4963 4.92319 16.0765 5.76274 15.237L17.4107 3.58896C18.1918 2.80791 19.4581 2.80791 20.2392 3.58896C21.0202 4.37001 21.0202 5.63634 20.2392 6.41739L8.37744 18.2791C7.61579 19.0408 7.23497 19.4216 6.8012 19.7244C6.41618 19.9932 6.00093 20.2159 5.56398 20.3879C5.07171 20.5817 4.54375 20.6882 3.48793 20.9012L3 20.9997Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          3459 words
+        </span>
+      
+      
+      
+        
+      
+      
+        &nbsp;
+        <span>
+          <svg width="0.75em" height="0.75em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 7V12L14.5 13.5M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          ~7 mins
+        </span>
+      
+    </div>
+  </div>
+
+  
+  <div>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F'>#设计模式</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/builder%E6%A8%A1%E5%BC%8F'>#Builder模式</a>
+    
+    <a class="link tag" href='https://asgpipo.github.io/tags/%E5%8A%A8%E6%80%81%E7%BA%BF%E7%A8%8B%E6%B1%A0'>#动态线程池</a>
+    
+    <br></br>
+  </div>
+  
+  
+  
+    
+  
+  
+  <article class="content numbered-subtitles">
+    
+    <h1 id="builder-模式两种实现方式对比">Builder 模式：两种实现方式对比</h1>
+<h2 id="一简化-builder单一-builder-类">一、简化 Builder（单一 Builder 类）</h2>
+<h3 id="代码示例">代码示例</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ThreadFactoryBuilder</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 基础线程工厂，默认使用 Executors.defaultThreadFactory()
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">ThreadFactory</span><span class="w"> </span><span class="n">backingThreadFactory</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 线程名前缀，如 &#34;onethread-&#34;，线程名形如：onethread-1
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">namePrefix</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 是否为守护线程，默认 false
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">Boolean</span><span class="w"> </span><span class="n">daemon</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 线程优先级（1~10）
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">Integer</span><span class="w"> </span><span class="n">priority</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 未捕获异常处理器
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="n">Thread</span><span class="p">.</span><span class="na">UncaughtExceptionHandler</span><span class="w"> </span><span class="n">uncaughtExceptionHandler</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 创建 ThreadFactoryBuilder 实例
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">ThreadFactoryBuilder</span><span class="w"> </span><span class="nf">builder</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ThreadFactoryBuilder</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ThreadFactoryBuilder</span><span class="w"> </span><span class="nf">threadFactory</span><span class="p">(</span><span class="n">ThreadFactory</span><span class="w"> </span><span class="n">backingThreadFactory</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">backingThreadFactory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">backingThreadFactory</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ThreadFactoryBuilder</span><span class="w"> </span><span class="nf">namePrefix</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">namePrefix</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">namePrefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">namePrefix</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ThreadFactoryBuilder</span><span class="w"> </span><span class="nf">daemon</span><span class="p">(</span><span class="kt">boolean</span><span class="w"> </span><span class="n">daemon</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">daemon</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">daemon</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ThreadFactoryBuilder</span><span class="w"> </span><span class="nf">priority</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">priority</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">priority</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">Thread</span><span class="p">.</span><span class="na">MIN_PRIORITY</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">priority</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="n">Thread</span><span class="p">.</span><span class="na">MAX_PRIORITY</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">&#34;The thread priority must be between 1 and 10.&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">priority</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">priority</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ThreadFactoryBuilder</span><span class="w"> </span><span class="nf">uncaughtExceptionHandler</span><span class="p">(</span><span class="n">Thread</span><span class="p">.</span><span class="na">UncaughtExceptionHandler</span><span class="w"> </span><span class="n">handler</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">uncaughtExceptionHandler</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">handler</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm">     * 构建线程工厂实例（返回另一个类型）
+</span></span></span><span class="line"><span class="cl"><span class="cm">     */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ThreadFactory</span><span class="w"> </span><span class="nf">build</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">ThreadFactory</span><span class="w"> </span><span class="n">factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="na">backingThreadFactory</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="o">?</span><span class="w"> </span><span class="k">this</span><span class="p">.</span><span class="na">backingThreadFactory</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">:</span><span class="w"> </span><span class="n">Executors</span><span class="p">.</span><span class="na">defaultThreadFactory</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="n">Assert</span><span class="p">.</span><span class="na">notEmpty</span><span class="p">(</span><span class="n">namePrefix</span><span class="p">,</span><span class="w"> </span><span class="s">&#34;The thread name prefix cannot be empty or an empty string.&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">final</span><span class="w"> </span><span class="n">AtomicLong</span><span class="w"> </span><span class="n">count</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">StrUtil</span><span class="p">.</span><span class="na">isNotBlank</span><span class="p">(</span><span class="n">namePrefix</span><span class="p">))</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">AtomicLong</span><span class="p">(</span><span class="n">0</span><span class="p">)</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">runnable</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">Thread</span><span class="w"> </span><span class="n">thread</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">factory</span><span class="p">.</span><span class="na">newThread</span><span class="p">(</span><span class="n">runnable</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">count</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">thread</span><span class="p">.</span><span class="na">setName</span><span class="p">(</span><span class="n">namePrefix</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">count</span><span class="p">.</span><span class="na">getAndIncrement</span><span class="p">());</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">daemon</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">thread</span><span class="p">.</span><span class="na">setDaemon</span><span class="p">(</span><span class="n">daemon</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">priority</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">thread</span><span class="p">.</span><span class="na">setPriority</span><span class="p">(</span><span class="n">priority</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">uncaughtExceptionHandler</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="n">thread</span><span class="p">.</span><span class="na">setUncaughtExceptionHandler</span><span class="p">(</span><span class="n">uncaughtExceptionHandler</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">thread</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">};</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><h3 id="结构特征">结构特征</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">┌─────────────────────────────────┐
+</span></span><span class="line"><span class="cl">│   ThreadFactoryBuilder          │  ← Builder 类（可变）
+</span></span><span class="line"><span class="cl">│  ─────────────────────────      │
+</span></span><span class="line"><span class="cl">│  - namePrefix: String           │
+</span></span><span class="line"><span class="cl">│  - daemon: Boolean              │
+</span></span><span class="line"><span class="cl">│  - priority: Integer            │
+</span></span><span class="line"><span class="cl">│  ─────────────────────────      │
+</span></span><span class="line"><span class="cl">│  + builder(): Builder           │  ← 返回自己
+</span></span><span class="line"><span class="cl">│  + namePrefix(String): Builder  │  ← 链式调用
+</span></span><span class="line"><span class="cl">│  + daemon(boolean): Builder     │
+</span></span><span class="line"><span class="cl">│  + build(): ThreadFactory       │  ← 返回另一个类型
+</span></span><span class="line"><span class="cl">└─────────────────────────────────┘
+</span></span><span class="line"><span class="cl">              ↓ build()
+</span></span><span class="line"><span class="cl">┌─────────────────────────────────┐
+</span></span><span class="line"><span class="cl">│   ThreadFactory                 │  ← 目标对象
+</span></span><span class="line"><span class="cl">│  (interface/functional object)  │
+</span></span><span class="line"><span class="cl">└─────────────────────────────────┘
+</span></span></code></pre></div><p><strong class=chinese>核心特点</strong>：</p>
+<ul>
+<li>Builder 是独立类，既是配置器也是构建器</li>
+<li>build() 返回<strong class=chinese>另一个类型</strong>的对象</li>
+<li>目标对象通常不需要保持不可变</li>
+<li>代码简单，只有一个类</li>
+</ul>
+<hr>
+<h2 id="二经典-builder嵌套-builder-类">二、经典 Builder（嵌套 Builder 类）</h2>
+<h3 id="代码示例-1">代码示例</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> * 线程池配置 - 经典 Builder 模式（不可变对象）
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ThreadPoolConfig</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// ===== 目标类的字段（final = 不可变） =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">corePoolSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxPoolSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">queueCapacity</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">threadNamePrefix</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">keepAliveTime</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">TimeUnit</span><span class="w"> </span><span class="n">timeUnit</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// ===== 私有构造器（只能通过 Builder 创建） =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="nf">ThreadPoolConfig</span><span class="p">(</span><span class="n">Builder</span><span class="w"> </span><span class="n">builder</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">corePoolSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">corePoolSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">maxPoolSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">maxPoolSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">queueCapacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">queueCapacity</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">threadNamePrefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">threadNamePrefix</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">keepAliveTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">keepAliveTime</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">this</span><span class="p">.</span><span class="na">timeUnit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">builder</span><span class="p">.</span><span class="na">timeUnit</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// ===== 静态工厂方法（返回 Builder 实例） =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="n">Builder</span><span class="w"> </span><span class="nf">builder</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">Builder</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// ===== Getter 方法（没有 Setter，保证不可变） =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">getCorePoolSize</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">corePoolSize</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">getMaxPoolSize</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">maxPoolSize</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="nf">getQueueCapacity</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">queueCapacity</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">getThreadNamePrefix</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">threadNamePrefix</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="nf">getKeepAliveTime</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">keepAliveTime</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">TimeUnit</span><span class="w"> </span><span class="nf">getTimeUnit</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">timeUnit</span><span class="p">;</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// ===== 静态内部 Builder 类 =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Builder</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// Builder 拥有与目标类相同的字段（可变）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">corePoolSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">1</span><span class="p">;</span><span class="w">               </span><span class="c1">// 默认值</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxPoolSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">10</span><span class="p">;</span><span class="w">               </span><span class="c1">// 默认值</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">queueCapacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">100</span><span class="p">;</span><span class="w">            </span><span class="c1">// 默认值</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">threadNamePrefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&#34;pool-&#34;</span><span class="p">;</span><span class="w">  </span><span class="c1">// 默认值</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kt">long</span><span class="w"> </span><span class="n">keepAliveTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">60L</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="n">TimeUnit</span><span class="w"> </span><span class="n">timeUnit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TimeUnit</span><span class="p">.</span><span class="na">SECONDS</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// 私有构造器（强制使用外部类的 builder() 方法）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="nf">Builder</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// ===== 链式 setter 方法（返回 Builder） =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">public</span><span class="w"> </span><span class="n">Builder</span><span class="w"> </span><span class="nf">corePoolSize</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">corePoolSize</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">corePoolSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">corePoolSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">public</span><span class="w"> </span><span class="n">Builder</span><span class="w"> </span><span class="nf">maxPoolSize</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">maxPoolSize</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">maxPoolSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">maxPoolSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">public</span><span class="w"> </span><span class="n">Builder</span><span class="w"> </span><span class="nf">queueCapacity</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">queueCapacity</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">queueCapacity</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">queueCapacity</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">public</span><span class="w"> </span><span class="n">Builder</span><span class="w"> </span><span class="nf">threadNamePrefix</span><span class="p">(</span><span class="n">String</span><span class="w"> </span><span class="n">threadNamePrefix</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">threadNamePrefix</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">threadNamePrefix</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">public</span><span class="w"> </span><span class="n">Builder</span><span class="w"> </span><span class="nf">keepAliveTime</span><span class="p">(</span><span class="kt">long</span><span class="w"> </span><span class="n">keepAliveTime</span><span class="p">,</span><span class="w"> </span><span class="n">TimeUnit</span><span class="w"> </span><span class="n">timeUnit</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">keepAliveTime</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">keepAliveTime</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">this</span><span class="p">.</span><span class="na">timeUnit</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">timeUnit</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">this</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// ===== build() 方法（返回目标类实例） =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">public</span><span class="w"> </span><span class="n">ThreadPoolConfig</span><span class="w"> </span><span class="nf">build</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">// 统一验证所有参数</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">validate</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="c1">// 创建并返回目标类的不可变实例</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ThreadPoolConfig</span><span class="p">(</span><span class="k">this</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c1">// ===== 参数验证 =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">private</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">validate</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">corePoolSize</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">&#34;corePoolSize 必须大于 0&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">maxPoolSize</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">corePoolSize</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">&#34;maxPoolSize 不能小于 corePoolSize&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">queueCapacity</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">&#34;queueCapacity 必须大于 0&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">threadNamePrefix</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="kc">null</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="n">threadNamePrefix</span><span class="p">.</span><span class="na">isEmpty</span><span class="p">())</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">&#34;threadNamePrefix 不能为空&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">keepAliveTime</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">&#34;keepAliveTime 不能为负数&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// ===== 便捷方法（如创建线程池） =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ThreadPoolExecutor</span><span class="w"> </span><span class="nf">createExecutor</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">corePoolSize</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">maxPoolSize</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">keepAliveTime</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">timeUnit</span><span class="p">,</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">new</span><span class="w"> </span><span class="n">LinkedBlockingQueue</span><span class="o">&lt;&gt;</span><span class="p">(</span><span class="n">queueCapacity</span><span class="p">),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="n">ThreadFactoryBuilder</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">.</span><span class="na">namePrefix</span><span class="p">(</span><span class="n">threadNamePrefix</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="p">.</span><span class="na">build</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nd">@Override</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="nf">toString</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="s">&#34;ThreadPoolConfig{&#34;</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="s">&#34;corePoolSize=&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">corePoolSize</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="s">&#34;, maxPoolSize=&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">maxPoolSize</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="s">&#34;, queueCapacity=&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">queueCapacity</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="s">&#34;, threadNamePrefix=&#39;&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">threadNamePrefix</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="sc">&#39;\&#39;&#39;</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="s">&#34;, keepAliveTime=&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">keepAliveTime</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="s">&#34;, timeUnit=&#34;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">timeUnit</span><span class="w"> </span><span class="o">+</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="sc">&#39;}&#39;</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><h3 id="结构特征-1">结构特征</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback"><span class="line"><span class="cl">┌─────────────────────────────────────┐
+</span></span><span class="line"><span class="cl">│      ThreadPoolConfig               │  ← 目标类（不可变）
+</span></span><span class="line"><span class="cl">│  ────────────────────────────       │
+</span></span><span class="line"><span class="cl">│  - final corePoolSize: int          │
+</span></span><span class="line"><span class="cl">│  - final maxPoolSize: int           │
+</span></span><span class="line"><span class="cl">│  - final queueCapacity: int         │
+</span></span><span class="line"><span class="cl">│  ────────────────────────────       │
+</span></span><span class="line"><span class="cl">│  - ThreadPoolConfig(Builder)        │  ← 私有构造器
+</span></span><span class="line"><span class="cl">│  + builder(): Builder               │  ← 返回内部 Builder
+</span></span><span class="line"><span class="cl">│  + getCorePoolSize(): int           │
+</span></span><span class="line"><span class="cl">└─────────────────────────────────────┘
+</span></span><span class="line"><span class="cl">              │
+</span></span><span class="line"><span class="cl">              │ 包含
+</span></span><span class="line"><span class="cl">              ↓
+</span></span><span class="line"><span class="cl">┌─────────────────────────────────────┐
+</span></span><span class="line"><span class="cl">│      ThreadPoolConfig.Builder       │  ← 内部 Builder（可变）
+</span></span><span class="line"><span class="cl">│  ────────────────────────────       │
+</span></span><span class="line"><span class="cl">│  - corePoolSize: int                │  ← 与目标类相同的字段
+</span></span><span class="line"><span class="cl">│  - maxPoolSize: int                 │
+</span></span><span class="line"><span class="cl">│  - queueCapacity: int               │
+</span></span><span class="line"><span class="cl">│  ────────────────────────────       │
+</span></span><span class="line"><span class="cl">│  + corePoolSize(int): Builder       │  ← 链式调用
+</span></span><span class="line"><span class="cl">│  + maxPoolSize(int): Builder        │
+</span></span><span class="line"><span class="cl">│  + build(): ThreadPoolConfig        │  ← 返回外部类实例
+</span></span><span class="line"><span class="cl">└─────────────────────────────────────┘
+</span></span></code></pre></div><p><strong class=chinese>核心特点</strong>：</p>
+<ul>
+<li>Builder 是目标类的<strong class=chinese>静态内部类</strong></li>
+<li>目标类所有字段 <code>final</code>（不可变）</li>
+<li><code>build()</code> 返回<strong class=chinese>目标类实例</strong></li>
+<li>清晰分离&quot;构建过程&quot;和&quot;最终对象&quot;</li>
+</ul>
+<hr>
+<h2 id="三两种模式对比">三、两种模式对比</h2>
+<h3 id="对比表">对比表</h3>
+<table>
+  <thead>
+      <tr>
+          <th>维度</th>
+          <th>简化 Builder（单一类）</th>
+          <th>经典 Builder（嵌套类）</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td><strong class=chinese>类数量</strong></td>
+          <td>1 个类</td>
+          <td>2 个类（外部类 + 内部 Builder）</td>
+      </tr>
+      <tr>
+          <td><strong>Builder 返回值</strong></td>
+          <td><code>build()</code> 返回<strong class=chinese>另一个类型</strong></td>
+          <td><code>build()</code> 返回<strong class=chinese>外部类实例</strong></td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>目标对象</strong></td>
+          <td>可以是可变的</td>
+          <td>严格不可变（所有字段 final）</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>字段访问</strong></td>
+          <td>Builder 和目标对象字段分开</td>
+          <td>Builder 复制外部类字段</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>验证时机</strong></td>
+          <td>可以在 setter 和 build() 都验证</td>
+          <td>通常只在 build() 统一验证</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>默认值</strong></td>
+          <td>在 Builder 字段初始化</td>
+          <td>在 Builder 字段初始化</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>复杂度</strong></td>
+          <td>简单</td>
+          <td>较复杂</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>类型安全</strong></td>
+          <td>较低（Builder 可变）</td>
+          <td>高（目标对象不可变）</td>
+      </tr>
+      <tr>
+          <td><strong class=chinese>线程安全</strong></td>
+          <td>需要额外处理</td>
+          <td>天然线程安全（不可变）</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="使用方式对比">使用方式对比</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// ===== 简化 Builder =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ThreadFactory</span><span class="w"> </span><span class="n">factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThreadFactoryBuilder</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">namePrefix</span><span class="p">(</span><span class="s">&#34;async-pool-&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">daemon</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">priority</span><span class="p">(</span><span class="n">7</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">  </span><span class="c1">// 返回 ThreadFactory（另一个类型）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ExecutorService</span><span class="w"> </span><span class="n">executor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Executors</span><span class="p">.</span><span class="na">newFixedThreadPool</span><span class="p">(</span><span class="n">10</span><span class="p">,</span><span class="w"> </span><span class="n">factory</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// ===== 经典 Builder =====</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ThreadPoolConfig</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThreadPoolConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">corePoolSize</span><span class="p">(</span><span class="n">5</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">maxPoolSize</span><span class="p">(</span><span class="n">20</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">queueCapacity</span><span class="p">(</span><span class="n">200</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">threadNamePrefix</span><span class="p">(</span><span class="s">&#34;order-service-&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">keepAliveTime</span><span class="p">(</span><span class="n">120</span><span class="p">,</span><span class="w"> </span><span class="n">TimeUnit</span><span class="p">.</span><span class="na">SECONDS</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">  </span><span class="c1">// 返回 ThreadPoolConfig（不可变对象）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ThreadPoolExecutor</span><span class="w"> </span><span class="n">executor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="p">.</span><span class="na">createExecutor</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// config 不可变，线程安全</span><span class="w">
+</span></span></span></code></pre></div><hr>
+<h2 id="四使用场景决策">四、使用场景决策</h2>
+<h3 id="决策树">决策树</h3>
+<div class="mermaid">flowchart TD
+    A[需要构建复杂对象] --> B{目标对象需要<br/>不可变性?}
+    B -->|是| C[经典 Builder<br/>嵌套类模式]
+    B -->|否| D{Builder 是<br/>目标对象本身?}
+    D -->|是| C
+    D -->|否| E[简化 Builder<br/>单一类模式]
+
+    C --> F[适用场景<br/>• 配置对象<br/>• 领域实体<br/>• 需要线程安全]
+    E --> G[适用场景<br/>• 工厂/工具类<br/>• 函数对象<br/>• 临时对象]
+</div>
+
+<h3 id="场景-1工厂工具类--简化-builder">场景 1：工厂/工具类 → 简化 Builder</h3>
+<p><strong class=chinese>特征</strong>：</p>
+<ul>
+<li>Builder 是工具，用来创建<strong class=chinese>另一个类型</strong>的对象</li>
+<li>不需要保持不可变性</li>
+<li>重点是&quot;构建过程&quot;，而非&quot;最终对象&quot;</li>
+</ul>
+<p><strong class=chinese>实际例子</strong>：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 1. ThreadFactoryBuilder → ThreadFactory</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ThreadFactoryBuilder</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">namePrefix</span><span class="p">(</span><span class="s">&#34;async-&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">()</span><span class="w">  </span><span class="c1">// 返回 ThreadFactory</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 2. StringBuilder → String</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="k">new</span><span class="w"> </span><span class="n">StringBuilder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">append</span><span class="p">(</span><span class="s">&#34;Hello&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">toString</span><span class="p">()</span><span class="w">  </span><span class="c1">// 返回 String</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 3. Stream.Builder → Stream</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">Stream</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&#34;A&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">()</span><span class="w">  </span><span class="c1">// 返回 Stream</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 4. UriBuilder → URI</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">UriBuilder</span><span class="p">.</span><span class="na">fromUri</span><span class="p">(</span><span class="s">&#34;https://api.example.com&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">path</span><span class="p">(</span><span class="s">&#34;/users&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">queryParam</span><span class="p">(</span><span class="s">&#34;limit&#34;</span><span class="p">,</span><span class="w"> </span><span class="n">10</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">  </span><span class="c1">// 返回 URI</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 5. RestClient.Builder → RestClient</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">RestClient</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">baseUrl</span><span class="p">(</span><span class="s">&#34;https://api.example.com&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">  </span><span class="c1">// 返回 RestClient</span><span class="w">
+</span></span></span></code></pre></div><p><strong class=chinese>适用条件</strong>：</p>
+<ul>
+<li>目标对象是另一个类型（工厂、接口、匿名函数）</li>
+<li>Builder 用完即弃，不需要长期存在</li>
+<li>不需要严格的不可变性</li>
+</ul>
+<hr>
+<h3 id="场景-2配置实体对象--经典-builder">场景 2：配置/实体对象 → 经典 Builder</h3>
+<p><strong class=chinese>特征</strong>：</p>
+<ul>
+<li>目标对象需要<strong class=chinese>不可变</strong>（线程安全）</li>
+<li>参数需要<strong class=chinese>验证</strong>（避免非法状态）</li>
+<li>对象会在多个地方传递和使用</li>
+</ul>
+<p><strong class=chinese>实际例子</strong>：</p>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 1. 线程池配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ThreadPoolConfig</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThreadPoolConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">corePoolSize</span><span class="p">(</span><span class="n">5</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">maxPoolSize</span><span class="p">(</span><span class="n">20</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">threadNamePrefix</span><span class="p">(</span><span class="s">&#34;order-&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// config 不可变，线程安全</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 2. HTTP 客户端配置</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">OkHttpClient</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">OkHttpClient</span><span class="p">.</span><span class="na">Builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">connectTimeout</span><span class="p">(</span><span class="n">10</span><span class="p">,</span><span class="w"> </span><span class="n">TimeUnit</span><span class="p">.</span><span class="na">SECONDS</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">readTimeout</span><span class="p">(</span><span class="n">30</span><span class="p">,</span><span class="w"> </span><span class="n">TimeUnit</span><span class="p">.</span><span class="na">SECONDS</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">addInterceptor</span><span class="p">(</span><span class="k">new</span><span class="w"> </span><span class="n">LoggingInterceptor</span><span class="p">())</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// client 不可变，可以安全共享</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 3. 用户对象（领域模型）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">User</span><span class="w"> </span><span class="n">user</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">User</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">id</span><span class="p">(</span><span class="s">&#34;123&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">name</span><span class="p">(</span><span class="s">&#34;Alice&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">email</span><span class="p">(</span><span class="s">&#34;alice@example.com&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// user 不可变，防止业务逻辑意外修改</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 4. Guava 不可变集合</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ImmutableSet</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="w"> </span><span class="n">set</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ImmutableSet</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&#34;A&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">add</span><span class="p">(</span><span class="s">&#34;B&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// set 不可变，强制不可修改</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 5. RocketMQ 消息</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">Message</span><span class="w"> </span><span class="n">msg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Message</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">topic</span><span class="p">(</span><span class="s">&#34;order-created&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">body</span><span class="p">(</span><span class="n">orderJson</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">tag</span><span class="p">(</span><span class="s">&#34;payment&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">key</span><span class="p">(</span><span class="n">orderId</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// msg 不可变，保证消息一致性</span><span class="w">
+</span></span></span></code></pre></div><p><strong class=chinese>适用条件</strong>：</p>
+<ul>
+<li>需要不可变性（线程安全、防止意外修改）</li>
+<li>需要严格验证（build 时检查所有参数）</li>
+<li>对象会长期存在或在多线程间传递</li>
+</ul>
+<hr>
+<h2 id="五优缺点总结">五、优缺点总结</h2>
+<h3 id="简化-builder单一类">简化 Builder（单一类）</h3>
+<p><strong class=chinese>优点</strong>：</p>
+<ul>
+<li>简单直接，只有一个类</li>
+<li>代码量少，易于理解</li>
+<li>适合工厂/工具场景</li>
+</ul>
+<p><strong class=chinese>缺点</strong>：</p>
+<ul>
+<li>目标对象可变（如果需要不可变，需要额外处理）</li>
+<li>类型安全性较低</li>
+<li>不适合复杂领域对象</li>
+</ul>
+<hr>
+<h3 id="经典-builder嵌套类">经典 Builder（嵌套类）</h3>
+<p><strong class=chinese>优点</strong>：</p>
+<ul>
+<li>目标对象严格不可变（线程安全）</li>
+<li>类型安全，编译时保证</li>
+<li>统一验证，避免非法状态</li>
+<li>清晰分离&quot;构建过程&quot;和&quot;最终对象&quot;</li>
+</ul>
+<p><strong class=chinese>缺点</strong>：</p>
+<ul>
+<li>代码量大（需要维护两套字段）</li>
+<li>相对复杂</li>
+<li>对于简单场景可能过度设计</li>
+</ul>
+<hr>
+<h2 id="六实战建议">六、实战建议</h2>
+<h3 id="1-项目中如何选择">1. 项目中如何选择？</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 使用简化 Builder：ThreadFactoryBuilder</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 原因：它是工具，用来创建 ThreadFactory</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">ThreadFactoryBuilder</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="n">ThreadFactory</span><span class="w"> </span><span class="nf">build</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 使用经典 Builder：DynamicThreadPoolConfig</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 原因：配置对象需要不可变，会被多个地方引用</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DynamicThreadPoolConfig</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">poolName</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">coreSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// ...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Builder</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">public</span><span class="w"> </span><span class="n">DynamicThreadPoolConfig</span><span class="w"> </span><span class="nf">build</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="cm">/* ... */</span><span class="w"> </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span></code></pre></div><h3 id="2-混合使用">2. 混合使用</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 配置对象用经典 Builder（不可变）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">DynamicThreadPoolConfig</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DynamicThreadPoolConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">corePoolSize</span><span class="p">(</span><span class="n">10</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">maxPoolSize</span><span class="p">(</span><span class="n">20</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 线程工厂用简化 Builder（工具）</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ThreadFactory</span><span class="w"> </span><span class="n">factory</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ThreadFactoryBuilder</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">namePrefix</span><span class="p">(</span><span class="n">config</span><span class="p">.</span><span class="na">getPoolName</span><span class="p">()</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s">&#34;-&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 创建线程池</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">ThreadPoolExecutor</span><span class="w"> </span><span class="n">executor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">config</span><span class="p">.</span><span class="na">getCorePoolSize</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="n">config</span><span class="p">.</span><span class="na">getMaxPoolSize</span><span class="p">(),</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// ...</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">);</span><span class="w">
+</span></span></span></code></pre></div><h3 id="3-使用-lombok-简化经典-builder">3. 使用 Lombok 简化经典 Builder</h3>
+<div class="highlight"><pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="c1">// 使用 @Builder 自动生成经典 Builder</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="nd">@Builder</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="kd">public</span><span class="w"> </span><span class="kd">class</span> <span class="nc">DynamicThreadPoolConfig</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="n">String</span><span class="w"> </span><span class="n">poolName</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">corePoolSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">maxPoolSize</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">private</span><span class="w"> </span><span class="kd">final</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">queueCapacity</span><span class="p">;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="c1">// 手动添加验证</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="kd">public</span><span class="w"> </span><span class="kd">static</span><span class="w"> </span><span class="kd">class</span> <span class="nc">Builder</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="kd">public</span><span class="w"> </span><span class="n">DynamicThreadPoolConfig</span><span class="w"> </span><span class="nf">build</span><span class="p">()</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">corePoolSize</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">0</span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">                </span><span class="k">throw</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">IllegalArgumentException</span><span class="p">(</span><span class="s">&#34;corePoolSize 必须大于 0&#34;</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="k">new</span><span class="w"> </span><span class="n">DynamicThreadPoolConfig</span><span class="p">(</span><span class="k">this</span><span class="p">);</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="p">}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="c1">// 使用方式</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="n">DynamicThreadPoolConfig</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">DynamicThreadPoolConfig</span><span class="p">.</span><span class="na">builder</span><span class="p">()</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">poolName</span><span class="p">(</span><span class="s">&#34;order-service&#34;</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">corePoolSize</span><span class="p">(</span><span class="n">10</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">maxPoolSize</span><span class="p">(</span><span class="n">20</span><span class="p">)</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="p">.</span><span class="na">build</span><span class="p">();</span><span class="w">
+</span></span></span></code></pre></div><hr>
+<h2 id="七快速选择指南">七、快速选择指南</h2>
+<table>
+  <thead>
+      <tr>
+          <th>场景</th>
+          <th>推荐模式</th>
+          <th>典型例子</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td>工厂/工具类</td>
+          <td><strong>简化 Builder</strong></td>
+          <td>ThreadFactoryBuilder → ThreadFactory</td>
+      </tr>
+      <tr>
+          <td>配置对象</td>
+          <td><strong>经典 Builder</strong></td>
+          <td>ThreadPoolConfig</td>
+      </tr>
+      <tr>
+          <td>领域实体</td>
+          <td><strong>经典 Builder</strong></td>
+          <td>User、Order</td>
+      </tr>
+      <tr>
+          <td>集合构建</td>
+          <td><strong>简化 Builder</strong></td>
+          <td>ImmutableList.builder()</td>
+      </tr>
+      <tr>
+          <td>流式 API</td>
+          <td><strong>简化 Builder</strong></td>
+          <td>Stream.Builder</td>
+      </tr>
+      <tr>
+          <td>不可变需求</td>
+          <td><strong>经典 Builder</strong></td>
+          <td>OkHttpClient</td>
+      </tr>
+  </tbody>
+</table>
+<h3 id="核心原则">核心原则</h3>
+<ol>
+<li><strong class=chinese>需要不可变性</strong> → 经典 Builder（嵌套类）</li>
+<li><strong class=chinese>创建其他类型</strong> → 简化 Builder（单一类）</li>
+<li><strong class=chinese>简单工具</strong> → 简化 Builder（单一类）</li>
+<li><strong class=chinese>复杂配置</strong> → 经典 Builder（嵌套类）</li>
+</ol>
+
+    
+  </article>
+
+  <button onclick="topFunction()" id="back-to-top" title="Go to top">Back to Top</button>
+
+  
+
+<div id="sharingbuttons">
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+
+    
+    
+</div>
+  <div class="paginator">
+    
+    <a class="link" href="https://asgpipo.github.io/posts/spring/bind/" title="Spring 中的 Bind">← prev</a>
+    
+    
+    <a></a>
+    
+  </div>
+  <div class="comment">
+    
+    
+    
+      <script src="https://giscus.app/client.js"
+        data-repo="michaelneuper/website"
+        data-repo-id="R_kgDOIjPNaQ"
+        data-category="General"
+        data-category-id="DIC_kwDOIjPNac4CaklA"
+        data-mapping="pathname"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="gruvbox"
+        data-lang="en"
+        data-loading="lazy"
+        crossorigin="anonymous"
+        async>
+  </script>
+  
+  </div>
+  
+  
+
+<aside class="toc-sidebar" data-toc-sidebar>
+  <h4 data-toc-toggle>Table of Contents</h4>
+  <nav><nav id="TableOfContents">
+  <ul>
+    <li><a href="#一简化-builder单一-builder-类">一、简化 Builder（单一 Builder 类）</a>
+      <ul>
+        <li><a href="#代码示例">代码示例</a></li>
+        <li><a href="#结构特征">结构特征</a></li>
+      </ul>
+    </li>
+    <li><a href="#二经典-builder嵌套-builder-类">二、经典 Builder（嵌套 Builder 类）</a>
+      <ul>
+        <li><a href="#代码示例-1">代码示例</a></li>
+        <li><a href="#结构特征-1">结构特征</a></li>
+      </ul>
+    </li>
+    <li><a href="#三两种模式对比">三、两种模式对比</a>
+      <ul>
+        <li><a href="#对比表">对比表</a></li>
+        <li><a href="#使用方式对比">使用方式对比</a></li>
+      </ul>
+    </li>
+    <li><a href="#四使用场景决策">四、使用场景决策</a>
+      <ul>
+        <li><a href="#决策树">决策树</a></li>
+        <li><a href="#场景-1工厂工具类--简化-builder">场景 1：工厂/工具类 → 简化 Builder</a></li>
+        <li><a href="#场景-2配置实体对象--经典-builder">场景 2：配置/实体对象 → 经典 Builder</a></li>
+      </ul>
+    </li>
+    <li><a href="#五优缺点总结">五、优缺点总结</a>
+      <ul>
+        <li><a href="#简化-builder单一类">简化 Builder（单一类）</a></li>
+        <li><a href="#经典-builder嵌套类">经典 Builder（嵌套类）</a></li>
+      </ul>
+    </li>
+    <li><a href="#六实战建议">六、实战建议</a>
+      <ul>
+        <li><a href="#1-项目中如何选择">1. 项目中如何选择？</a></li>
+        <li><a href="#2-混合使用">2. 混合使用</a></li>
+        <li><a href="#3-使用-lombok-简化经典-builder">3. 使用 Lombok 简化经典 Builder</a></li>
+      </ul>
+    </li>
+    <li><a href="#七快速选择指南">七、快速选择指南</a>
+      <ul>
+        <li><a href="#核心原则">核心原则</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav></nav>
+</aside>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const toc = document.querySelector('nav#TableOfContents');
+    const links = toc ? toc.querySelectorAll('a') : [];
+    const sections = new Array(links.length);
+    
+    if (!toc || links.length === 0) return;
+
+    
+    links.forEach((link, index) => {
+      const href = link.getAttribute('href');
+      
+      const id = decodeURIComponent(href.substring(1)); 
+      const section = document.getElementById(id);
+      sections[index] = section;
+
+      
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+          history.pushState(null, null, href);
+        }
+      });
+    });
+
+    
+    const observerOptions = {
+      root: null,
+      
+      
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute('id');
+          
+          
+          links.forEach(link => {
+             link.classList.remove('active');
+             if(link.parentElement.classList.contains('active')){
+                link.parentElement.classList.remove('active');
+             }
+          });
+
+          
+          
+          const activeLink = toc.querySelector(`a[href="#${encodeURIComponent(id)}"]`) || 
+                             toc.querySelector(`a[href="#${id}"]`); 
+          
+          if (activeLink) {
+            activeLink.classList.add('active');
+            
+            activeLink.parentElement.classList.add('active');
+          }
+        }
+      });
+    }, observerOptions);
+
+    
+    sections.forEach(section => {
+      if (section) observer.observe(section);
+    });
+
+    
+    const toggleBtn = document.querySelector('[data-toc-toggle]');
+    const sidebar = document.querySelector('[data-toc-sidebar]');
+    
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', () => {
+        
+        sidebar.classList.toggle('open');
+      });
+    }
+
+    window.addEventListener('scroll', function() {
+      
+      if (window.innerWidth <= 1350 && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+</script>
+
+
+  
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+
+</main>
+
+
+    <footer id="footer">
+  <div>
+    <span>Powered by  <a class=link href=https://gohugo.io target=_blank rel=noopener>Hugo</a> | 
+Theme <a class=link href=https://github.com/michaelneuper/hugo-texify3 target=_blank rel=noopener>TeXify3</a>
+</span>
+  </div>
+  <div>
+    <span>Copyright © 2026 </span>
+  </div>
+</footer>
+
+  </div>
+
+  
+  <script src='https://asgpipo.github.io/js/script.js' defer></script>
+
+  
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/syntax.css" />
+  
+  <link media="screen" rel="stylesheet" href="https://asgpipo.github.io/css/scale.css" />
+  
+
+  
+  
+
+  
+  
+
+</body>
+
+</html>
