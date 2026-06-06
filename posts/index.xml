@@ -6,7 +6,187 @@
     <description>Recent content in Posts on pipo&#39;s site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en</language>
-    <lastBuildDate>Fri, 23 Jan 2026 14:28:00 +0800</lastBuildDate><atom:link href="https://asgpipo.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 19 May 2026 16:56:00 +0800</lastBuildDate><atom:link href="https://asgpipo.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>vless 简述</title>
+      <link>https://asgpipo.github.io/posts/vless-%E7%AE%80%E8%BF%B0/</link>
+      <pubDate>Tue, 19 May 2026 16:56:00 +0800</pubDate>
+      
+      <guid>https://asgpipo.github.io/posts/vless-%E7%AE%80%E8%BF%B0/</guid>
+      <description>&lt;h2 id=&#34;啥是-vless&#34;&gt;啥是 vless&lt;/h2&gt;
+&lt;p&gt;vless 就是应用层的传输协议，与 HTTP、FTP、SMTP 类似，但是他是代理协议并非通用通信协议。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;要注意的是，虽然 vless 是代理协议 但是 vless 数据帧里没有代理服务器的地址。代理服务器地址在 IP 头中&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h3 id=&#34;vless-长什么样&#34;&gt;vless 长什么样&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  VLESS 数据帧
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ┌─────────────────────────────────────────────────┐
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ 协议头                                           │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ ┌──────────┬──────┬──────┬──────┬──────┐        │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │  版本(1B) │UUID  │附加信息│指令(1B)│端口(2B)│    │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │  0x00    │16B   │长度+数据│      │        │    │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ └──────────┴──────┴──────┴──────┴──────┘        │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ ┌──────────────────────────────┐                │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │ 地址类型(1B)                  │                │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │  0x01 = IPv4  (4B)           │                │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │  0x02 = 域名  (1B长度+域名)   │                │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │  0x03 = IPv6  (16B)          │                │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ └──────────────────────────────┘                │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ├─────────────────────────────────────────────────┤
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ 载荷                                             │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ ┌──────────────────────────────────────────┐    │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │  你真正要发的数据                          │    │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │  （HTTP请求、随便什么都行）                 │    │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ └──────────────────────────────────────────┘    │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  └─────────────────────────────────────────────────┘
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;指令就几个值：&lt;/p&gt;
+&lt;p&gt;0x01 = TCP（建立连接）
+0x02 = UDP（包转发）
+0x03 = Mux（多路复用）&lt;/p&gt;
+&lt;p&gt;一个完整的请求大概长这样（访问 google.com:443）：&lt;/p&gt;
+&lt;p&gt;00 版本&lt;/p&gt;
+&lt;p&gt;00 附加信息长度=0&lt;/p&gt;
+&lt;p&gt;01 指令=TCP&lt;/p&gt;
+&lt;p&gt;01BB 端口=443&lt;/p&gt;
+&lt;p&gt;02 0A 676F6F676C652E636F6D 域名类型 + 长度 10 + &amp;ldquo;google.com&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;──────────────────────────────  ↓ 下面是载荷&lt;/p&gt;
+&lt;p&gt;474554202F20485454502F312E310D0A  &amp;ldquo;GET / HTTP/1.1&amp;hellip;&amp;rdquo;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ┌─────────────────────────────────────────────────────┐
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ 以太网帧头（MAC地址）                                  │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ├─────────────────────────────────────────────────────┤
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ IP头                                                │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │   源：你的IP 192.168.1.5                             │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │   目标：代理服务器 1.2.3.4                            │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ├─────────────────────────────────────────────────────┤
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ TCP头                                                │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │   目标端口：443                                      │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ├─────────────────────────────────────────────────────┤
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ TLS 加密                                             │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ ┌─────────────────────────────────────────────────┐ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │ VLESS 协议头                                     │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │   UUID + 指令=TCP                                │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │   目标地址：ph.com:443         ← 协议头里的        │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │   目标端口：443                                   │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │ ┌─────────────────────────────────────────────┐ │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │ │ 载荷：GET / HTTP/1.1...     ← 真实请求        │ │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ │ └─────────────────────────────────────────────┘ │ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ └─────────────────────────────────────────────────┘ │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  └─────────────────────────────────────────────────────┘
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;hr&gt;
+&lt;h3 id=&#34;系统代理模式和-tun-虚拟网卡模式&#34;&gt;系统代理模式和 TUN 虚拟网卡模式&lt;/h3&gt;
+&lt;p&gt;从上面可以看出来 vless 只是提供了一种标识头，本身没有功能和加密。 而代理服务器则是在 IP 头中。
+这里的 IP 代理服务器的地址替换（IP 的填充是由 OS 来做的）和 VLESS 协议包装是由客户端来做， mihomo 通过拦截请求改写发送。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;正常上网：
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    浏览器 → &amp;#34;我要访问bilibili.com&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;           → DNS查到IP
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;           → OS打包，IP头填bilibili的IP
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;           → 直接连bilibili
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  代理模式：(TUN模式)
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    浏览器 → &amp;#34;我要访问ph.com&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;           → 走代理客户端（系统代理/PAC/TUN等）
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;           → 代理客户端说&amp;#34;这个走代理&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;           → OS打包，IP头填代理服务器IP
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;           → 连代理服务器 //代理服务器的地址在客户端的配置文件中规定
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;           → VLESS头里写ph.com
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;系统代理：
+浏览器 → 代理客户端 (127.0.0.1:1080) → OS → 真网卡 → 代理服务器&lt;/p&gt;
+&lt;p&gt;TUN 模式：
+浏览器 → OS → 虚拟网卡 (代理客户端) → 重新打包 → 真网卡 → 代理服务器&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;既然这样的话 代理服务器是如何识别我们是被准许的人呢？&lt;/p&gt;
+&lt;h2 id=&#34;vless-结构&#34;&gt;Vless 结构&lt;/h2&gt;
+&lt;h3 id=&#34;出站和入站&#34;&gt;出站和入站&lt;/h3&gt;
+&lt;p&gt;vless 有两部分，分别是出站和入站。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-text&#34; data-lang=&#34;text&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt; 我的电脑                    代理服务器
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  ┌──────────┐               ┌──────────┐
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │  出站配置  │  ──────────→ │  入站配置 │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  │ outbound  │              │ inbound  │
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  └──────────┘               └──────────┘
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ol&gt;
+&lt;li&gt;出站（客户端）：&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;代理服务器地址在哪&lt;/li&gt;
+&lt;li&gt;用什么协议（VLESS）&lt;/li&gt;
+&lt;li&gt;我的 UUID 是什么&lt;/li&gt;
+&lt;li&gt;负责打包请求发和发送&lt;/li&gt;
+&lt;/ul&gt;
+&lt;ol start=&#34;2&#34;&gt;
+&lt;li&gt;入站（代理服务器）：&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;允许哪些 UUID 连进来&lt;/li&gt;
+&lt;li&gt;解密设置&lt;/li&gt;
+&lt;li&gt;不认识的流量 fallback 到哪&lt;/li&gt;
+&lt;li&gt;负责拆包、转发&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;出站&#34;&gt;出站&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;protocol&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;vless&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;settings&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;nt&#34;&gt;&amp;#34;address&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;example.com&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;    &lt;span class=&#34;c1&#34;&gt;// 代理服务器地址
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;nt&#34;&gt;&amp;#34;port&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;443&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;                 &lt;span class=&#34;c1&#34;&gt;// 代理服务器端口
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;nt&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;5783a3e7-...&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;        &lt;span class=&#34;c1&#34;&gt;// 你的 UUID（身份证）
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;nt&#34;&gt;&amp;#34;encryption&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;none&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;        &lt;span class=&#34;c1&#34;&gt;// 加密设置
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;nt&#34;&gt;&amp;#34;flow&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;xtls-rprx-vision&amp;#34;&lt;/span&gt;   &lt;span class=&#34;c1&#34;&gt;// 流控模式
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;address — 代理服务器在哪。IP、域名、IPv6 都行。&lt;/p&gt;
+&lt;p&gt;port — 代理服务器监听的端口。&lt;/p&gt;
+&lt;p&gt;id — 你的身份标识。可以是 UUID，也可以是自定义字符串，Xray
+会自动映射成 UUID v5。&lt;/p&gt;
+&lt;p&gt;encryption — VLESS 的加密设置。注意这个不是 TLS 那层加密，是 VLESS
+协议自己额外加的一层加密。格式是一串用 . 连接的配置：
+mlkem768x25519plus.native.600s.100-111-1111.75-0-111.50-0-3333.认证参数
+│                  │       │             │                │
+握手方式            加密方式  会话票据有效期 padding 配置        认证参数
+(后量子算法)        native=原始数据                    垃圾数据填充，混淆流量长度特征
+xorpub=混淆公钥
+random=全随机数&lt;/p&gt;
+&lt;p&gt;flow — XTLS 的流控模式：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;空：普通 TLS 代理，不管原始数据是否已经 TLS 加密了都在加密一次&lt;/li&gt;
+&lt;li&gt;xtls-rprx-vision：智能识别，如果载荷本身已经是 TLS 1.3
+加密的数据，直接原样转发，不做多余的解密再加密。Linux 下还会用 Splice，让内核直接转发
+TCP，数据都不经过 Xray 的内存，CPU 开销几乎为零&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h3 id=&#34;入站&#34;&gt;入站&lt;/h3&gt;
+&lt;p&gt;入站（Inbound）— 代理服务器的配置&lt;/p&gt;
+&lt;p&gt;代理服务器上的 Xray 用的。告诉服务器&amp;quot;怎么接进来&amp;quot;。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-json&#34; data-lang=&#34;json&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;protocol&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;vless&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;nt&#34;&gt;&amp;#34;settings&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;nt&#34;&gt;&amp;#34;clients&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;                 &lt;span class=&#34;c1&#34;&gt;// 允许连进来的用户列表
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;          &lt;span class=&#34;nt&#34;&gt;&amp;#34;id&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;5783a3e7-...&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;    &lt;span class=&#34;c1&#34;&gt;// 用户 UUID
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;          &lt;span class=&#34;nt&#34;&gt;&amp;#34;flow&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;xtls-rprx-vision&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;          &lt;span class=&#34;nt&#34;&gt;&amp;#34;email&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;love@xray.com&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;p&#34;&gt;],&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;nt&#34;&gt;&amp;#34;decryption&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;s2&#34;&gt;&amp;#34;none&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt;       &lt;span class=&#34;c1&#34;&gt;// 解密设置
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;nt&#34;&gt;&amp;#34;fallbacks&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;              &lt;span class=&#34;c1&#34;&gt;// 回落配置
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;        &lt;span class=&#34;p&#34;&gt;{&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;&amp;#34;dest&amp;#34;&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt; &lt;span class=&#34;mi&#34;&gt;80&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;      &lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;  &lt;span class=&#34;p&#34;&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;clients — 数组，白名单。只有 UUID
+在列表里的用户才能连进来。可以配多个用户，每个用户可以有不同的 flow 和 level。&lt;/p&gt;
+&lt;p&gt;decryption — 对应客户端的 encryption。客户端加密了，服务端就得配对应的解密。两边要一致。&lt;/p&gt;
+&lt;p&gt;fallbacks — 伪装用。如果连进来的流量不是合法的 VLESS
+请求，可以这个流量转发到一个正常网站：&lt;/p&gt;
+&lt;p&gt;有人探测你的服务器：
+发了个普通 HTTP 请求过来
+→ 不是合法 VLESS 流量
+→ fallback 到 80 端口（你服务器上跑的正常网站）
+→ 探测的人看到一个普通网站，觉得这服务器没问题&lt;/p&gt;
+&lt;p&gt;而你在访问时服务器监测到该访问属于白名单内的用户便发送请求至代理服务器。&lt;/p&gt;
+</description>
+    </item>
+    
     <item>
       <title>Builder 模式：两种实现方式对比</title>
       <link>https://asgpipo.github.io/posts/spring/%E7%BB%8F%E5%85%B8-builder-%E4%B8%8E%E7%AE%80%E5%8C%96-builder/</link>
@@ -3005,100 +3185,6 @@ new FileReader(filePath) // 内部实际是 new InputStreamReader(new FileInputS
 答案依旧是 &lt;code&gt;getFilePointer()&lt;/code&gt; 是用的 native 方法，会从用户态切换到内核态&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2 id=&#34;reference&#34;&gt;Reference&lt;/h2&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>跨域</title>
-      <link>https://asgpipo.github.io/posts/nginx/%E8%B7%A8%E5%9F%9F/</link>
-      <pubDate>Tue, 16 Dec 2025 15:07:12 +0800</pubDate>
-      
-      <guid>https://asgpipo.github.io/posts/nginx/%E8%B7%A8%E5%9F%9F/</guid>
-      <description>&lt;h2 id=&#34;跨域与-cors&#34;&gt;跨域与 CORS&lt;/h2&gt;
-&lt;h3 id=&#34;1-什么是跨域&#34;&gt;1) 什么是跨域&lt;/h3&gt;
-&lt;p&gt;浏览器判断“是否同源/是否跨域（跨源）”只看 &lt;strong&gt;协议 + 域名 + 端口&lt;/strong&gt;（scheme/host/port）。三者任意一个不同，就是跨域。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;http://localhost:8001&lt;/code&gt; → &lt;code&gt;http://localhost:8002&lt;/code&gt;：跨域（端口不同）&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;http://a.com&lt;/code&gt; → &lt;code&gt;https://a.com&lt;/code&gt;：跨域（协议不同）&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;http://a.com&lt;/code&gt; → &lt;code&gt;http://b.com&lt;/code&gt;：跨域（域名不同）&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;注意：&lt;strong&gt;path 不参与跨域判断&lt;/strong&gt;。&lt;br&gt;
-（同源/CORS 概览）https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS&lt;/p&gt;
-&lt;hr&gt;
-&lt;h3 id=&#34;2-请求头是什么&#34;&gt;2) 请求头是什么&lt;/h3&gt;
-&lt;p&gt;HTTP 请求由「请求行 + 请求头(headers) + 空行 + 可选正文(body)」组成。&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;请求头&lt;/strong&gt;：一堆 &lt;code&gt;Key: Value&lt;/code&gt;，描述这次请求的“元信息/上下文”，比如：
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;Host&lt;/code&gt;：要访问哪个站点（虚拟主机选择相关）&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;Origin&lt;/code&gt;：浏览器自动带的“发起请求的源”（跨域时关键）&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;Accept&lt;/code&gt;：期望响应的数据类型&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;Content-Type&lt;/code&gt;：&lt;strong&gt;请求 body 的格式&lt;/strong&gt;（POST/PUT 等常见）&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;Authorization&lt;/code&gt;：认证信息（常触发预检）&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ul&gt;
-&lt;hr&gt;
-&lt;h3 id=&#34;3-cors-把跨域请求分为两类&#34;&gt;3) CORS 把跨域请求分为两类&lt;/h3&gt;
-&lt;p&gt;核心区别：&lt;strong&gt;是否需要 preflight（预检 OPTIONS）&lt;/strong&gt;。&lt;/p&gt;
-&lt;h4 id=&#34;a-简单请求simple-request&#34;&gt;A. 简单请求（simple request）&lt;/h4&gt;
-&lt;p&gt;跨域情况下满足条件 → 浏览器 &lt;strong&gt;直接发送真正请求&lt;/strong&gt;，不先发 OPTIONS。&lt;/p&gt;
-&lt;p&gt;简单请求需要同时满足：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;方法是：&lt;code&gt;GET&lt;/code&gt; / &lt;code&gt;HEAD&lt;/code&gt; / &lt;code&gt;POST&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;你在代码里手动设置的请求头属于“安全白名单”（不展开死背，记住：&lt;code&gt;Authorization&lt;/code&gt;、自定义 &lt;code&gt;X-*&lt;/code&gt; 往往会让它变非简单）&lt;/li&gt;
-&lt;li&gt;若是 &lt;code&gt;POST&lt;/code&gt;，&lt;code&gt;Content-Type&lt;/code&gt; 只能是以下三种之一：
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;application/x-www-form-urlencoded&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;multipart/form-data&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;text/plain&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;（Simple requests 条件）https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#simple_requests&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;简单请求的流程&lt;/strong&gt;&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;浏览器发送真正请求（带 &lt;code&gt;Origin&lt;/code&gt;）到跨域服务器&lt;/li&gt;
-&lt;li&gt;服务器返回响应&lt;/li&gt;
-&lt;li&gt;浏览器检查响应里是否允许该源读取结果：
-&lt;ul&gt;
-&lt;li&gt;看 &lt;code&gt;Access-Control-Allow-Origin&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;若允许 → JS 能读到响应&lt;/li&gt;
-&lt;li&gt;若不允许/缺失 → &lt;strong&gt;请求可能已到后端，但浏览器不让 JS 读取响应&lt;/strong&gt;（控制台报 CORS）&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;&lt;strong&gt;重要纠错&lt;/strong&gt;：&lt;code&gt;Access-Control-Allow-Origin&lt;/code&gt; 的值只能是：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;*&lt;/code&gt; 或者 一个 &lt;strong&gt;origin（协议+域名+端口）&lt;/strong&gt;，比如 &lt;code&gt;http://localhost:8001&lt;/code&gt;&lt;br&gt;
-&lt;strong&gt;不能带 path&lt;/strong&gt;
-&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin&#34;&gt;https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;hr&gt;
-&lt;h4 id=&#34;b-非简单请求preflighted-request&#34;&gt;B. 非简单请求（preflighted request）&lt;/h4&gt;
-&lt;p&gt;只要不满足简单请求条件（常见原因：&lt;code&gt;Content-Type: application/json&lt;/code&gt;、带 &lt;code&gt;Authorization&lt;/code&gt;、方法是 PUT/DELETE 等），浏览器通常会：&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;先发预检 OPTIONS&lt;/strong&gt;（preflight），问服务器“我等会儿这样请求行不行？”&lt;/p&gt;
-&lt;p&gt;预检请求大概长这样：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;OPTIONS /api HTTP/1.1
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Origin: http://localhost:8001
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Request-Method: POST
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Request-Headers: authorization, content-type
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;服务器如果同意，需要在 &lt;strong&gt;OPTIONS 的响应&lt;/strong&gt; 里声明允许，例如：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Allow-Origin: http://localhost:8001
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Allow-Methods: POST
-&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;Access-Control-Allow-Headers: Authorization, Content-Type
-&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;Access-Control-Allow-Headers&lt;/code&gt; / &lt;code&gt;Allow-Methods&lt;/code&gt; &lt;strong&gt;不要求完全一致&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;只要它们的允许集合 &lt;strong&gt;包含&lt;/strong&gt; 预检里声明要用的那些即可（集合“超集”覆盖请求即可；从请求角度看就是“请求需求是允许集的子集/真子集”）。&lt;br&gt;
-&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests&#34;&gt;https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;通过预检后，浏览器才会发真正请求；预检不通过，真正请求通常不会发出。&lt;/p&gt;
-&lt;hr&gt;
-&lt;h2 id=&#34;reference&#34;&gt;Reference&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS&#34;&gt;Cross-Origin Resource Sharing (CORS)| MDN&lt;/a&gt;
-&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#preflighted_requests&#34;&gt;Preflight 机制| MDN&lt;/a&gt;
-&lt;a href=&#34;https://www.rfc-editor.org/rfc/rfc9110.html&#34;&gt;HTTP 报文结构&lt;/a&gt;&lt;br&gt;
-&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type&#34;&gt;Content-Type&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
     
